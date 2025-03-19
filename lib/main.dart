@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:movie_booking_ticket/screens/detail_movie_screen.dart';
 import 'package:movie_booking_ticket/screens/home_screen.dart';
 
 import 'localization/app_localizations.dart';
@@ -31,7 +32,7 @@ class MyApp extends StatelessWidget {
         GlobalCupertinoLocalizations.delegate,
       ],
       theme: ThemeData.dark(),
-      home: HomeScreen(),
+      home: MovieDetailScreen(),
     );
   }
 }
