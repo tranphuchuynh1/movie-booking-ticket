@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:movie_booking_ticket/screens/seat_booking.dart';
 
 class MovieDetailScreen extends StatelessWidget {
   const MovieDetailScreen({super.key});
@@ -14,7 +15,8 @@ class MovieDetailScreen extends StatelessWidget {
       'duration': '2h 50m',
       'genres': ['Action', 'Thriller', 'Crime'],
       'tagline': 'No way back, one way out.',
-      'plot': 'With the price on his head ever increasing, John Wick uncovers a path to defeating The High Table. But before he can earn his freedom, Wick must face off against a new enemy with powerful alliances across the globe and forces that turn old friends into foes.',
+      'plot':
+          'With the price on his head ever increasing, John Wick uncovers a path to defeating The High Table. But before he can earn his freedom, Wick must face off against a new enemy with powerful alliances across the globe and forces that turn old friends into foes.',
       'posterUrl': 'assets/phim.jpeg',
       'cast': [
         {
@@ -59,7 +61,7 @@ class MovieDetailScreen extends StatelessWidget {
           ],
         ),
       ),
-      bottomNavigationBar: _buildBottomButton(),
+      bottomNavigationBar: _buildBottomButton(context),
     );
   }
 
@@ -87,10 +89,10 @@ class MovieDetailScreen extends StatelessWidget {
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
               colors: [
-                Colors.black.withOpacity(0.1),  // Less dark at top
+                Colors.black.withOpacity(0.1), // Less dark at top
                 Colors.black.withOpacity(0.9), // Very dark at bottom
               ],
-              stops: const [0.1,0.5], // Start darkening from middle (0.5)
+              stops: const [0.1, 0.5], // Start darkening from middle (0.5)
             ),
           ),
         ),
@@ -106,7 +108,7 @@ class MovieDetailScreen extends StatelessWidget {
               shape: BoxShape.circle,
             ),
             child: IconButton(
-              icon: const Icon(Icons.close, color: Colors.white,size: 15,),
+              icon: const Icon(Icons.close, color: Colors.white, size: 15),
               onPressed: () => Navigator.pop(context),
             ),
           ),
@@ -179,20 +181,27 @@ class MovieDetailScreen extends StatelessWidget {
           Center(
             child: Wrap(
               spacing: 8,
-              children: (movie['genres'] as List<String>).map((genre) {
-                return Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.white24),
-                    borderRadius: BorderRadius.circular(20),
-                    color: Colors.black,
-                  ),
-                  child: Text(
-                    genre,
-                    style: const TextStyle(color: Colors.white, fontSize: 12),
-                  ),
-                );
-              }).toList(),
+              children:
+                  (movie['genres'] as List<String>).map((genre) {
+                    return Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.white24),
+                        borderRadius: BorderRadius.circular(20),
+                        color: Colors.black,
+                      ),
+                      child: Text(
+                        genre,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
+                        ),
+                      ),
+                    );
+                  }).toList(),
             ),
           ),
 
@@ -306,11 +315,16 @@ class MovieDetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildBottomButton() {
+  Widget _buildBottomButton(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 100.0, vertical: 16.0),
       child: ElevatedButton(
-        onPressed: () {},
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => SeatBookingScreen()),
+          );
+        },
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.deepOrange,
           foregroundColor: Colors.white,
