@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:movie_booking_ticket/theme.dart';
-import 'login_page.dart';
+import 'login_screen.dart';
 
-class SignUpScreen extends StatelessWidget {
-  const SignUpScreen({super.key});
+class RegisterScreen extends StatelessWidget {
+  const RegisterScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -90,12 +91,7 @@ class SignUpScreen extends StatelessWidget {
                     CustomButton(
                       label: 'Sign up',
                       onPressed: () {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => LoginScreen(),
-                          ),
-                        );
+                        context.go('/');
                       },
                     ),
                     const SizedBox(height: 30),
@@ -108,12 +104,7 @@ class SignUpScreen extends StatelessWidget {
                     const Spacer(),
                     TextButton(
                       onPressed: () {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => LoginScreen(),
-                          ),
-                        );
+                        context.go('/');
                       },
                       child: Text(
                         'Already have an account? Sign In',

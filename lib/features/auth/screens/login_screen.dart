@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:movie_booking_ticket/screens/seat_booking.dart';
+import 'package:movie_booking_ticket/features/auth/screens/register_screen.dart';
 import 'package:movie_booking_ticket/theme.dart';
-import 'signup_page.dart';
+import '../../select_seat_movie/screens/select_seat_movie_screen.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
@@ -99,12 +100,7 @@ class LoginScreen extends StatelessWidget {
                     CustomButton(
                       label: 'Sign in',
                       onPressed: () {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => SeatBookingScreen(),
-                          ),
-                        );
+                        context.go('/home');
                       },
                     ),
                     const SizedBox(height: 30),
@@ -117,12 +113,7 @@ class LoginScreen extends StatelessWidget {
                     Spacer(),
                     TextButton(
                       onPressed: () {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => SignUpScreen(),
-                          ),
-                        );
+                        context.go('/register');
                       },
                       child: Text(
                         'Don’t have an account? Sign Up',

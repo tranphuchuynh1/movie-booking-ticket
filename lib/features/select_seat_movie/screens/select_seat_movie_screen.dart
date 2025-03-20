@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:movie_booking_ticket/screens/tickets.dart';
+import 'package:go_router/go_router.dart';
 
-class SeatBookingScreen extends StatefulWidget {
-  const SeatBookingScreen({super.key});
+import '../../ticket_seat_movie/screens/ticket_movie_screen.dart';
+
+
+class SelectSeatMovieScreen extends StatefulWidget {
+  const SelectSeatMovieScreen({super.key});
 
   @override
   SeatBookingScreenState createState() => SeatBookingScreenState();
 }
 
-class SeatBookingScreenState extends State<SeatBookingScreen> {
+class SeatBookingScreenState extends State<SelectSeatMovieScreen> {
   List<List<int>> seats = List.generate(
     8,
     (row) => List.generate(10, (col) => 0),
@@ -169,12 +172,7 @@ class SeatBookingScreenState extends State<SeatBookingScreen> {
                 const SizedBox(height: 10),
                 ElevatedButton(
                   onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => MyTicketsScreen(),
-                      ),
-                    );
+                    context.go('/ticket');
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.orange,

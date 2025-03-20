@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:movie_booking_ticket/core/routes/app_routes.dart';
 
 class MovieDetailScreen extends StatelessWidget {
   const MovieDetailScreen({super.key});
@@ -15,32 +17,32 @@ class MovieDetailScreen extends StatelessWidget {
       'genres': ['Action', 'Thriller', 'Crime'],
       'tagline': 'No way back, one way out.',
       'plot': 'With the price on his head ever increasing, John Wick uncovers a path to defeating The High Table. But before he can earn his freedom, Wick must face off against a new enemy with powerful alliances across the globe and forces that turn old friends into foes.',
-      'posterUrl': 'assets/phim.jpeg',
+      'posterUrl': 'assets/images/phim.jpeg',
       'cast': [
         {
           'name': 'Keanu Reeves',
           'character': 'John Wick',
-          'profileUrl': 'assets/tranthanh.jpg',
+          'profileUrl': 'assets/images/tranthanh.jpg',
         },
         {
           'name': 'Donnie Yen',
           'character': 'Caine',
-          'profileUrl': 'assets/tranthanh.jpg',
+          'profileUrl': 'assets/images/tranthanh.jpg',
         },
         {
           'name': 'Bill Skarsgård',
           'character': 'Marquis',
-          'profileUrl': 'assets/tranthanh.jpg',
+          'profileUrl': 'assets/images/tranthanh.jpg',
         },
         {
           'name': 'Ian McShane',
           'character': 'Winston',
-          'profileUrl': 'assets/tranthanh.jpg',
+          'profileUrl': 'assets/images/tranthanh.jpg',
         },
         {
           'name': 'Laurence Fishburne',
           'character': 'Bowery King',
-          'profileUrl': 'assets/tranthanh.jpg',
+          'profileUrl': 'assets/images/tranthanh.jpg',
         },
       ],
     };
@@ -72,7 +74,7 @@ class MovieDetailScreen extends StatelessWidget {
           width: double.infinity,
           decoration: BoxDecoration(
             image: DecorationImage(
-              image: AssetImage('assets/phim.jpeg'),
+              image: AssetImage('assets/images/phim.jpeg'),
               fit: BoxFit.cover,
             ),
           ),
@@ -107,7 +109,9 @@ class MovieDetailScreen extends StatelessWidget {
             ),
             child: IconButton(
               icon: const Icon(Icons.close, color: Colors.white,size: 15,),
-              onPressed: () => Navigator.pop(context),
+              onPressed: () {
+                context.go('/home');
+              },
             ),
           ),
         ),
@@ -126,7 +130,7 @@ class MovieDetailScreen extends StatelessWidget {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(1),
                 image: DecorationImage(
-                  image: AssetImage('assets/phim.jpeg'),
+                  image: AssetImage('assets/images/phim.jpeg'),
                   fit: BoxFit.cover,
                 ),
               ),
@@ -310,7 +314,9 @@ class MovieDetailScreen extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 100.0, vertical: 16.0),
       child: ElevatedButton(
-        onPressed: () {},
+        onPressed: () {
+          appRouter.go('/select_seat');
+        },
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.deepOrange,
           foregroundColor: Colors.white,
