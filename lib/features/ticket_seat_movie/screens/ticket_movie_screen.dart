@@ -123,7 +123,7 @@ class TicketWidget extends StatelessWidget {
               height: 200,
               decoration: const BoxDecoration(
                 image: DecorationImage(
-                  image: AssetImage('assets/images/N_005.jpg'),
+                  image: AssetImage('assets/images/maleficent.jpg'),
                   fit: BoxFit.cover,
                 ),
               ),
