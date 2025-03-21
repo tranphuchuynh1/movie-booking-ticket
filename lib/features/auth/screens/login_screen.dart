@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:movie_booking_ticket/features/auth/screens/register_screen.dart';
 import 'package:movie_booking_ticket/theme.dart';
 import '../../select_seat_movie/screens/select_seat_movie_screen.dart';
 
@@ -78,7 +77,7 @@ class LoginScreen extends StatelessWidget {
                         color: tdWhite70,
                       ),
                     ),
-                    const SizedBox(height: 40),
+                    const SizedBox(height: 20),
                     CustomInputField(hint: 'Username', icon: Icons.person),
                     const SizedBox(height: 20),
                     CustomInputField(
@@ -97,13 +96,14 @@ class LoginScreen extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 20),
+
                     CustomButton(
                       label: 'Sign in',
                       onPressed: () {
                         context.go('/home');
                       },
                     ),
-                    const SizedBox(height: 30),
+                    const SizedBox(height: 10),
                     Text(
                       'Or continue with',
                       style: GoogleFonts.poppins(color: tdWhite70),
@@ -173,8 +173,8 @@ class CustomButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: double.infinity,
-      height: 45,
+      width: double.maxFinite,
+      height: 50,
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [tdBrown, tdYellow],
@@ -202,8 +202,8 @@ class CustomButton extends StatelessWidget {
             label,
 
             style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
               color: tdWhite,
             ),
           ),

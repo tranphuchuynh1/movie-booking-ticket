@@ -77,7 +77,7 @@ class RegisterScreen extends StatelessWidget {
                       ),
                       textAlign: TextAlign.center,
                     ),
-                    const SizedBox(height: 40),
+                    const SizedBox(height: 20),
                     CustomInputField(hint: 'Email Address', icon: Icons.email),
                     const SizedBox(height: 20),
                     CustomInputField(hint: 'Your Name', icon: Icons.person),
