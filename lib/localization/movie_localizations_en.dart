@@ -4,8 +4,8 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([super.locale = 'en']);
 
   @override
-  String get appName => "Movie App";
+  String get appName => "Movie Booking Ticket App";
 
   @override
-  String get welcomeMessage => "Welcome to our store!";
+  String get topCast => "Top Cast";
 }

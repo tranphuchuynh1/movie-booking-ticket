@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:go_router/go_router.dart';
+import 'package:movie_booking_ticket/core/widgets/bottom_nav_bar.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -291,7 +292,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
       ),
-      bottomNavigationBar: _buildBottomNavigationBar(),
+      bottomNavigationBar: const BottomNavBar(selectedIndex: 0),
     );
   }
 
@@ -347,63 +348,5 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
 
-  Widget _buildBottomNavigationBar() {
-    return Container(
-      height: 75,
-      margin: EdgeInsets.fromLTRB(5, 0, 5, 5),
-      color: Colors.black,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          // First Icon - Home
-          CircleAvatar(
-            backgroundColor: Colors.deepOrange, // Background color
-            radius: 30,  // Set radius for circular avatar
-            child: IconButton(
-              onPressed: () {
-                context.go('/');
-              },
-              icon: const Icon(Icons.home, color: Colors.white),
-              iconSize: 30, // Adjust icon size
-            ),
-          ),
-
-          // Second Icon - Search
-          CircleAvatar(
-            backgroundColor: Colors.black, // Set background color to black
-            radius: 30,
-            child: IconButton(
-              onPressed: () {},
-              icon: const Icon(Icons.search, color: Colors.white),
-              iconSize: 30,
-            ),
-          ),
-
-          // Third Icon - Ticket
-          CircleAvatar(
-            backgroundColor: Colors.black, // Set background color to black
-            radius: 30,
-            child: IconButton(
-              onPressed: () {
-                context.go('/ticket');
-              },
-              icon: const Icon(Icons.confirmation_number, color: Colors.white),
-              iconSize: 30,
-            ),
-          ),
-
-          // Fourth Icon - Profile
-          CircleAvatar(
-            backgroundColor: Colors.black, // Set background color to black
-            radius: 30,
-            child: IconButton(
-              onPressed: () {},
-              icon: const Icon(Icons.account_circle, color: Colors.white),
-              iconSize: 30,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  
 }

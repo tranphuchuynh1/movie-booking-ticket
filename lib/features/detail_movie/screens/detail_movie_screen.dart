@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:movie_booking_ticket/core/routes/app_routes.dart';
 
+import '../../../localization/app_localizations.dart';
+
 class MovieDetailScreen extends StatelessWidget {
   const MovieDetailScreen({super.key});
 
@@ -16,8 +18,7 @@ class MovieDetailScreen extends StatelessWidget {
       'duration': '2h 50m',
       'genres': ['Action', 'Thriller', 'Crime'],
       'tagline': 'No way back, one way out.',
-      'plot':
-          'With the price on his head ever increasing, John Wick uncovers a path to defeating The High Table. But before he can earn his freedom, Wick must face off against a new enemy with powerful alliances across the globe and forces that turn old friends into foes.',
+      'plot': 'With the price on his head ever increasing, John Wick uncovers a path to defeating The High Table. But before he can earn his freedom, Wick must face off against a new enemy with powerful alliances across the globe and forces that turn old friends into foes.',
       'posterUrl': 'assets/images/phim.jpeg',
       'cast': [
         {
@@ -48,23 +49,21 @@ class MovieDetailScreen extends StatelessWidget {
       ],
     };
 
-    return SafeArea(
-      child: Scaffold(
-        backgroundColor: Colors.black,
-        body: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildMoviePoster(context, movie),
-              _buildMovieInfo(movie),
-              _buildMovieDetails(movie),
-              _buildCastSection(movie),
-              const SizedBox(height: 20),
-            ],
-          ),
+    return Scaffold(
+      backgroundColor: Colors.black,
+      body: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildMoviePoster(context, movie),
+            _buildMovieInfo(movie),
+            _buildMovieDetails(movie),
+            _buildCastSection(context,movie),
+            const SizedBox(height: 20),
+          ],
         ),
-        bottomNavigationBar: _buildBottomButton(),
       ),
+      bottomNavigationBar: _buildBottomButton(),
     );
   }
 
@@ -92,10 +91,10 @@ class MovieDetailScreen extends StatelessWidget {
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
               colors: [
-                Colors.black.withOpacity(0.1), // Less dark at top
+                Colors.black.withOpacity(0.1),  // Less dark at top
                 Colors.black.withOpacity(0.9), // Very dark at bottom
               ],
-              stops: const [0.1, 0.5], // Start darkening from middle (0.5)
+              stops: const [0.1,0.5], // Start darkening from middle (0.5)
             ),
           ),
         ),
@@ -111,7 +110,7 @@ class MovieDetailScreen extends StatelessWidget {
               shape: BoxShape.circle,
             ),
             child: IconButton(
-              icon: const Icon(Icons.close, color: Colors.white, size: 15),
+              icon: const Icon(Icons.close, color: Colors.white,size: 15,),
               onPressed: () {
                 context.go('/home');
               },
@@ -186,27 +185,20 @@ class MovieDetailScreen extends StatelessWidget {
           Center(
             child: Wrap(
               spacing: 8,
-              children:
-                  (movie['genres'] as List<String>).map((genre) {
-                    return Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.white24),
-                        borderRadius: BorderRadius.circular(20),
-                        color: Colors.black,
-                      ),
-                      child: Text(
-                        genre,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 12,
-                        ),
-                      ),
-                    );
-                  }).toList(),
+              children: (movie['genres'] as List<String>).map((genre) {
+                return Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.white24),
+                    borderRadius: BorderRadius.circular(20),
+                    color: Colors.black,
+                  ),
+                  child: Text(
+                    genre,
+                    style: const TextStyle(color: Colors.white, fontSize: 12),
+                  ),
+                );
+              }).toList(),
             ),
           ),
 
@@ -263,14 +255,14 @@ class MovieDetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildCastSection(Map<String, dynamic> movie) {
+  Widget _buildCastSection(BuildContext context,Map<String, dynamic> movie) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Padding(
+         Padding(
           padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
           child: Text(
-            'Top Cast',
+            AppLocalizations.of(context)!.topCast,
             style: TextStyle(
               color: Colors.white,
               fontSize: 18,
