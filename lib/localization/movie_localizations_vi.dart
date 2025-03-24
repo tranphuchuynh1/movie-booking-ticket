@@ -6,5 +6,6 @@ class AppLocalizationsVi extends AppLocalizations {
   String get appName => "Ứng dụng đặt vé xem phim";
 
   @override
-  String get welcomeMessage => "Chào mừng bạn đến với cửa hàng của chúng tôi!";
+  String get topCast => "Diễn Viên Hàng Đầu";
+
 }
