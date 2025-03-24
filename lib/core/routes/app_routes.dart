@@ -6,6 +6,7 @@ import '../../features/auth/screens/register_screen.dart';
 import '../../features/home_movie/screens/home_screen.dart';
 import '../../features/detail_movie/screens/detail_movie_screen.dart';
 import '../../features/select_seat_movie/screens/select_seat_movie_screen.dart';
+import '../models/movie.dart';
 
 final GoRouter appRouter = GoRouter(
   routes: [
@@ -23,7 +24,10 @@ final GoRouter appRouter = GoRouter(
     ),
     GoRoute(
       path: '/detail',
-      builder: (context, state) => MovieDetailScreen(),
+      builder: (context, state) {
+        final movie = state.extra as Movie; // Lấy đối tượng Movie de~ xai` dung` chung cho moi page
+        return MovieDetailScreen(movie: movie);
+      },
     ),
     GoRoute(
       path: '/select_seat',
