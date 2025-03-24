@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:movie_booking_ticket/theme.dart';
 
+// Màn hình chính
 class TicketMovieScreen extends StatelessWidget {
-  const TicketMovieScreen({Key? key}) : super(key: key);
+  const TicketMovieScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
-
       body: SafeArea(
         child: Column(
           children: [
@@ -19,16 +19,14 @@ class TicketMovieScreen extends StatelessWidget {
                     width: 40,
                     height: 40,
                     decoration: const BoxDecoration(
-                      color: Colors.orange,
+                      color: tdRed,
                       shape: BoxShape.circle,
                     ),
                     child: IconButton(
-                      icon: const Icon(
-                        Icons.close,
-                        color: Colors.white,
-                        size: 20,
-                      ),
-                      onPressed: () => Navigator.pop(context),
+                      icon: const Icon(Icons.close, color: tdWhite, size: 20),
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
                     ),
                   ),
                   Expanded(
@@ -36,7 +34,7 @@ class TicketMovieScreen extends StatelessWidget {
                       child: Text(
                         'My Tickets',
                         style: TextStyle(
-                          color: Colors.white,
+                          color: tdWhite,
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
                         ),
@@ -48,223 +46,189 @@ class TicketMovieScreen extends StatelessWidget {
               ),
             ),
 
-            // (Ticket)
-            Expanded(child: Center(child: TicketWidget())),
+            Expanded(
+              child: Center(
+                child: ClipPath(
+                  clipper: TicketClipper(),
+                  child: Container(
+                    width: MediaQuery.of(context).size.width * 0.75,
+                    height: 700,
+                    color: Colors.red,
+                    child: Column(
+                      children: [
+                        SizedBox(
+                          height: 370,
+                          child: Stack(
+                            children: [
+                              Positioned.fill(
+                                child: Image.asset(
+                                  'assets/images/john_wick.png',
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
 
-            Container(
-              height: 60,
-              color: Colors.black,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  IconButton(
-                    icon: const Icon(
-                      Icons.calendar_today_outlined,
-                      color: Colors.white,
+                              Positioned.fill(
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    gradient: LinearGradient(
+                                      begin: Alignment.topCenter,
+                                      end: Alignment.bottomCenter,
+                                      colors: [
+                                        Colors.transparent,
+                                        tdRedLight.withOpacity(0.2),
+                                        tdOrangeRed.withOpacity(0.7),
+                                        Colors.red,
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        // Đường gạch đứt (dashed line)
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          child: CustomPaint(
+                            painter: DashedLinePainter(),
+                            child: const SizedBox(
+                              height: 1,
+                              width: double.infinity,
+                            ),
+                          ),
+                        ),
+
+                        // Thông tin ngày + giờ
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Column(
+                              children: const [
+                                Text(
+                                  '18',
+                                  style: TextStyle(
+                                    color: tdWhite70,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                Text(
+                                  'Mon',
+                                  style: TextStyle(
+                                    color: tdWhite,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(width: 20),
+                            Column(
+                              children: const [
+                                Icon(
+                                  Icons.access_time,
+                                  color: tdWhite70,
+                                  size: 20,
+                                ),
+                                Text(
+                                  '14:31',
+                                  style: TextStyle(
+                                    color: tdWhite,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+
+                        const SizedBox(height: 12),
+
+                        // Hall, Row, Seats
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            Column(
+                              children: const [
+                                Text(
+                                  'Hall',
+                                  style: TextStyle(
+                                    color: tdWhite54,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                                Text(
+                                  '02',
+                                  style: TextStyle(
+                                    color: tdWhite,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Column(
+                              children: const [
+                                Text(
+                                  'Row',
+                                  style: TextStyle(
+                                    color: tdWhite54,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                                Text(
+                                  '04',
+                                  style: TextStyle(
+                                    color: tdWhite,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Column(
+                              children: const [
+                                Text(
+                                  'Seats',
+                                  style: TextStyle(
+                                    color: tdWhite54,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                                Text(
+                                  '23,24',
+                                  style: TextStyle(
+                                    color: tdWhite,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+
+                        const SizedBox(height: 20),
+
+                        // QR Code (demo)
+                        SizedBox(
+                          width: 150,
+                          height: 150,
+                          child: const Center(
+                            child: Image(
+                              image: AssetImage('assets/images/qrcode_.png'),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                    onPressed: () {},
                   ),
-                  IconButton(
-                    icon: const Icon(
-                      Icons.event_seat_outlined,
-                      color: Colors.white,
-                    ),
-                    onPressed: () {},
-                  ),
-
-                  // Biểu tượng vé
-                  Container(
-                    width: 50,
-                    height: 50,
-                    decoration: const BoxDecoration(
-                      color: Colors.orange,
-                      shape: BoxShape.circle,
-                    ),
-                    child: IconButton(
-                      icon: const Icon(
-                        Icons.confirmation_num_outlined,
-                        color: Colors.black,
-                      ),
-                      onPressed: () {},
-                    ),
-                  ),
-
-                  IconButton(
-                    icon: const Icon(Icons.person_outline, color: Colors.white),
-                    onPressed: () {},
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-// Widget vé phim
-class TicketWidget extends StatelessWidget {
-  const TicketWidget({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    // tickets width ~80%
-    final double ticketWidth = MediaQuery.of(context).size.width * 0.8;
-
-    return ClipPath(
-      clipper: TicketClipper(),
-      child: Container(
-        width: ticketWidth,
-        color: Colors.orange, // Nền vé màu cam
-        child: Column(
-          children: [
-            Container(
-              height: 200,
-              decoration: const BoxDecoration(
-                image: DecorationImage(
-                  image: AssetImage('assets/images/maleficent.jpg'),
-                  fit: BoxFit.cover,
                 ),
               ),
             ),
 
-            //  (dashed line)
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8),
-              child: CustomPaint(
-                painter: DashedLinePainter(),
-                child: SizedBox(width: ticketWidth, height: 1),
-              ),
-            ),
-
-            // 3) info film/seat
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: Column(
-                children: [
-                  const Text(
-                    'John Wick Chapter 4',
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      Column(
-                        children: const [
-                          Text(
-                            '18',
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          Text(
-                            'Mon',
-                            style: TextStyle(color: Colors.black, fontSize: 14),
-                          ),
-                        ],
-                      ),
-                      const Text(
-                        '|',
-                        style: TextStyle(color: Colors.black, fontSize: 24),
-                      ),
-                      Column(
-                        children: const [
-                          Text(
-                            '14:30',
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          Text(
-                            'Time',
-                            style: TextStyle(color: Colors.black, fontSize: 14),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-
-                  const SizedBox(height: 8),
-                  const Divider(color: Colors.black54),
-                  const SizedBox(height: 8),
-
-                  // Hall, Row, Seats
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      Column(
-                        children: const [
-                          Text(
-                            'Hall',
-                            style: TextStyle(
-                              color: Colors.black54,
-                              fontSize: 14,
-                            ),
-                          ),
-                          Text(
-                            '02',
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                      Column(
-                        children: const [
-                          Text(
-                            'Row',
-                            style: TextStyle(
-                              color: Colors.black54,
-                              fontSize: 14,
-                            ),
-                          ),
-                          Text(
-                            '04',
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                      Column(
-                        children: const [
-                          Text(
-                            'Seats',
-                            style: TextStyle(
-                              color: Colors.black54,
-                              fontSize: 14,
-                            ),
-                          ),
-                          Text(
-                            '23,24',
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                ],
-              ),
-            ),
+            // Thanh điều hướng dưới cùng
+            _buildBottomNavigationBar(context),
           ],
         ),
       ),
@@ -272,42 +236,61 @@ class TicketWidget extends StatelessWidget {
   }
 }
 
-// Tạo hình cắt (clip) cho vé: hai nửa hình tròn ở 2 bên
+/// CLIPPER TẠO 2 KHUYẾT TRÒN Ở GIỮA 2 BÊN
+
 class TicketClipper extends CustomClipper<Path> {
   @override
   Path getClip(Size size) {
-    const radius = 20.0;
+    final double cornerRadius = 16.0;
+    final double notchCenter = size.height * 0.55;
+    const double notchRadius = 24.0;
+
     final path = Path();
 
-    // Bắt đầu từ góc trái trên
-    path.moveTo(0, 0);
-    // Kẻ đường thẳng tới góc phải trên
-    path.lineTo(size.width, 0);
+    // Bắt đầu từ góc trên bên trái sau khi bo góc (vị trí bắt đầu = (cornerRadius, 0))
+    path.moveTo(cornerRadius, 0);
 
-    // Kẻ xuống tới (size.height * 0.3 - radius)
-    path.lineTo(size.width, size.height * 0.3 - radius);
-
-    // Vẽ nửa hình tròn bên phải
+    path.lineTo(size.width - cornerRadius, 0);
+    // Góc trên bên phải: vẽ cung bo góc
     path.arcToPoint(
-      Offset(size.width, size.height * 0.3 + radius),
-      radius: const Radius.circular(radius),
+      Offset(size.width, cornerRadius),
+      radius: Radius.circular(cornerRadius),
+      clockwise: true,
+    );
+
+    path.lineTo(size.width, notchCenter - notchRadius);
+    path.arcToPoint(
+      Offset(size.width, notchCenter + notchRadius),
+      radius: const Radius.circular(notchRadius),
       clockwise: false,
     );
 
-    // Kẻ thẳng xuống góc phải dưới
-    path.lineTo(size.width, size.height);
-
-    // Kẻ sang góc trái dưới
-    path.lineTo(0, size.height);
-
-    // Lên tới (size.height * 0.3 + radius)
-    path.lineTo(0, size.height * 0.3 + radius);
-
-    // Vẽ nửa hình tròn bên trái
+    path.lineTo(size.width, size.height - cornerRadius);
     path.arcToPoint(
-      Offset(0, size.height * 0.3 - radius),
-      radius: const Radius.circular(radius),
+      Offset(size.width - cornerRadius, size.height),
+      radius: Radius.circular(cornerRadius),
+      clockwise: true,
+    );
+
+    path.lineTo(cornerRadius, size.height);
+    path.arcToPoint(
+      Offset(0, size.height - cornerRadius),
+      radius: Radius.circular(cornerRadius),
+      clockwise: true,
+    );
+
+    path.lineTo(0, notchCenter + notchRadius);
+    path.arcToPoint(
+      Offset(0, notchCenter - notchRadius),
+      radius: const Radius.circular(notchRadius),
       clockwise: false,
+    );
+
+    path.lineTo(0, cornerRadius);
+    path.arcToPoint(
+      Offset(cornerRadius, 0),
+      radius: Radius.circular(cornerRadius),
+      clockwise: true,
     );
 
     path.close();
@@ -318,27 +301,20 @@ class TicketClipper extends CustomClipper<Path> {
   bool shouldReclip(TicketClipper oldClipper) => false;
 }
 
-// (dashed line)
+/// VẼ ĐƯỜNG GẠCH ĐỨT
 class DashedLinePainter extends CustomPainter {
   @override
-  /*************  ✨ Codeium Command ⭐  *************/
-  /// Vẽ d  ng line kh ng li n t c (dashed line) ng ng
-  /// - [dashWidth]: Chi u r ng c a m t d  ng line
-  /// - [dashSpace]: Kho ng c ch gi a 2 d  ng line
-  /// - [startX]: T o do x u t phia tr u c ti p theo c a d  ng line
-  /// V  d : [0, 0, 0, 5, 10, 15, 20, ...]
-  /******  0c64527c-6a57-46ac-af80-5bbbd24ccbf3  *******/
   void paint(Canvas canvas, Size size) {
     final paint =
         Paint()
-          ..color = Colors.black
+          ..color = tdYellow
           ..strokeWidth = 1;
 
-    const dashWidth = 5.0;
-    const dashSpace = 5.0;
+    // Chiều rộng nét đứt + khoảng trống
+    const dashWidth = 6.0;
+    const dashSpace = 7.0;
     double startX = 0;
 
-    // Vẽ liên tiếp những đoạn line dài dashWidth, cách nhau dashSpace
     while (startX < size.width) {
       canvas.drawLine(Offset(startX, 0), Offset(startX + dashWidth, 0), paint);
       startX += dashWidth + dashSpace;
@@ -346,5 +322,65 @@ class DashedLinePainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant DashedLinePainter oldDelegate) => false;
+  bool shouldRepaint(DashedLinePainter oldDelegate) => false;
+}
+
+Widget _buildBottomNavigationBar(context) {
+  return Container(
+    height: 75,
+    margin: const EdgeInsets.fromLTRB(5, 0, 5, 5),
+    color: Colors.black,
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        // First Icon - Home
+        CircleAvatar(
+          backgroundColor: Colors.deepOrange, // Background color
+          radius: 30, // Set radius cho hình tròn
+          child: IconButton(
+            onPressed: () {
+              context.go('/'); // Điều hướng về Home
+            },
+            icon: const Icon(Icons.home, color: Colors.white),
+            iconSize: 30, // Điều chỉnh kích thước icon
+          ),
+        ),
+
+        // Second Icon - Search
+        CircleAvatar(
+          backgroundColor: Colors.black, // Nền đen
+          radius: 30,
+          child: IconButton(
+            onPressed: () {},
+            icon: const Icon(Icons.search, color: Colors.white),
+            iconSize: 30,
+          ),
+        ),
+
+        // Third Icon - Ticket
+        CircleAvatar(
+          backgroundColor: Colors.black, // Nền đen
+          radius: 30,
+          child: IconButton(
+            onPressed: () {
+              context.go('/ticket'); // Điều hướng đến vé
+            },
+            icon: const Icon(Icons.confirmation_number, color: Colors.white),
+            iconSize: 30,
+          ),
+        ),
+
+        // Fourth Icon - Profile
+        CircleAvatar(
+          backgroundColor: Colors.black, // Nền đen
+          radius: 30,
+          child: IconButton(
+            onPressed: () {},
+            icon: const Icon(Icons.account_circle, color: Colors.white),
+            iconSize: 30,
+          ),
+        ),
+      ],
+    ),
+  );
 }
