@@ -12,7 +12,7 @@ class _TicketHistoryScreenState extends State<TicketHistoryScreen> {
   // fake tạm @@
   final List<Map<String, String>> _dummyMovies = [
     {
-      "title": "Spider Man: Go way home",
+      "title": "Spider Man",
       "posterUrl": "assets/images/spider.jpg",
     },
   ];
