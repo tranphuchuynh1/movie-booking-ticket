@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:movie_booking_ticket/core/models/movie.dart';
 import 'package:movie_booking_ticket/theme.dart';
@@ -6,6 +8,18 @@ import 'package:qr_flutter/qr_flutter.dart';
 class TicketMovieScreen extends StatelessWidget {
   final Movie movie;
   const TicketMovieScreen({super.key, required this.movie});
+
+  String buildQrData(Movie movie) {
+    final Map<String, dynamic> data = {
+      'title': movie.title,
+      'releaseDate': movie.releaseDate,
+      'duration': movie.duration,
+      'rating': movie.rating,
+      'genres': movie.genres,
+    };
+    return jsonEncode(data);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -214,16 +228,16 @@ class TicketMovieScreen extends StatelessWidget {
 
                         // QR Code (demo)
                         SizedBox(
-                          width: 150,
-                          height: 150,
+                          width: 170,
+                          height: 170,
                           child: Center(
                             child: QrImageView(
-                              data: '1234567890',
+                              data: buildQrData(movie),
                               version: QrVersions.auto,
                               size: 200.0,
+                              gapless: false,
+                              foregroundColor: tdWhite,
                             ),
-                            // child: Image(
-                            //   image: AssetImage('assets/images/qrcode_.png'),
                           ),
                         ),
                       ],

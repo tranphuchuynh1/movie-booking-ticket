@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 // Màu sắc cho UI
-const Color tdBlack = Color.fromARGB(0, 20, 1, 1);
+const Color tdBlack = Color.fromARGB(0, 0, 0, 0);
 const Color tdBlackLight = Color.fromARGB(0, 19, 19, 19);
 const Color tdWhite = Color(0xffffffff);
 const Color tdRed = Color.fromARGB(255, 203, 66, 16);
