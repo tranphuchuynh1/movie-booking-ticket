@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:movie_booking_ticket/core/models/movie.dart';
 import 'package:movie_booking_ticket/theme.dart';
 
 class SelectSeatMovieScreen extends StatefulWidget {
-  const SelectSeatMovieScreen({super.key});
+  final Movie movie;
 
+  const SelectSeatMovieScreen({super.key, required this.movie});
   @override
   State<SelectSeatMovieScreen> createState() => SelectSeatMovieScreenState();
 }
@@ -84,9 +86,9 @@ class SelectSeatMovieScreenState extends State<SelectSeatMovieScreen> {
               right: 0,
               height: 250,
               child: Container(
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   image: DecorationImage(
-                    image: AssetImage('assets/images/maleficent-poster.jpg'),
+                    image: AssetImage(widget.movie.posterUrl),
                     fit: BoxFit.cover,
                   ),
                 ),
@@ -133,7 +135,7 @@ class SelectSeatMovieScreenState extends State<SelectSeatMovieScreen> {
                 child: IconButton(
                   icon: const Icon(Icons.close, color: tdWhite70, size: 15),
                   onPressed: () {
-                    context.go('/detail');
+                    context.pop();
                   },
                 ),
               ),
@@ -253,7 +255,10 @@ class SelectSeatMovieScreenState extends State<SelectSeatMovieScreen> {
                                 selectedSeats.isEmpty
                                     ? null
                                     : () {
-                                      context.go('/ticket');
+                                      context.go(
+                                        '/ticket',
+                                        extra: widget.movie,
+                                      );
                                     },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: tdRed,
