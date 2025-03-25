@@ -7,7 +7,10 @@ import '../../../localization/app_localizations.dart';
 class MovieDetailScreen extends StatelessWidget {
   final Movie movie; // Khai báo biến movie để sử dụng trong toàn bộ class
 
-  const MovieDetailScreen({super.key, required this.movie}); // Gán giá trị movie vào class
+  const MovieDetailScreen({
+    super.key,
+    required this.movie,
+  }); // Gán giá trị movie vào class
 
   @override
   Widget build(BuildContext context) {
@@ -140,20 +143,27 @@ class MovieDetailScreen extends StatelessWidget {
           Center(
             child: Wrap(
               spacing: 8,
-              children: movie.genres.map((genre) {
-                return Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.white24),
-                    borderRadius: BorderRadius.circular(20),
-                    color: Colors.black,
-                  ),
-                  child: Text(
-                    genre,
-                    style: const TextStyle(color: Colors.white, fontSize: 12),
-                  ),
-                );
-              }).toList(),
+              children:
+                  movie.genres.map((genre) {
+                    return Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.white24),
+                        borderRadius: BorderRadius.circular(20),
+                        color: Colors.black,
+                      ),
+                      child: Text(
+                        genre,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
+                        ),
+                      ),
+                    );
+                  }).toList(),
             ),
           ),
           const SizedBox(height: 12),
@@ -234,7 +244,9 @@ class MovieDetailScreen extends StatelessWidget {
                   children: [
                     CircleAvatar(
                       radius: 35,
-                      backgroundImage: NetworkImage(actor.profileUrl), // Load ảnh từ URL
+                      backgroundImage: NetworkImage(
+                        actor.profileUrl,
+                      ), // Load ảnh từ URL
                     ),
                     const SizedBox(height: 8),
                     SizedBox(
@@ -265,7 +277,7 @@ class MovieDetailScreen extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 100.0, vertical: 16.0),
       child: ElevatedButton(
         onPressed: () {
-          appRouter.go('/select_seat');
+          appRouter.go('/select_seat', extra: movie);
         },
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.deepOrange,

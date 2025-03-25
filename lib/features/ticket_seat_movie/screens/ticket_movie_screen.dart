@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:movie_booking_ticket/core/models/movie.dart';
 import 'package:movie_booking_ticket/theme.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 
-// Màn hình chính
 class TicketMovieScreen extends StatelessWidget {
-  const TicketMovieScreen({super.key});
-
+  final Movie movie;
+  const TicketMovieScreen({super.key, required this.movie});
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -60,13 +61,14 @@ class TicketMovieScreen extends StatelessWidget {
                           height: 370,
                           child: Stack(
                             children: [
+                              // 1) Ảnh poster
                               Positioned.fill(
-                                child: Image.asset(
-                                  'assets/images/john_wick.png',
+                                child: Image.network(
+                                  movie.posterUrl,
                                   fit: BoxFit.cover,
                                 ),
                               ),
-
+                              // 2) Gradient overlay
                               Positioned.fill(
                                 child: Container(
                                   decoration: BoxDecoration(
@@ -214,10 +216,14 @@ class TicketMovieScreen extends StatelessWidget {
                         SizedBox(
                           width: 150,
                           height: 150,
-                          child: const Center(
-                            child: Image(
-                              image: AssetImage('assets/images/qrcode_.png'),
+                          child: Center(
+                            child: QrImageView(
+                              data: '1234567890',
+                              version: QrVersions.auto,
+                              size: 200.0,
                             ),
+                            // child: Image(
+                            //   image: AssetImage('assets/images/qrcode_.png'),
                           ),
                         ),
                       ],
