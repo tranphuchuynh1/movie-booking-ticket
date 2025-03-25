@@ -53,7 +53,7 @@ class TicketMovieScreen extends StatelessWidget {
                   child: Container(
                     width: MediaQuery.of(context).size.width * 0.75,
                     height: 700,
-                    color: Colors.red,
+                    color: Colors.deepOrange,
                     child: Column(
                       children: [
                         SizedBox(
@@ -77,7 +77,7 @@ class TicketMovieScreen extends StatelessWidget {
                                         Colors.transparent,
                                         tdRedLight.withOpacity(0.2),
                                         tdOrangeRed.withOpacity(0.7),
-                                        Colors.red,
+                                        Colors.deepOrange,
                                       ],
                                     ),
                                   ),
@@ -226,9 +226,6 @@ class TicketMovieScreen extends StatelessWidget {
                 ),
               ),
             ),
-
-            // Thanh điều hướng dưới cùng
-            _buildBottomNavigationBar(context),
           ],
         ),
       ),
@@ -307,7 +304,7 @@ class DashedLinePainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final paint =
         Paint()
-          ..color = tdYellow
+          ..color = Colors.black38
           ..strokeWidth = 1;
 
     // Chiều rộng nét đứt + khoảng trống
@@ -323,64 +320,4 @@ class DashedLinePainter extends CustomPainter {
 
   @override
   bool shouldRepaint(DashedLinePainter oldDelegate) => false;
-}
-
-Widget _buildBottomNavigationBar(context) {
-  return Container(
-    height: 75,
-    margin: const EdgeInsets.fromLTRB(5, 0, 5, 5),
-    color: Colors.black,
-    child: Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: [
-        // First Icon - Home
-        CircleAvatar(
-          backgroundColor: Colors.deepOrange, // Background color
-          radius: 30, // Set radius cho hình tròn
-          child: IconButton(
-            onPressed: () {
-              context.go('/'); // Điều hướng về Home
-            },
-            icon: const Icon(Icons.home, color: Colors.white),
-            iconSize: 30, // Điều chỉnh kích thước icon
-          ),
-        ),
-
-        // Second Icon - Search
-        CircleAvatar(
-          backgroundColor: Colors.black, // Nền đen
-          radius: 30,
-          child: IconButton(
-            onPressed: () {},
-            icon: const Icon(Icons.search, color: Colors.white),
-            iconSize: 30,
-          ),
-        ),
-
-        // Third Icon - Ticket
-        CircleAvatar(
-          backgroundColor: Colors.black, // Nền đen
-          radius: 30,
-          child: IconButton(
-            onPressed: () {
-              context.go('/ticket'); // Điều hướng đến vé
-            },
-            icon: const Icon(Icons.confirmation_number, color: Colors.white),
-            iconSize: 30,
-          ),
-        ),
-
-        // Fourth Icon - Profile
-        CircleAvatar(
-          backgroundColor: Colors.black, // Nền đen
-          radius: 30,
-          child: IconButton(
-            onPressed: () {},
-            icon: const Icon(Icons.account_circle, color: Colors.white),
-            iconSize: 30,
-          ),
-        ),
-      ],
-    ),
-  );
 }
