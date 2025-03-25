@@ -1,5 +1,4 @@
 import '../models/movie.dart';
-import '../models/cast.dart';
 import 'cast_data.dart';
 import 'movie_data.dart';
 

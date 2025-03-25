@@ -31,7 +31,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Widget _buildHeader() {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 75, 16, 36),
+      padding: const EdgeInsets.fromLTRB(16, 45, 16, 36),
       child: Row(
         children: [
           const Expanded(
