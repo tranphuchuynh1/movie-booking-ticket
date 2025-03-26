@@ -40,7 +40,7 @@ class BottomNavBar extends StatelessWidget {
             child: IconButton(
               onPressed: () {
                 if (selectedIndex != 1) {
-                  // context.go('/search');
+                  context.go('/search');
                 }
               },
               icon: const Icon(Icons.search, color: Colors.white),
@@ -55,7 +55,7 @@ class BottomNavBar extends StatelessWidget {
             child: IconButton(
               onPressed: () {
                 if (selectedIndex != 2) {
-                  context.go('/ticket');
+                  context.go('/ticket_history');
                 }
               },
               icon: const Icon(Icons.confirmation_number, color: Colors.white),

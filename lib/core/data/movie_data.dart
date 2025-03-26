@@ -25,6 +25,9 @@ class MoviesData {
     // Add SpiderMan movie
     movies.addAll(_getSpiderMan());
 
+    // Add John Wick movie 2
+    movies.add(_getJohnWickMovie2());
+
     return movies;
   }
 
@@ -65,7 +68,7 @@ class MoviesData {
       Movie(
         title: 'Doraemon: Music World',
         posterUrl: 'assets/images/dora.png',
-        rating: 7.8,
+        rating: 9.0,
         voteCount: 820,
         releaseDate: '10 May 2023',
         duration: '2h 05m',
@@ -83,7 +86,7 @@ class MoviesData {
       Movie(
         title: 'Bố Già',
         posterUrl: 'assets/images/bogia.jpeg',
-        rating: 7.8,
+        rating: 8.8,
         voteCount: 820,
         releaseDate: '10 May 2023',
         duration: '1h 45m',
@@ -113,6 +116,22 @@ class MoviesData {
         cast: _castData.getSpiderMan(),
       ),
     ];
+  }
+
+  Movie _getJohnWickMovie2() {
+    return Movie(
+      title: 'John Wick: Chapter 4',
+      posterUrl: 'assets/images/john.jpg',
+      rating: 8.0,
+      voteCount: 1024,
+      releaseDate: '24 March 2023',
+      duration: '2h 50m',
+      genres: ['Action', 'Thriller', 'Crime'],
+      tagline: 'No way back, one way out.',
+      plot:
+      'With the price on his head ever increasing, John Wick uncovers a path to defeating The High Table. But before he can earn his freedom, Wick must face off against a new enemy with powerful alliances across the globe and forces that turn old friends into foes.',
+      cast: _castData.getJohnWickCast(),
+    );
   }
 
 }
