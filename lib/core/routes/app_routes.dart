@@ -1,4 +1,5 @@
 import 'package:go_router/go_router.dart';
+import 'package:movie_booking_ticket/features/my_ticket_movie/screens/ticket_movie_screen.dart';
 import 'package:movie_booking_ticket/features/profile_screen/screens/profile_screen.dart';
 import 'package:movie_booking_ticket/features/search_movie/screens/search_screen.dart';
 import 'package:movie_booking_ticket/features/ticket_history/screen/ticket_history.dart';
@@ -37,13 +38,10 @@ final GoRouter appRouter = GoRouter(
       },
     ),
     GoRoute(path: '/profile', builder: (context, state) => ProfileScreen()),
+    GoRoute(path: '/search', builder: (context, state) => SearchScreen()),
     GoRoute(
-        path: '/search',
-      builder: (context , state) => SearchScreen()
+      path: '/ticket_history',
+      builder: (context, state) => TicketHistoryScreen(),
     ),
-    GoRoute(
-        path: '/ticket_history',
-      builder: (context, state) => TicketHistoryScreen()
-    )
   ],
 );
