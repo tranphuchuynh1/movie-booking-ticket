@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:movie_booking_ticket/theme.dart';
-import '../../select_seat_movie/screens/select_seat_movie_screen.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
@@ -16,7 +15,7 @@ class LoginScreen extends StatelessWidget {
             top: 0,
             left: 0,
             right: 0,
-            height: MediaQuery.of(context).size.height * 0.4,
+            height: MediaQuery.of(context).size.height * 0.3,
             child: Container(
               decoration: BoxDecoration(
                 image: DecorationImage(
