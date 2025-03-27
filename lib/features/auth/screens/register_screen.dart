@@ -12,6 +12,7 @@ class RegisterScreen extends StatefulWidget {
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
+  bool _isPasswordHidden = true;
   bool _isConfirmPasswordHidden = true;
   @override
   Widget build(BuildContext context) {
@@ -95,11 +96,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                     buildLabel("Your Name"),
                     buildInputField("Your Name", 'assets/buttons/user-ic.png'),
+                    // PASSWORD FIELD
                     buildLabel("Password"),
                     Padding(
                       padding: const EdgeInsets.only(bottom: 10),
                       child: TextField(
-                        obscureText: _isConfirmPasswordHidden,
+                        obscureText: _isPasswordHidden,
                         decoration: InputDecoration(
                           filled: true,
                           fillColor: tdWhite24,
@@ -111,15 +113,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           ),
                           suffixIcon: IconButton(
                             icon: Icon(
-                              _isConfirmPasswordHidden
+                              _isPasswordHidden
                                   ? Icons.visibility_off
                                   : Icons.visibility,
                               color: tdWhite70,
                             ),
                             onPressed: () {
                               setState(() {
-                                _isConfirmPasswordHidden =
-                                    !_isConfirmPasswordHidden;
+                                _isPasswordHidden = !_isPasswordHidden;
                               });
                             },
                           ),
@@ -131,6 +132,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         style: const TextStyle(color: tdWhite),
                       ),
                     ),
+
+                    // CONFIRM PASSWORD FIELD
                     buildLabel("Confirm Password"),
                     Padding(
                       padding: const EdgeInsets.only(bottom: 10),
@@ -181,10 +184,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         alignment: Alignment.center,
                         child: Text(
                           'Sign up',
-                          style: GoogleFonts.poppins(
+                          style: const TextStyle(
                             fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
+                            fontWeight: FontWeight.w700,
+                            color: tdWhite,
                           ),
                         ),
                       ),
@@ -227,9 +230,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     Center(
                       child: TextButton(
                         onPressed: () => context.go('/'),
-                        child: Text(
-                          'Already have an account? Sign In',
-                          style: GoogleFonts.poppins(color: tdWhite70),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              'Already have an account? ',
+                              style: GoogleFonts.poppins(color: tdWhite70),
+                            ),
+                            Text(
+                              'Sign In',
+                              style: GoogleFonts.poppins(color: tdWhite),
+                            ),
+                          ],
                         ),
                       ),
                     ),

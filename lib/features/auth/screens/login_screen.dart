@@ -211,9 +211,18 @@ class _LoginScreenState extends State<LoginScreen> {
                         onPressed: () {
                           context.go('/register');
                         },
-                        child: Text(
-                          'Don’t have an account? Sign Up',
-                          style: TextStyle(color: tdWhite70),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              'Don’t have an account? ',
+                              style: GoogleFonts.poppins(color: tdWhite70),
+                            ),
+                            Text(
+                              'Sign Up',
+                              style: GoogleFonts.poppins(color: tdWhite),
+                            ),
+                          ],
                         ),
                       ),
                     ),

@@ -176,7 +176,7 @@ class SelectSeatMovieScreenState extends State<SelectSeatMovieScreen> {
 
                     // chọn ngày
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      padding: const EdgeInsets.symmetric(horizontal: 14.0),
                       child: SingleChildScrollView(
                         scrollDirection: Axis.horizontal,
                         child: Row(
@@ -365,26 +365,37 @@ class SelectSeatMovieScreenState extends State<SelectSeatMovieScreen> {
     required bool isSelected,
     required VoidCallback onTap,
   }) {
-    return InkWell(
+    return GestureDetector(
       onTap: onTap,
-      child: Column(
-        children: [
-          Text(
-            day,
-            style: const TextStyle(color: Colors.white70, fontSize: 18),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            weekDay,
-            style: TextStyle(
-              color: isSelected ? tdRed : Colors.white,
-              fontSize: 14,
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 6),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        decoration: BoxDecoration(
+          color: isSelected ? Colors.deepOrange : Colors.black,
+          borderRadius: BorderRadius.circular(30),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              day,
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 18,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+              ),
             ),
-          ),
-          const SizedBox(height: 4),
-          // Thanh gạch màu cam khi selected
-          if (isSelected) Container(width: 20, height: 2, color: tdRed),
-        ],
+            const SizedBox(height: 4),
+            Text(
+              weekDay,
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 14,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
