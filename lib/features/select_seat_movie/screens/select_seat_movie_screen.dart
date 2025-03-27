@@ -153,7 +153,7 @@ class SelectSeatMovieScreenState extends State<SelectSeatMovieScreen> {
                 ),
                 child: Column(
                   children: [
-                    const SizedBox(height: 40),
+                    const SizedBox(height: 20),
                     const Text(
                       "Screen this side",
                       style: TextStyle(color: Colors.white54, fontSize: 14),

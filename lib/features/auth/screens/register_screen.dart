@@ -4,9 +4,15 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:movie_booking_ticket/theme.dart';
 import 'login_screen.dart';
 
-class RegisterScreen extends StatelessWidget {
+class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
 
+  @override
+  State<RegisterScreen> createState() => _RegisterScreenState();
+}
+
+class _RegisterScreenState extends State<RegisterScreen> {
+  bool _isConfirmPasswordHidden = true;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -90,16 +96,76 @@ class RegisterScreen extends StatelessWidget {
                     buildLabel("Your Name"),
                     buildInputField("Your Name", 'assets/buttons/user-ic.png'),
                     buildLabel("Password"),
-                    buildInputField(
-                      "Password",
-                      'assets/buttons/key-ic.png',
-                      isPassword: true,
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 10),
+                      child: TextField(
+                        obscureText: _isConfirmPasswordHidden,
+                        decoration: InputDecoration(
+                          filled: true,
+                          fillColor: tdWhite24,
+                          hintText: "Enter your password!",
+                          hintStyle: const TextStyle(color: tdWhite54),
+                          prefixIcon: ImageIcon(
+                            AssetImage('assets/buttons/key-ic.png'),
+                            color: tdWhite70,
+                          ),
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _isConfirmPasswordHidden
+                                  ? Icons.visibility_off
+                                  : Icons.visibility,
+                              color: tdWhite70,
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                _isConfirmPasswordHidden =
+                                    !_isConfirmPasswordHidden;
+                              });
+                            },
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide.none,
+                          ),
+                        ),
+                        style: const TextStyle(color: tdWhite),
+                      ),
                     ),
                     buildLabel("Confirm Password"),
-                    buildInputField(
-                      "Nhập lại một khẩu",
-                      'assets/buttons/key-ic.png',
-                      isPassword: true,
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 10),
+                      child: TextField(
+                        obscureText: _isConfirmPasswordHidden,
+                        decoration: InputDecoration(
+                          filled: true,
+                          fillColor: tdWhite24,
+                          hintText: "Confirm your password!",
+                          hintStyle: const TextStyle(color: tdWhite54),
+                          prefixIcon: ImageIcon(
+                            AssetImage('assets/buttons/key-ic.png'),
+                            color: tdWhite70,
+                          ),
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _isConfirmPasswordHidden
+                                  ? Icons.visibility_off
+                                  : Icons.visibility,
+                              color: tdWhite70,
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                _isConfirmPasswordHidden =
+                                    !_isConfirmPasswordHidden;
+                              });
+                            },
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide.none,
+                          ),
+                        ),
+                        style: const TextStyle(color: tdWhite),
+                      ),
                     ),
                     const SizedBox(height: 20),
                     GestureDetector(
@@ -124,11 +190,36 @@ class RegisterScreen extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 20),
-                    Center(
-                      child: Text(
-                        'Or sign up with',
-                        style: GoogleFonts.poppins(color: tdWhite70),
-                      ),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Container(
+                            height: 1,
+                            decoration: const BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [Colors.transparent, Colors.white24],
+                              ),
+                            ),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 10),
+                          child: Text(
+                            'Or continue with',
+                            style: GoogleFonts.poppins(color: tdWhite70),
+                          ),
+                        ),
+                        Expanded(
+                          child: Container(
+                            height: 1,
+                            decoration: const BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [Colors.white24, Colors.transparent],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 15),
                     SocialLoginButtons(),
@@ -151,30 +242,30 @@ class RegisterScreen extends StatelessWidget {
       ),
     );
   }
+}
 
-  Widget buildLabel(String text) {
-    return Container(
-      alignment: Alignment.centerLeft,
-      margin: const EdgeInsets.only(top: 10, bottom: 4),
-      child: Text(
-        text,
-        style: GoogleFonts.poppins(fontSize: 13, color: Colors.white),
-      ),
-    );
-  }
+Widget buildLabel(String text) {
+  return Container(
+    alignment: Alignment.centerLeft,
+    margin: const EdgeInsets.only(top: 10, bottom: 4),
+    child: Text(
+      text,
+      style: GoogleFonts.poppins(fontSize: 13, color: Colors.white),
+    ),
+  );
+}
 
-  Widget buildInputField(
-    String hint,
-    String iconPath, {
-    bool isPassword = false,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
-      child: CustomInputField(
-        hint: hint,
-        icon: ImageIcon(AssetImage(iconPath), color: tdWhite70),
-        obscureText: isPassword,
-      ),
-    );
-  }
+Widget buildInputField(
+  String hint,
+  String iconPath, {
+  bool isPassword = false,
+}) {
+  return Padding(
+    padding: const EdgeInsets.only(bottom: 10),
+    child: CustomInputField(
+      hint: hint,
+      icon: ImageIcon(AssetImage(iconPath), color: tdWhite70),
+      obscureText: isPassword,
+    ),
+  );
 }

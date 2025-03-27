@@ -3,8 +3,15 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:movie_booking_ticket/theme.dart';
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
+
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  bool _isPasswordHidden = true;
 
   @override
   Widget build(BuildContext context) {
@@ -84,10 +91,39 @@ class LoginScreen extends StatelessWidget {
                     buildLabel("Username"),
                     buildInputField("Username", 'assets/buttons/user-ic.png'),
                     buildLabel("Password"),
-                    buildInputField(
-                      "Password",
-                      'assets/buttons/key-ic.png',
-                      isPassword: true,
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 10),
+                      child: TextField(
+                        obscureText: _isPasswordHidden,
+                        decoration: InputDecoration(
+                          filled: true,
+                          fillColor: tdWhite24,
+                          hintText: "Password",
+                          hintStyle: const TextStyle(color: tdWhite54),
+                          prefixIcon: ImageIcon(
+                            AssetImage('assets/buttons/key-ic.png'),
+                            color: tdWhite70,
+                          ),
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _isPasswordHidden
+                                  ? Icons.visibility_off
+                                  : Icons.visibility,
+                              color: tdWhite70,
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                _isPasswordHidden = !_isPasswordHidden;
+                              });
+                            },
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide.none,
+                          ),
+                        ),
+                        style: const TextStyle(color: tdWhite),
+                      ),
                     ),
                     Align(
                       alignment: Alignment.centerRight,
@@ -136,11 +172,36 @@ class LoginScreen extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 20),
-                    Center(
-                      child: Text(
-                        'Or continue with',
-                        style: GoogleFonts.poppins(color: tdWhite70),
-                      ),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Container(
+                            height: 1,
+                            decoration: const BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [Colors.transparent, Colors.white24],
+                              ),
+                            ),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 10),
+                          child: Text(
+                            'Or continue with',
+                            style: GoogleFonts.poppins(color: tdWhite70),
+                          ),
+                        ),
+                        Expanded(
+                          child: Container(
+                            height: 1,
+                            decoration: const BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [Colors.white24, Colors.transparent],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 20),
                     SocialLoginButtons(),
