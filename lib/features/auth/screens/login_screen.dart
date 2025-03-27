@@ -45,44 +45,49 @@ class LoginScreen extends StatelessWidget {
             alignment: Alignment.bottomCenter,
             child: Container(
               height: MediaQuery.of(context).size.height * 0.7,
-              padding: EdgeInsets.symmetric(horizontal: 32, vertical: 20),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                   colors: [tdBlack, tdGreyDark],
                 ),
-
-                borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(30),
+                ),
               ),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 32),
+              child: SingleChildScrollView(
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Text(
-                      'Welcome Back!',
-                      style: GoogleFonts.poppins(
-                        fontSize: 28,
-                        fontWeight: FontWeight.bold,
-                        color: tdWhite,
+                    Center(
+                      child: Text(
+                        'Welcome Back!',
+                        style: GoogleFonts.poppins(
+                          fontSize: 28,
+                          fontWeight: FontWeight.bold,
+                          color: tdWhite,
+                        ),
                       ),
                     ),
                     const SizedBox(height: 5),
-                    Text(
-                      'welcome back we missed you',
-                      style: GoogleFonts.poppins(
-                        fontSize: 14,
-                        color: tdWhite70,
+                    Center(
+                      child: Text(
+                        'welcome back we missed you',
+                        style: GoogleFonts.poppins(
+                          fontSize: 14,
+                          color: tdWhite70,
+                        ),
                       ),
                     ),
                     const SizedBox(height: 20),
-                    CustomInputField(hint: 'Username', icon: Icons.person),
-                    const SizedBox(height: 20),
-                    CustomInputField(
-                      hint: 'Password',
-                      icon: Icons.lock,
-                      obscureText: true,
+                    buildLabel("Username"),
+                    buildInputField("Username", 'assets/buttons/user-ic.png'),
+                    buildLabel("Password"),
+                    buildInputField(
+                      "Password",
+                      'assets/buttons/key-ic.png',
+                      isPassword: true,
                     ),
                     Align(
                       alignment: Alignment.centerRight,
@@ -94,29 +99,61 @@ class LoginScreen extends StatelessWidget {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 20),
-
-                    CustomButton(
-                      label: 'Sign in',
-                      onPressed: () {
-                        context.go('/home');
-                      },
-                    ),
                     const SizedBox(height: 10),
-                    Text(
-                      'Or continue with',
-                      style: GoogleFonts.poppins(color: tdWhite70),
+                    Container(
+                      height: 50,
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [tdBrown, tdYellow],
+                        ),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: ElevatedButton(
+                        onPressed: () {
+                          context.go('/home');
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.transparent,
+                          shadowColor: Colors.transparent,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: ShaderMask(
+                          shaderCallback:
+                              (bounds) => LinearGradient(
+                                colors: [tdWhite, tdWhite70],
+                              ).createShader(bounds),
+                          child: Text(
+                            'Sign in',
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w700,
+                              color: tdWhite,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    Center(
+                      child: Text(
+                        'Or continue with',
+                        style: GoogleFonts.poppins(color: tdWhite70),
+                      ),
                     ),
                     const SizedBox(height: 20),
                     SocialLoginButtons(),
-                    Spacer(),
-                    TextButton(
-                      onPressed: () {
-                        context.go('/register');
-                      },
-                      child: Text(
-                        'Don’t have an account? Sign Up',
-                        style: TextStyle(color: tdWhite70),
+                    const SizedBox(height: 10),
+                    Center(
+                      child: TextButton(
+                        onPressed: () {
+                          context.go('/register');
+                        },
+                        child: Text(
+                          'Don’t have an account? Sign Up',
+                          style: TextStyle(color: tdWhite70),
+                        ),
                       ),
                     ),
                   ],
@@ -128,11 +165,38 @@ class LoginScreen extends StatelessWidget {
       ),
     );
   }
+
+  Widget buildLabel(String text) {
+    return Container(
+      alignment: Alignment.centerLeft,
+      margin: const EdgeInsets.only(top: 10, bottom: 4),
+      child: Text(
+        text,
+        style: GoogleFonts.poppins(fontSize: 13, color: Colors.white),
+      ),
+    );
+  }
+
+  Widget buildInputField(
+    String hint,
+    String iconPath, {
+    bool isPassword = false,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: CustomInputField(
+        hint: hint,
+        icon: ImageIcon(AssetImage(iconPath), color: tdWhite70),
+        obscureText: isPassword,
+      ),
+    );
+  }
 }
 
 class CustomInputField extends StatelessWidget {
   final String hint;
-  final IconData icon;
+
+  final Widget icon;
   final bool obscureText;
 
   const CustomInputField({
@@ -151,13 +215,12 @@ class CustomInputField extends StatelessWidget {
         fillColor: tdWhite24,
         hintText: hint,
         hintStyle: const TextStyle(color: tdWhite54),
-        prefixIcon: Icon(icon, color: tdWhite70),
+        prefixIcon: icon,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide.none,
         ),
       ),
-
       style: const TextStyle(color: tdWhite),
     );
   }
@@ -220,11 +283,11 @@ class SocialLoginButtons extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        socialButton('assets/images/google.png'),
+        socialButton('assets/buttons/google-ic.png'),
         SizedBox(width: 15),
-        socialButton('assets/images/apple.png'),
+        socialButton('assets/buttons/apple-ic.png'),
         SizedBox(width: 15),
-        socialButton('assets/images/facebook.png'),
+        socialButton('assets/buttons/facebook-ic.png'),
       ],
     );
   }
@@ -237,22 +300,9 @@ class SocialLoginButtons extends StatelessWidget {
       },
       child: AnimatedContainer(
         duration: Duration(milliseconds: 150),
-        width: 45,
-        height: 40,
-        decoration: BoxDecoration(
-          color: tdWhite.withOpacity(0.1),
-          borderRadius: BorderRadius.circular(15),
-          boxShadow: [
-            BoxShadow(
-              color: tdGreyDark.withOpacity(0.3),
-              blurRadius: 4,
-              spreadRadius: 0.5,
-              offset: Offset(2, 2),
-            ),
-          ],
-          border: Border.all(color: tdWhite.withOpacity(0.1)),
-        ),
-        child: Center(child: Image.asset(asset, width: 28, height: 28)),
+        width: 55,
+        height: 55,
+        child: Center(child: Image.asset(asset, width: 55, height: 55)),
       ),
     );
   }
