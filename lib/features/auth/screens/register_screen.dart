@@ -53,7 +53,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             alignment: Alignment.bottomCenter,
             child: Container(
               height: MediaQuery.of(context).size.height * 0.8,
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+              padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 25),
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,

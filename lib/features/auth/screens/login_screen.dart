@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:movie_booking_ticket/theme.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -378,22 +377,18 @@ class SocialLoginButtons extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 55,
-        height: 45,
+        width: 58,
+        height: 44,
         decoration: BoxDecoration(
-          // Thêm gradient để có màu đen pha xám mờ
           gradient: const LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [
-              Color(0xFF2B2B2B), // Xám đậm
-              Color(0xFF000000), // Đen
-            ],
+            colors: [Color(0xFF2B2B2B), Color(0xFF000000)],
           ),
           borderRadius: BorderRadius.circular(8),
           border: Border.all(color: Colors.grey.shade800),
         ),
-        child: Center(child: Image.asset(asset, width: 25, height: 25)),
+        child: Center(child: Image.asset(asset, width: 20, height: 20)),
       ),
     );
   }
