@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:movie_booking_ticket/core/models/movie.dart';
 import 'package:movie_booking_ticket/core/routes/app_routes.dart';
+import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 import '../../../localization/app_localizations.dart';
 
 class MovieDetailScreen extends StatelessWidget {
@@ -22,7 +23,7 @@ class MovieDetailScreen extends StatelessWidget {
           children: [
             _buildMoviePoster(context),
             _buildMovieInfo(),
-            _buildMovieDetails(),
+            _buildMovieDetails(context),
             _buildCastSection(context),
             const SizedBox(height: 20),
           ],
@@ -179,34 +180,70 @@ class MovieDetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildMovieDetails() {
+  Widget _buildMovieDetails(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
         children: [
-          Row(
-            children: [
-              const Icon(Icons.star, color: Colors.amber, size: 20),
-              const SizedBox(width: 4),
-              Text(
-                '${movie.rating} (${movie.voteCount})',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
+          Expanded(
+            child: Row(
+              children: [
+                const Icon(Icons.star, color: Colors.yellow, size: 20),
+                const SizedBox(width: 4),
+                Text(
+                  '${movie.rating}',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
-              ),
-              const SizedBox(width: 16),
-              Text(
-                movie.releaseDate,
-                style: const TextStyle(color: Colors.white),
-              ),
-            ],
+                const SizedBox(width: 12),
+                Text(
+                  movie.releaseDate,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w400,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    'T18',
+                    style: const TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 12,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
-          const SizedBox(height: 12),
-          Text(
-            movie.plot,
-            style: const TextStyle(color: Colors.white70, fontSize: 14),
+          ElevatedButton.icon(
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder:
+                    (context) => const TrailerDialog(videoId: '5MZmSJtP7fE'),
+              );
+            },
+            icon: const Icon(Icons.play_circle, color: Colors.white),
+            label: const Text('Trailer', style: TextStyle(color: Colors.white)),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.deepOrange,
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
           ),
         ],
       ),
@@ -290,6 +327,44 @@ class MovieDetailScreen extends StatelessWidget {
         child: const Text(
           'Select Seats',
           style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+        ),
+      ),
+    );
+  }
+}
+
+class TrailerDialog extends StatelessWidget {
+  final String videoId;
+
+  const TrailerDialog({super.key, required this.videoId});
+
+  @override
+  Widget build(BuildContext context) {
+    YoutubePlayerController _controller = YoutubePlayerController(
+      initialVideoId: videoId,
+      flags: const YoutubePlayerFlags(autoPlay: true, mute: false),
+    );
+
+    return Dialog(
+      backgroundColor: Colors.black87,
+      insetPadding: const EdgeInsets.all(16),
+      child: AspectRatio(
+        aspectRatio: 16 / 9,
+        child: Stack(
+          children: [
+            YoutubePlayer(
+              controller: _controller,
+              showVideoProgressIndicator: true,
+            ),
+            Positioned(
+              top: 8,
+              right: 8,
+              child: IconButton(
+                icon: const Icon(Icons.close, color: Colors.white),
+                onPressed: () => Navigator.of(context).pop(),
+              ),
+            ),
+          ],
         ),
       ),
     );

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+// import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:movie_booking_ticket/theme.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -22,7 +24,7 @@ class _LoginScreenState extends State<LoginScreen> {
             top: 0,
             left: 0,
             right: 0,
-            height: MediaQuery.of(context).size.height * 0.3,
+            height: MediaQuery.of(context).size.height * 0.4,
             child: Container(
               decoration: BoxDecoration(
                 image: DecorationImage(
@@ -41,7 +43,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       Colors.black.withOpacity(0.8),
                       Colors.black.withOpacity(1),
                     ],
-                    stops: [0.0, 0.3, 0.7, 1.0],
+                    stops: [0.0, 0.2, 0.8, 1.0],
                   ),
                 ),
               ),
@@ -204,7 +206,8 @@ class _LoginScreenState extends State<LoginScreen> {
                       ],
                     ),
                     const SizedBox(height: 20),
-                    SocialLoginButtons(),
+                    const SocialLoginButtons(),
+
                     const SizedBox(height: 10),
                     Center(
                       child: TextButton(
@@ -353,26 +356,44 @@ class SocialLoginButtons extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        socialButton('assets/buttons/google-ic.png'),
-        SizedBox(width: 15),
-        socialButton('assets/buttons/apple-ic.png'),
-        SizedBox(width: 15),
-        socialButton('assets/buttons/facebook-ic.png'),
+        _socialButton(
+          asset: 'assets/buttons/google-ic.png',
+          onTap: () => print('Clicked Google'),
+        ),
+        const SizedBox(width: 15),
+        _socialButton(
+          asset: 'assets/buttons/apple-ic.png',
+          onTap: () => print('Clicked Apple'),
+        ),
+        const SizedBox(width: 15),
+        _socialButton(
+          asset: 'assets/buttons/facebook-ic.png',
+          onTap: () => print('Clicked Facebook'),
+        ),
       ],
     );
   }
 
-  Widget socialButton(String asset) {
+  Widget _socialButton({required String asset, required VoidCallback onTap}) {
     return GestureDetector(
-      onTapDown: (details) {},
-      onTap: () {
-        print("Clicked: $asset");
-      },
-      child: AnimatedContainer(
-        duration: Duration(milliseconds: 150),
+      onTap: onTap,
+      child: Container(
         width: 55,
-        height: 55,
-        child: Center(child: Image.asset(asset, width: 55, height: 55)),
+        height: 45,
+        decoration: BoxDecoration(
+          // Thêm gradient để có màu đen pha xám mờ
+          gradient: const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Color(0xFF2B2B2B), // Xám đậm
+              Color(0xFF000000), // Đen
+            ],
+          ),
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: Colors.grey.shade800),
+        ),
+        child: Center(child: Image.asset(asset, width: 25, height: 25)),
       ),
     );
   }
