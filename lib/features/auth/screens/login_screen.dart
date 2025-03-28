@@ -1,10 +1,18 @@
 import 'package:flutter/material.dart';
+// import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:movie_booking_ticket/theme.dart';
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
+
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  bool _isPasswordHidden = true;
 
   @override
   Widget build(BuildContext context) {
@@ -15,7 +23,7 @@ class LoginScreen extends StatelessWidget {
             top: 0,
             left: 0,
             right: 0,
-            height: MediaQuery.of(context).size.height * 0.3,
+            height: MediaQuery.of(context).size.height * 0.4,
             child: Container(
               decoration: BoxDecoration(
                 image: DecorationImage(
@@ -34,7 +42,7 @@ class LoginScreen extends StatelessWidget {
                       Colors.black.withOpacity(0.8),
                       Colors.black.withOpacity(1),
                     ],
-                    stops: [0.0, 0.3, 0.7, 1.0],
+                    stops: [0.0, 0.2, 0.8, 1.0],
                   ),
                 ),
               ),
@@ -45,44 +53,78 @@ class LoginScreen extends StatelessWidget {
             alignment: Alignment.bottomCenter,
             child: Container(
               height: MediaQuery.of(context).size.height * 0.7,
-              padding: EdgeInsets.symmetric(horizontal: 32, vertical: 20),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                   colors: [tdBlack, tdGreyDark],
                 ),
-
-                borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(30),
+                ),
               ),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 32),
+              child: SingleChildScrollView(
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Text(
-                      'Welcome Back!',
-                      style: GoogleFonts.poppins(
-                        fontSize: 28,
-                        fontWeight: FontWeight.bold,
-                        color: tdWhite,
+                    Center(
+                      child: Text(
+                        'Welcome Back!',
+                        style: GoogleFonts.poppins(
+                          fontSize: 28,
+                          fontWeight: FontWeight.bold,
+                          color: tdWhite,
+                        ),
                       ),
                     ),
                     const SizedBox(height: 5),
-                    Text(
-                      'welcome back we missed you',
-                      style: GoogleFonts.poppins(
-                        fontSize: 14,
-                        color: tdWhite70,
+                    Center(
+                      child: Text(
+                        'welcome back we missed you',
+                        style: GoogleFonts.poppins(
+                          fontSize: 14,
+                          color: tdWhite70,
+                        ),
                       ),
                     ),
                     const SizedBox(height: 20),
-                    CustomInputField(hint: 'Username', icon: Icons.person),
-                    const SizedBox(height: 20),
-                    CustomInputField(
-                      hint: 'Password',
-                      icon: Icons.lock,
-                      obscureText: true,
+                    buildLabel("Username"),
+                    buildInputField("Username", 'assets/buttons/user-ic.png'),
+                    buildLabel("Password"),
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 10),
+                      child: TextField(
+                        obscureText: _isPasswordHidden,
+                        decoration: InputDecoration(
+                          filled: true,
+                          fillColor: tdWhite24,
+                          hintText: "Password",
+                          hintStyle: const TextStyle(color: tdWhite54),
+                          prefixIcon: ImageIcon(
+                            AssetImage('assets/buttons/key-ic.png'),
+                            color: tdWhite70,
+                          ),
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _isPasswordHidden
+                                  ? Icons.visibility_off
+                                  : Icons.visibility,
+                              color: tdWhite70,
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                _isPasswordHidden = !_isPasswordHidden;
+                              });
+                            },
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide.none,
+                          ),
+                        ),
+                        style: const TextStyle(color: tdWhite),
+                      ),
                     ),
                     Align(
                       alignment: Alignment.centerRight,
@@ -94,29 +136,96 @@ class LoginScreen extends StatelessWidget {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 20),
-
-                    CustomButton(
-                      label: 'Sign in',
-                      onPressed: () {
-                        context.go('/home');
-                      },
-                    ),
                     const SizedBox(height: 10),
-                    Text(
-                      'Or continue with',
-                      style: GoogleFonts.poppins(color: tdWhite70),
+                    Container(
+                      height: 50,
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [tdBrown, tdYellow],
+                        ),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: ElevatedButton(
+                        onPressed: () {
+                          context.go('/home');
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.transparent,
+                          shadowColor: Colors.transparent,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: ShaderMask(
+                          shaderCallback:
+                              (bounds) => LinearGradient(
+                                colors: [tdWhite, tdWhite70],
+                              ).createShader(bounds),
+                          child: Text(
+                            'Sign in',
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w700,
+                              color: tdWhite,
+                            ),
+                          ),
+                        ),
+                      ),
                     ),
                     const SizedBox(height: 20),
-                    SocialLoginButtons(),
-                    Spacer(),
-                    TextButton(
-                      onPressed: () {
-                        context.go('/register');
-                      },
-                      child: Text(
-                        'Don’t have an account? Sign Up',
-                        style: TextStyle(color: tdWhite70),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Container(
+                            height: 1,
+                            decoration: const BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [Colors.transparent, Colors.white24],
+                              ),
+                            ),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 10),
+                          child: Text(
+                            'Or continue with',
+                            style: GoogleFonts.poppins(color: tdWhite70),
+                          ),
+                        ),
+                        Expanded(
+                          child: Container(
+                            height: 1,
+                            decoration: const BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [Colors.white24, Colors.transparent],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+                    const SocialLoginButtons(),
+
+                    const SizedBox(height: 10),
+                    Center(
+                      child: TextButton(
+                        onPressed: () {
+                          context.go('/register');
+                        },
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              'Don’t have an account? ',
+                              style: GoogleFonts.poppins(color: tdWhite70),
+                            ),
+                            Text(
+                              'Sign Up',
+                              style: GoogleFonts.poppins(color: tdWhite),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ],
@@ -128,11 +237,38 @@ class LoginScreen extends StatelessWidget {
       ),
     );
   }
+
+  Widget buildLabel(String text) {
+    return Container(
+      alignment: Alignment.centerLeft,
+      margin: const EdgeInsets.only(top: 10, bottom: 4),
+      child: Text(
+        text,
+        style: GoogleFonts.poppins(fontSize: 13, color: Colors.white),
+      ),
+    );
+  }
+
+  Widget buildInputField(
+    String hint,
+    String iconPath, {
+    bool isPassword = false,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: CustomInputField(
+        hint: hint,
+        icon: ImageIcon(AssetImage(iconPath), color: tdWhite70),
+        obscureText: isPassword,
+      ),
+    );
+  }
 }
 
 class CustomInputField extends StatelessWidget {
   final String hint;
-  final IconData icon;
+
+  final Widget icon;
   final bool obscureText;
 
   const CustomInputField({
@@ -151,13 +287,12 @@ class CustomInputField extends StatelessWidget {
         fillColor: tdWhite24,
         hintText: hint,
         hintStyle: const TextStyle(color: tdWhite54),
-        prefixIcon: Icon(icon, color: tdWhite70),
+        prefixIcon: icon,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide.none,
         ),
       ),
-
       style: const TextStyle(color: tdWhite),
     );
   }
@@ -220,39 +355,40 @@ class SocialLoginButtons extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        socialButton('assets/images/google.png'),
-        SizedBox(width: 15),
-        socialButton('assets/images/apple.png'),
-        SizedBox(width: 15),
-        socialButton('assets/images/facebook.png'),
+        _socialButton(
+          asset: 'assets/buttons/google-ic.png',
+          onTap: () => print('Clicked Google'),
+        ),
+        const SizedBox(width: 15),
+        _socialButton(
+          asset: 'assets/buttons/apple-ic.png',
+          onTap: () => print('Clicked Apple'),
+        ),
+        const SizedBox(width: 15),
+        _socialButton(
+          asset: 'assets/buttons/facebook-ic.png',
+          onTap: () => print('Clicked Facebook'),
+        ),
       ],
     );
   }
 
-  Widget socialButton(String asset) {
+  Widget _socialButton({required String asset, required VoidCallback onTap}) {
     return GestureDetector(
-      onTapDown: (details) {},
-      onTap: () {
-        print("Clicked: $asset");
-      },
-      child: AnimatedContainer(
-        duration: Duration(milliseconds: 150),
-        width: 45,
-        height: 40,
+      onTap: onTap,
+      child: Container(
+        width: 58,
+        height: 44,
         decoration: BoxDecoration(
-          color: tdWhite.withOpacity(0.1),
-          borderRadius: BorderRadius.circular(15),
-          boxShadow: [
-            BoxShadow(
-              color: tdGreyDark.withOpacity(0.3),
-              blurRadius: 4,
-              spreadRadius: 0.5,
-              offset: Offset(2, 2),
-            ),
-          ],
-          border: Border.all(color: tdWhite.withOpacity(0.1)),
+          gradient: const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [Color(0xFF2B2B2B), Color(0xFF000000)],
+          ),
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: Colors.grey.shade800),
         ),
-        child: Center(child: Image.asset(asset, width: 28, height: 28)),
+        child: Center(child: Image.asset(asset, width: 20, height: 20)),
       ),
     );
   }
