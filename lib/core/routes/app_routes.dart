@@ -7,8 +7,8 @@ import '../../features/auth/screens/login_screen.dart';
 import '../../features/auth/screens/register_screen.dart';
 import '../../features/home_movie/screens/home_screen.dart';
 import '../../features/detail_movie/screens/detail_movie_screen.dart';
+import '../../features/my_ticket_movie/screens/ticket_movie_screen.dart';
 import '../../features/select_seat_movie/screens/select_seat_movie_screen.dart';
-import '../../features/ticket_seat_movie/screens/ticket_movie_screen.dart';
 
 
 final GoRouter appRouter = GoRouter(
