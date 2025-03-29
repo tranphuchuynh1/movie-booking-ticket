@@ -1,3 +1,4 @@
+
 import '../models/movie.dart';
 import 'cast_data.dart';
 import 'movie_data.dart';
@@ -16,7 +17,7 @@ class FakeData {
 
     final CastData castData = CastData();
     final MoviesData moviesData = MoviesData(castData);
-    
+
     movie.addAll(moviesData.getAllMovies());
   }
 

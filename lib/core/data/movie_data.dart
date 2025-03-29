@@ -1,4 +1,3 @@
-// file: lib/data/movies_data.dart
 import '../models/movie.dart';
 import 'cast_data.dart';
 

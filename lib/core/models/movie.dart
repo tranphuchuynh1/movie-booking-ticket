@@ -1,5 +1,4 @@
 
-
 import 'cast.dart';
 
 class Movie {
@@ -27,4 +26,3 @@ class Movie {
     required this.cast
   });
 }
-

@@ -46,7 +46,7 @@ dependencies:
   equatable: any
   go_router: any
   shimmer: any
-  cached_network_image: any
+  cached_network_image: ^3.4.1
   retrofit: ^4.4.0
   logger: ^2.4.0
   json_annotation: ^4.9.0
@@ -61,7 +61,7 @@ dev_dependencies:
     sdk: flutter
   retrofit_generator: ^9.1.9
   build_runner: ^2.3.3
-  json_serializable: ^6.8.0
+  json_serializable: ^6.9.4
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
