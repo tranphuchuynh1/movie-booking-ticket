@@ -1,9 +1,11 @@
 import 'package:dio/dio.dart';
 
+import '../constants/constants.dart';
+
+
 class DioClient {
   static final DioClient _instance = DioClient._internal();
   late final Dio dio;
-  // late final ApiService apiService; -> nào có class ApiService thì dùng
 
   factory DioClient() {
     return _instance;
@@ -12,13 +14,35 @@ class DioClient {
   DioClient._internal() {
     dio = Dio(
       BaseOptions(
+        baseUrl: ApiConstants.baseUrl,
         connectTimeout: const Duration(seconds: 10),
         receiveTimeout: const Duration(seconds: 10),
-        headers: {"Content-Type": "application/json"},
+        headers: {
+          'Content-Type': 'application/json',
+        },
       ),
     );
 
-    // apiService = ApiService(dio);  - > ApiService có thì dùng
+    dio.interceptors.add(
+      InterceptorsWrapper(
+        onRequest: (options, handler) {
+          print('REQUEST: ${options.method} ${options.path}');
+          return handler.next(options);
+        },
+        onResponse: (response, handler) {
+          print('RESPONSE: ${response.statusCode}');
+          print('DATA: ${response.data}');
+          return handler.next(response);
+        },
+
+
+
+        onError: (DioException e, handler) {
+          print('ERROR: ${e.message}');
+          return handler.next(e);
+        },
+      ),
+    );
   }
 
   static Dio get instance => _instance.dio;

@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:go_router/go_router.dart';
-import 'package:movie_booking_ticket/core/widgets/bottom_nav_bar.dart';
-import '../../../core/data/fake_data.dart';
-import '../../../core/models/movie.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+
+import '../../../core/models/movie_model.dart';
+import '../../../core/widgets/bottom_nav_bar.dart';
+import '../bloc/movie_bloc.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -15,46 +18,64 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _currentNowPlayingIndex = 0;
 
-  final _data = FakeData();
-  late List<Movie> _nowPlayingMovies;
-  late List<Movie> _popularMovies;
-  late List<Movie> _upcomingMovies;
-
   @override
   void initState() {
     super.initState();
-    _nowPlayingMovies = _data.getNowPlayingMovies();
-    _popularMovies = _data.getPopularMovies();
-    _upcomingMovies = _data.getUpcomingMovies();
+    context.read<MovieBloc>().add(FetchMoviesEvent());
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 16),
-              _buildSearchBar(),
-              const SizedBox(height: 24),
-              _buildNowPlayingSection(),
-              const SizedBox(height: 10),
-              _buildMovieSection('Popular', _popularMovies),
-              const SizedBox(height: 24),
-              _buildMovieSection('Upcoming', _upcomingMovies),
-              const SizedBox(height: 60),
-            ],
-          ),
-        ),
+      body: BlocBuilder<MovieBloc, MovieState>(
+        builder: (context, state) {
+          if (state.status == MovieStatus.loading) {
+            return const Center(
+              child: CircularProgressIndicator(color: Colors.red),
+            );
+          }
+
+          if (state.status == MovieStatus.error) {
+            return Center(
+              child: Text(
+                'Error: ${state.errorMessage}',
+                style: const TextStyle(color: Colors.white),
+              ),
+            );
+          }
+
+          return _buildHomeContent(state);
+        },
       ),
       bottomNavigationBar: const BottomNavBar(selectedIndex: 0),
     );
   }
 
-  // Search Bar
+  Widget _buildHomeContent(MovieState state) {
+    return SafeArea(
+      child: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 16),
+            _buildSearchBar(),
+            const SizedBox(height: 24),
+            if (state.nowPlayingMovies.isNotEmpty)
+              _buildNowPlayingSection(state.nowPlayingMovies),
+            const SizedBox(height: 10),
+            if (state.popularMovies.isNotEmpty)
+              _buildMovieSection('Popular', state.popularMovies),
+            const SizedBox(height: 24),
+            if (state.upcomingMovies.isNotEmpty)
+              _buildMovieSection('Upcoming', state.upcomingMovies),
+            const SizedBox(height: 60),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildSearchBar() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -82,8 +103,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // Now Playing Section
-  Widget _buildNowPlayingSection() {
+  Widget _buildNowPlayingSection(List<MovieModel> nowPlayingMovies) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -104,7 +124,7 @@ class _HomeScreenState extends State<HomeScreen> {
           child: Column(
             children: [
               CarouselSlider.builder(
-                itemCount: _nowPlayingMovies.length,
+                itemCount: nowPlayingMovies.length,
                 options: CarouselOptions(
                   height: 450,
                   enlargeCenterPage: true,
@@ -116,61 +136,11 @@ class _HomeScreenState extends State<HomeScreen> {
                   },
                 ),
                 itemBuilder: (context, index, realIndex) {
-                  return _buildNowPlayingMovieCard(_nowPlayingMovies[index]);
+                  return _buildNowPlayingMovieCard(nowPlayingMovies[index]);
                 },
               ),
               const SizedBox(height: 10),
-              // Rating
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.star, color: Colors.amber, size: 18),
-                  const SizedBox(width: 4),
-                  Text(
-                    '${_nowPlayingMovies[_currentNowPlayingIndex].rating}',
-                    style: const TextStyle(color: Colors.white, fontSize: 14),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              // Title
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Text(
-                  _nowPlayingMovies[_currentNowPlayingIndex].title,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  textAlign: TextAlign.center,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-              const SizedBox(height: 12),
-              // Genres
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: _nowPlayingMovies[_currentNowPlayingIndex].genres.map((genre) {
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(color: Colors.grey.shade800),
-                        ),
-                        child: Text(
-                          genre,
-                          style: const TextStyle(color: Colors.white, fontSize: 12),
-                        ),
-                      ),
-                    );
-                  }).toList(),
-                ),
-              ),
+              _buildMovieDetails(nowPlayingMovies[_currentNowPlayingIndex]),
             ],
           ),
         ),
@@ -178,8 +148,65 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // Popular & Upcoming Movies Section
-  Widget _buildMovieSection(String title, List<Movie> movies) {
+  Widget _buildMovieDetails(MovieModel movie) {
+    return Column(
+      children: [
+        // Rating
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.star, color: Colors.amber, size: 18),
+            const SizedBox(width: 4),
+            Text(
+              '${movie.rating ?? 0}',
+              style: const TextStyle(color: Colors.white, fontSize: 14),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        // Title
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Text(
+            movie.title ?? 'No Title',
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+            textAlign: TextAlign.center,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+        const SizedBox(height: 12),
+        // Genres
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: (movie.genres ?? []).map((genre) {
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: Colors.grey.shade800),
+                  ),
+                  child: Text(
+                    genre,
+                    style: const TextStyle(color: Colors.white, fontSize: 12),
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildMovieSection(String title, List<MovieModel> movies) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -213,8 +240,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // Now Playing Movie Card
-  Widget _buildNowPlayingMovieCard(Movie movie) {
+  Widget _buildNowPlayingMovieCard(MovieModel movie) {
     return GestureDetector(
       onTap: () {
         context.go('/detail', extra: movie);
@@ -223,7 +249,7 @@ class _HomeScreenState extends State<HomeScreen> {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
           image: DecorationImage(
-            image: AssetImage(movie.posterUrl),
+            image: NetworkImage(movie.imageMovie?.first ?? ''),
             fit: BoxFit.cover,
           ),
         ),
@@ -231,8 +257,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // Popular/Upcoming Movie Poster
-  Widget _buildMoviePoster(Movie movie) {
+  Widget _buildMoviePoster(MovieModel movie) {
     return GestureDetector(
       onTap: () {
         context.go('/detail', extra: movie);
@@ -242,18 +267,22 @@ class _HomeScreenState extends State<HomeScreen> {
         children: [
           ClipRRect(
             borderRadius: BorderRadius.circular(16),
-            child: Image.asset(
-              movie.posterUrl,
+            child: CachedNetworkImage(
+              imageUrl: movie.imageMovie?.first ?? '',
               height: 150,
               width: 100,
               fit: BoxFit.cover,
+              placeholder: (context, url) =>
+              const Center(child: CircularProgressIndicator()),
+              errorWidget: (context, url, error) =>
+              const Icon(Icons.movie, size: 100),
             ),
           ),
           const SizedBox(height: 8),
           SizedBox(
             width: 100,
             child: Text(
-              movie.title,
+              movie.title ?? 'No Title',
               style: const TextStyle(color: Colors.white, fontSize: 12),
               overflow: TextOverflow.ellipsis,
             ),

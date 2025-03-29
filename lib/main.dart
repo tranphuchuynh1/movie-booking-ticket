@@ -1,27 +1,46 @@
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:movie_booking_ticket/core/routes/app_routes.dart';
+
+import 'core/services/api_service.dart';
 import 'core/services/dio_client.dart';
+import 'features/home_movie/bloc/movie_bloc.dart';
 import 'localization/app_localizations.dart';
 
-void main() {
-  runApp(const MyApp());
 
-  // Khởi tạo Dio một lần duy nhất khi app chạy
-  Dio dio = DioClient.instance;
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize Dio and ApiService
+  final dio = DioClient.instance;
+  final apiService = ApiService(dio);
+
+  runApp(
+    MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (context) => MovieBloc(),
+        ),
+        // add thêm bloc provider ở dây nha
+        // BlocProvider(
+        //   create: (context) => LoginBloc(),
+        // ),
+      ],
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
       debugShowCheckedModeBanner: false,
       title: 'Flutter Localization',
-      locale: Locale('en'), // Default locale
+      locale: const Locale('en'),
       supportedLocales: const [
         Locale('en', 'US'), // English
         Locale('vi', 'VN'), // Vietnamese
