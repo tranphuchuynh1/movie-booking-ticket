@@ -1,4 +1,3 @@
-
 import 'cast.dart';
 
 class Movie {
@@ -23,6 +22,6 @@ class Movie {
     required this.genres,
     required this.tagline,
     required this.plot,
-    required this.cast
+    required this.cast,
   });
 }

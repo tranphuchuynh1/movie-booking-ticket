@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:movie_booking_ticket/core/routes/app_routes.dart';
 import 'package:movie_booking_ticket/core/widgets/bottom_nav_bar.dart';
+import 'package:movie_booking_ticket/theme.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -10,6 +12,11 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
+  // Tạo các biến trạng thái cho từng menu có sub menu
+  bool _isAccountExpanded = false;
+  bool _isSettingsExpanded = false;
+  bool _isAboutExpanded = false;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -33,8 +40,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 45, 16, 36),
       child: Row(
-        children: [
-          const Expanded(
+        children: const [
+          Expanded(
             child: Text(
               'My Profile',
               textAlign: TextAlign.center,
@@ -55,7 +62,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       children: [
         const CircleAvatar(
           radius: 40,
-          backgroundImage: AssetImage('assets/dv9.jpg'),
+          backgroundImage: AssetImage('assets/images/dora.png'),
         ),
         const SizedBox(height: 12),
         const Text(
@@ -78,18 +85,42 @@ class _ProfileScreenState extends State<ProfileScreen> {
           icon: Icons.person_outline,
           title: 'Account',
           subtitle: 'Edit Profile\nChange Password',
+          isExpanded: _isAccountExpanded,
+          onTap: () {
+            setState(() {
+              _isAccountExpanded = !_isAccountExpanded;
+              // _isSettingsExpanded = false;
+              // _isAboutExpanded = false;
+            });
+          },
         ),
         const SizedBox(height: 16),
         _buildMenuItem(
           icon: Icons.settings_outlined,
           title: 'Settings',
           subtitle: 'Themes\nPermissions',
+          isExpanded: _isSettingsExpanded,
+          onTap: () {
+            setState(() {
+              _isSettingsExpanded = !_isSettingsExpanded;
+              // _isAccountExpanded = false;
+              // _isAboutExpanded = false;
+            });
+          },
         ),
         const SizedBox(height: 16),
         _buildMenuItem(
           icon: Icons.info_outline,
           title: 'About',
           subtitle: 'About Movies\nMore',
+          isExpanded: _isAboutExpanded,
+          onTap: () {
+            setState(() {
+              _isAboutExpanded = !_isAboutExpanded;
+              // _isAccountExpanded = false;
+              // _isSettingsExpanded = false;
+            });
+          },
         ),
         const SizedBox(height: 16),
         _buildLogoutItem(),
@@ -101,51 +132,117 @@ class _ProfileScreenState extends State<ProfileScreen> {
     required IconData icon,
     required String title,
     required String subtitle,
+    required bool isExpanded,
+    required VoidCallback onTap,
   }) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-      child: Row(
-        children: [
-          Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: Colors.black,
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: Colors.grey.shade800),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Tile chính
+        InkWell(
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16.0,
+              vertical: 8.0,
             ),
-            child: Icon(icon, color: Colors.white, size: 20),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            child: Row(
               children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: tdBlack,
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: Colors.grey.shade800),
+                  ),
+                  child: Icon(icon, color: tdWhite, size: 20),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        style: const TextStyle(
+                          color: tdWhite,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      if (!isExpanded)
+                        Text(
+                          subtitle,
+                          style: TextStyle(
+                            color: Colors.grey.shade500,
+                            fontSize: 12,
+                          ),
+                        ),
+                    ],
                   ),
                 ),
-                Text(
-                  subtitle,
-                  style: TextStyle(
-                    color: Colors.grey.shade500,
-                    fontSize: 12,
+                AnimatedRotation(
+                  turns: isExpanded ? 0.25 : 0.0,
+                  duration: const Duration(milliseconds: 200),
+                  child: const Icon(
+                    Icons.chevron_right,
+                    color: Colors.white,
+                    size: 20,
                   ),
                 ),
               ],
             ),
           ),
-          const Icon(
-            Icons.chevron_right,
-            color: Colors.white,
-            size: 20,
+        ),
+        if (isExpanded)
+          Padding(
+            padding: const EdgeInsets.only(left: 56.0, right: 16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children:
+                  subtitle.split('\n').map((subItem) {
+                    return GestureDetector(
+                      onTap: () {
+                        if (title == 'Account' && subItem == 'Edit Profile') {
+                          context.go('/edit_profile');
+                        }
+                        if (title == 'Account' &&
+                            subItem == 'Change Password') {
+                          context.go('/change_password');
+                        }
+                        // if (title == 'Settings' && subItem == 'Themes') {
+                        //   context.go('/themes');
+                        // }
+                        // if (title == 'Settings' &&
+                        //     subItem == 'Permissions') {
+                        //   context.go('/permissions');
+                        // }
+                        // if (title == 'About' && subItem == 'About Movies') {
+                        //   context.go('/about_movies');
+                        // }
+                        // if (title == 'About' && subItem == 'More') {
+                        //   context.go('/more');
+                        // }
+                        else {
+                          debugPrint('Item selected: $subItem');
+                        }
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8.0),
+                        child: Text(
+                          subItem,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ),
+                    );
+                  }).toList(),
+            ),
           ),
-        ],
-      ),
+      ],
     );
   }
 
@@ -177,11 +274,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
               ),
             ),
-            const Icon(
-              Icons.chevron_right,
-              color: Colors.red,
-              size: 20,
-            ),
+            const Icon(Icons.chevron_right, color: Colors.red, size: 20),
           ],
         ),
       ),
@@ -191,7 +284,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   void _showLogoutDialog() {
     showDialog(
       context: context,
-      barrierColor: Colors.black.withOpacity(0.7), // Lớp phủ mờ
+      barrierColor: Colors.black.withOpacity(0.7),
       builder: (BuildContext context) {
         return Dialog(
           backgroundColor: Colors.transparent,
@@ -221,16 +314,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 const Text(
                   'Are you sure you want to\nlog out?',
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                  ),
+                  style: TextStyle(color: Colors.white, fontSize: 16),
                 ),
                 const SizedBox(height: 16),
-                Container(
-                  height: 1,
-                  color: Colors.grey.shade800,
-                ),
+                Container(height: 1, color: Colors.grey.shade800),
                 Row(
                   children: [
                     Expanded(
@@ -257,9 +344,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     Expanded(
                       child: GestureDetector(
                         onTap: () {
-                          // Đóng dialog
                           Navigator.of(context).pop();
-                          // route về trang login
                           appRouter.go('/');
                         },
                         child: const Padding(
