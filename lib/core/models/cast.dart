@@ -1,5 +1,3 @@
-
-
 class Cast {
   final String name;
   final String character;
@@ -11,5 +9,3 @@ class Cast {
     required this.profileUrl,
   });
 }
-
-
