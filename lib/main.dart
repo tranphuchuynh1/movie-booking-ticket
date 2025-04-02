@@ -13,20 +13,8 @@ void main() {
   // Initialize Dio and ApiService
   final dio = DioClient.instance;
 
-
   runApp(
-    MultiBlocProvider(
-      providers: [
-        BlocProvider(
-          create: (context) => MovieBloc(),
-        ),
-        // add thêm bloc provider ở dây nha
-        // BlocProvider(
-        //   create: (context) => LoginBloc(),
-        // ),
-      ],
-      child: const MyApp(),
-    ),
+    MyApp()
   );
 }
 

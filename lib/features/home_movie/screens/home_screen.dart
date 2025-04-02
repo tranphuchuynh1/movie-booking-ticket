@@ -23,21 +23,19 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     // sử dụng bloc cho màn hình riêng , k khai báo global ở main trừ khi dùng chung
     return BlocProvider(
-      create: (context) => MovieBloc(
-          movieController: MovieController()
-      )..add(FetchMoviesEvent()
+      create: (context) => MovieBloc()..add(FetchMoviesEvent()
       ), // them event ngay sau khi tạo
       child: Scaffold(
         backgroundColor: Colors.black,
         body: BlocBuilder<MovieBloc, MovieState>(
           builder: (context, state) {
-            if (state.status == MovieStatus.loading) {
+            if (state.status == MovieStateStatus.loading) {
               return const Center(
                 child: CircularProgressIndicator(color: Colors.red),
               );
             }
 
-            if (state.status == MovieStatus.error) {
+            if (state.status == MovieStateStatus.error) {
               return Center(
                 child: Text(
                   'Error: ${state.errorMessage}',

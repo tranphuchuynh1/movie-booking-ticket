@@ -2,6 +2,8 @@
 import 'package:json_annotation/json_annotation.dart';
 part 'movie_model.g.dart';
 
+enum MovieStatus {playing, upcoming}
+
 @JsonSerializable()
 class MovieModel {
   @JsonKey(name: 'movieId')

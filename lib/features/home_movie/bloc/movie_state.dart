@@ -1,16 +1,16 @@
 part of 'movie_bloc.dart';
 
-enum MovieStatus { initial, loading, success, error }
+enum MovieStateStatus { initial, loading, success, error }
 
 class MovieState {
-  final MovieStatus status;
+  final MovieStateStatus status;
   final List<MovieModel> nowPlayingMovies;
   final List<MovieModel> upcomingMovies;
   final List<MovieModel> popularMovies;
   final String? errorMessage;
 
   MovieState({
-    this.status = MovieStatus.initial,
+    this.status = MovieStateStatus.initial,
     this.nowPlayingMovies = const [],
     this.upcomingMovies = const [],
     this.popularMovies = const [],
@@ -18,7 +18,7 @@ class MovieState {
   });
 
   MovieState copyWith({
-    MovieStatus? status,
+    MovieStateStatus? status,
     List<MovieModel>? nowPlayingMovies,
     List<MovieModel>? upcomingMovies,
     List<MovieModel>? popularMovies,
