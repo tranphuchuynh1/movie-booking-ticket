@@ -6,5 +6,4 @@ class ApiConstants {
   static const String moviesEndpoint = '/movies';
 
 
-
 }
