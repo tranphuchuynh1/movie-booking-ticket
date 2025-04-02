@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:movie_booking_ticket/core/routes/app_routes.dart';
-
-import 'core/services/api_service.dart';
-import 'core/services/dio_client.dart';
+import 'core/dio/dio_client.dart';
 import 'features/home_movie/bloc/movie_bloc.dart';
 import 'localization/app_localizations.dart';
 
@@ -14,7 +12,7 @@ void main() {
 
   // Initialize Dio and ApiService
   final dio = DioClient.instance;
-  final apiService = ApiService(dio);
+
 
   runApp(
     MultiBlocProvider(

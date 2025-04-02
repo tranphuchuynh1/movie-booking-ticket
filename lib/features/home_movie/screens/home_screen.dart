@@ -7,6 +7,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import '../../../core/models/movie_model.dart';
 import '../../../core/widgets/bottom_nav_bar.dart';
 import '../bloc/movie_bloc.dart';
+import '../controllers/movie_controller.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -19,36 +20,37 @@ class _HomeScreenState extends State<HomeScreen> {
   int _currentNowPlayingIndex = 0;
 
   @override
-  void initState() {
-    super.initState();
-    context.read<MovieBloc>().add(FetchMoviesEvent());
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black,
-      body: BlocBuilder<MovieBloc, MovieState>(
-        builder: (context, state) {
-          if (state.status == MovieStatus.loading) {
-            return const Center(
-              child: CircularProgressIndicator(color: Colors.red),
-            );
-          }
+    // sử dụng bloc cho màn hình riêng , k khai báo global ở main trừ khi dùng chung
+    return BlocProvider(
+      create: (context) => MovieBloc(
+          movieController: MovieController()
+      )..add(FetchMoviesEvent()
+      ), // them event ngay sau khi tạo
+      child: Scaffold(
+        backgroundColor: Colors.black,
+        body: BlocBuilder<MovieBloc, MovieState>(
+          builder: (context, state) {
+            if (state.status == MovieStatus.loading) {
+              return const Center(
+                child: CircularProgressIndicator(color: Colors.red),
+              );
+            }
 
-          if (state.status == MovieStatus.error) {
-            return Center(
-              child: Text(
-                'Error: ${state.errorMessage}',
-                style: const TextStyle(color: Colors.white),
-              ),
-            );
-          }
+            if (state.status == MovieStatus.error) {
+              return Center(
+                child: Text(
+                  'Error: ${state.errorMessage}',
+                  style: const TextStyle(color: Colors.white),
+                ),
+              );
+            }
 
-          return _buildHomeContent(state);
-        },
+            return _buildHomeContent(state);
+          },
+        ),
+        bottomNavigationBar: const BottomNavBar(selectedIndex: 0),
       ),
-      bottomNavigationBar: const BottomNavBar(selectedIndex: 0),
     );
   }
 
@@ -76,6 +78,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  // Rest of your methods remain the same
   Widget _buildSearchBar() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
