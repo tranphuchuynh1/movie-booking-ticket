@@ -6,16 +6,13 @@ import 'core/dio/dio_client.dart';
 import 'features/home_movie/bloc/movie_bloc.dart';
 import 'localization/app_localizations.dart';
 
-
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Initialize Dio and ApiService
   final dio = DioClient.instance;
 
-  runApp(
-    MyApp()
-  );
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
