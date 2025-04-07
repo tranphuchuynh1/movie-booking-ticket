@@ -14,14 +14,14 @@ import '../../features/my_ticket_movie/screens/ticket_movie_screen.dart';
 import '../../features/select_seat_movie/screens/select_seat_movie_screen.dart';
 
 final GoRouter appRouter = GoRouter(
-  initialLocation: '/splash',
+  // initialLocation: '/splash',
   routes: [
     GoRoute(path: '/home', builder: (context, state) => HomeScreen()),
 
-    // GoRoute(path: '/', builder: (context, state) => LoginScreen()),
-    GoRoute(path: '/splash', builder: (context, state) => const SplashScreen()),
-    GoRoute(path: '/login', builder: (context, state) => LoginScreen()),
+    GoRoute(path: '/', builder: (context, state) => LoginScreen()),
 
+    // GoRoute(path: '/splash', builder: (context, state) => const SplashScreen()),
+    // GoRoute(path: '/login', builder: (context, state) => LoginScreen()),
     GoRoute(path: '/register', builder: (context, state) => RegisterScreen()),
 
     GoRoute(
