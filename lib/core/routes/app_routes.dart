@@ -1,6 +1,5 @@
 import 'package:go_router/go_router.dart';
 import 'package:movie_booking_ticket/core/models/movie.dart';
-import 'package:movie_booking_ticket/features/auth/screens/splash_screen.dart';
 import 'package:movie_booking_ticket/features/profile_screen/screens/change_password.dart';
 import 'package:movie_booking_ticket/features/profile_screen/screens/edit_profile_screen.dart';
 import 'package:movie_booking_ticket/features/profile_screen/screens/profile_screen.dart';
@@ -14,14 +13,11 @@ import '../../features/my_ticket_movie/screens/ticket_movie_screen.dart';
 import '../../features/select_seat_movie/screens/select_seat_movie_screen.dart';
 
 final GoRouter appRouter = GoRouter(
-  // initialLocation: '/splash',
   routes: [
     GoRoute(path: '/home', builder: (context, state) => HomeScreen()),
 
     GoRoute(path: '/', builder: (context, state) => LoginScreen()),
 
-    // GoRoute(path: '/splash', builder: (context, state) => const SplashScreen()),
-    // GoRoute(path: '/login', builder: (context, state) => LoginScreen()),
     GoRoute(path: '/register', builder: (context, state) => RegisterScreen()),
 
     GoRoute(
