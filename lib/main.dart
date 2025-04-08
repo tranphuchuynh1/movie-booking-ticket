@@ -4,20 +4,37 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:movie_booking_ticket/core/routes/app_routes.dart';
 import 'package:movie_booking_ticket/features/auth/bloc/auth_bloc.dart';
 import 'core/dio/dio_client.dart';
+import 'features/auth/controllers/save_token_user_service.dart';
 import 'localization/app_localizations.dart';
 
-void main() {
+Future<String> CheckkToken() async {
+  final isLoggedIn = await SaveTokenUserService.isLoggedIn();
+
+  if (isLoggedIn) {
+    return '/home';
+  } else {
+    return '/';
+  }
+}
+
+
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Initialize Dio and ApiService
   final dio = DioClient.instance;
 
-  runApp(MyApp());
+  final initialRoute = await CheckkToken();
+
+  runApp(MyApp(initialRoute: initialRoute));
 }
 
 class MyApp extends StatelessWidget {
+  final String initialRoute;
   final AuthBloc _authBloc = AuthBloc();
-  
+
+  MyApp({required this.initialRoute, super.key});
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider<AuthBloc>.value(
@@ -39,7 +56,7 @@ class MyApp extends StatelessWidget {
           GlobalCupertinoLocalizations.delegate,
         ],
         theme: ThemeData.dark(),
-        routerConfig: appRouter,
+        routerConfig: appRouter(initialRoute),
       ),
     );
   }

@@ -37,6 +37,6 @@ class SaveTokenUserService {
     // check time hạn của token
     final expireTime = DateTime.parse(user.expireTime!);
     final now = DateTime.now();
-    return expireTime.isAfter(now);
+    return expireTime.toLocal().isAfter(now);
   }
 }
