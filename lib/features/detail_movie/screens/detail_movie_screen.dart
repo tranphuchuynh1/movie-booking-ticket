@@ -29,7 +29,7 @@ class MovieDetailScreen extends StatelessWidget {
           ],
         ),
       ),
-      bottomNavigationBar: _buildBottomButton(),
+      bottomNavigationBar: _buildBottomButton(context),
     );
   }
 
@@ -309,12 +309,12 @@ class MovieDetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildBottomButton() {
+  Widget _buildBottomButton(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 100.0, vertical: 16.0),
       child: ElevatedButton(
         onPressed: () {
-          appRouter.go('/select_seat', extra: movie);
+          context.go('/select_seat', extra: movie);
         },
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.deepOrange,
