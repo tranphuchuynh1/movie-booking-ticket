@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:movie_booking_ticket/core/routes/app_routes.dart';
 import 'package:movie_booking_ticket/core/widgets/bottom_nav_bar.dart';
 import 'package:movie_booking_ticket/theme.dart';
+
+import '../../auth/bloc/auth_bloc.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -19,7 +21,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return BlocProvider(create: (context) => AuthBloc(),
+    child:  Scaffold(
       backgroundColor: Colors.black,
       body: SafeArea(
         child: Column(
@@ -33,7 +36,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ],
         ),
       ),
-    );
+    ));
   }
 
   Widget _buildHeader() {
@@ -344,8 +347,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     Expanded(
                       child: GestureDetector(
                         onTap: () {
-                          Navigator.of(context).pop();
-                          appRouter.go('/');
+                          context.read<AuthBloc>().add(LogoutEvent());
+                          context.go('/login');
                         },
                         child: const Padding(
                           padding: EdgeInsets.symmetric(vertical: 14),
