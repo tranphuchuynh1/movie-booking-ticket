@@ -1,0 +1,21 @@
+flutter_native_splash:
+  color: "#121212"
+  
+  image: assets/images/logo-mbt.png
+
+  # branding: assets/images/branding.png
+  # branding_mode: bottom
+  # branding_bottom_padding: 24
+  android_12:
+    # Sử dụng hình ảnh logo-mbt cho splash icon trên Android 12+
+    image: assets/images/logo-mbt-and12.png
+    color: "#121212"
+    icon_background_color: "#121212"
+    android_gravity: center
+    android_scale_type: CENTER_CROP
+    android_size: 512
+
+
+  android: true
+  ios: true
+  web: true
