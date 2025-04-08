@@ -1,5 +1,6 @@
 import 'package:go_router/go_router.dart';
 import 'package:movie_booking_ticket/core/models/movie.dart';
+import 'package:movie_booking_ticket/features/auth/screens/auth_check_screen.dart';
 import 'package:movie_booking_ticket/features/profile_screen/screens/change_password.dart';
 import 'package:movie_booking_ticket/features/profile_screen/screens/edit_profile_screen.dart';
 import 'package:movie_booking_ticket/features/profile_screen/screens/profile_screen.dart';
@@ -13,8 +14,14 @@ import 'package:movie_booking_ticket/features/my_ticket_movie/screens/ticket_mov
 import 'package:movie_booking_ticket/features/select_seat_movie/screens/select_seat_movie_screen.dart';
 
 final GoRouter appRouter = GoRouter(
+  initialLocation: '/auth_check',
 
   routes: [
+    GoRoute(
+        path: '/auth_check',
+        builder: (context, state) => AuthCheckScreen()
+    ),
+
     GoRoute(path: '/', builder: (context, state) => LoginScreen()),
 
     GoRoute(path: '/register', builder: (context, state) => RegisterScreen()),

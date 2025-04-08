@@ -348,7 +348,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       child: GestureDetector(
                         onTap: () {
                           context.read<AuthBloc>().add(LogoutEvent());
-                          context.go('/login');
+                          context.go('/');
                         },
                         child: const Padding(
                           padding: EdgeInsets.symmetric(vertical: 14),

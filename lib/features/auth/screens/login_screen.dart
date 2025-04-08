@@ -29,7 +29,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-        create: (context) => AuthBloc(checkAuthOnInit: false),
+        create: (context) => AuthBloc(),
       child: BlocConsumer<AuthBloc, AuthState>(
 
       listener: (context, state) {

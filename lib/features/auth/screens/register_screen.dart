@@ -35,7 +35,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => AuthBloc(checkAuthOnInit: false),
+      create: (context) => AuthBloc(),
       child: BlocConsumer<AuthBloc, AuthState>(
         listenWhen: (previous, current) =>
         current.status != previous.status,
