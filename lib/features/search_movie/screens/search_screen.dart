@@ -6,6 +6,7 @@ import 'package:movie_booking_ticket/features/search_movie/bloc/search_bloc.dart
 import 'package:movie_booking_ticket/features/search_movie/bloc/search_event.dart';
 import 'package:movie_booking_ticket/features/search_movie/bloc/search_state.dart';
 import '../../../core/widgets/bottom_nav_bar.dart';
+import 'package:flutter_debouncer/flutter_debouncer.dart';
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
@@ -16,10 +17,11 @@ class SearchScreen extends StatefulWidget {
 
 class _SearchScreenState extends State<SearchScreen> {
   final TextEditingController _searchController = TextEditingController();
-
+  final Debouncer _debouncer = Debouncer();
   @override
   void dispose() {
     _searchController.dispose();
+    _debouncer.cancel();
     super.dispose();
   }
   // List<Movie> _allMovies = [];
@@ -71,8 +73,13 @@ class _SearchScreenState extends State<SearchScreen> {
                       child: TextField(
                         controller: _searchController,
                         onChanged: (query) {
-                          context.read<SearchBloc>().add(
-                            SearchMovieEvent(query),
+                          _debouncer.debounce(
+                            duration: Duration(milliseconds: 500),
+                            onDebounce: () {
+                              context.read<SearchBloc>().add(
+                                SearchMovieEvent(query),
+                              );
+                            },
                           );
                         },
                         style: TextStyle(color: Colors.white),
