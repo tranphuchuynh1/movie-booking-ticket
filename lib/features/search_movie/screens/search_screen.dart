@@ -22,7 +22,6 @@ class _SearchScreenState extends State<SearchScreen> {
     _searchController.dispose();
     super.dispose();
   }
-
   // List<Movie> _allMovies = [];
   // List<Movie> _filteredMovies = [];
 
@@ -51,7 +50,7 @@ class _SearchScreenState extends State<SearchScreen> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider<SearchBloc>(
-      create: (_) => SearchBloc(),
+      create: (context) => SearchBloc()..add(SearchMovieEvent('')),
       child: Builder(
         builder: (context) {
           return Scaffold(
@@ -118,11 +117,15 @@ class _SearchScreenState extends State<SearchScreen> {
                               style: const TextStyle(color: Colors.white),
                             ),
                           );
-                        } else if (state.searchResults.isEmpty) {
+                        } else if (state.searchResults.isEmpty &&
+                            _searchController.text.trim().isNotEmpty) {
                           return const Center(
                             child: Text(
                               'No results found',
-                              style: TextStyle(color: Colors.white),
+                              style: TextStyle(
+                                fontSize: 18,
+                                color: Colors.white,
+                              ),
                             ),
                           );
                         } else {
