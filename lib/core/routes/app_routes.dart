@@ -1,6 +1,6 @@
 import 'package:go_router/go_router.dart';
 import 'package:movie_booking_ticket/core/models/movie.dart';
-import 'package:movie_booking_ticket/features/auth/screens/auth_check_screen.dart';
+import 'package:movie_booking_ticket/core/models/movie_model.dart';
 import 'package:movie_booking_ticket/features/profile_screen/screens/change_password.dart';
 import 'package:movie_booking_ticket/features/profile_screen/screens/edit_profile_screen.dart';
 import 'package:movie_booking_ticket/features/profile_screen/screens/profile_screen.dart';
@@ -23,17 +23,13 @@ import 'package:movie_booking_ticket/features/select_seat_movie/screens/select_s
       GoRoute(path: '/home', builder: (context, state) => HomeScreen()),
       GoRoute(
         path: '/detail',
-        builder: (context, state) {
-          final movie = state.extra as Movie;
-          return MovieDetailScreen(movie: movie);
-        },
+        builder: (context, state) => MovieDetailScreen(
+          movieId: state.extra as String,
+        ),
       ),
       GoRoute(
         path: '/select_seat',
-        builder: (context, state) {
-          final movie = state.extra as Movie;
-          return SelectSeatMovieScreen(movie: movie);
-        },
+        builder: (context, state) => SelectSeatMovieScreen(),
       ),
       GoRoute(
         path: '/ticket',
