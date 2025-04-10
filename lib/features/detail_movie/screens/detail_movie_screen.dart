@@ -21,6 +21,7 @@ class MovieDetailScreen extends StatefulWidget {
 
 class _MovieDetailScreenState extends State<MovieDetailScreen> {
   final MovieDetailBloc _detailBloc = MovieDetailBloc();
+  bool _isDescriptionExpanded = false;
 
   @override
   void initState() {
@@ -142,7 +143,7 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
 
     return Stack(
       children: [
-        // Ảnh nền
+        // Img nền
         Container(
           height: 400,
           width: double.infinity,
@@ -169,7 +170,7 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
             ),
           ),
         ),
-        // Nút đóng
+        // button đóng
         Positioned(
           top: 40,
           left: 16,
@@ -181,7 +182,7 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
             child: IconButton(
               icon: const Icon(Icons.close, color: Colors.white, size: 20),
               onPressed: () {
-                context.go('/home');
+                context.pop();
               },
             ),
           ),
@@ -224,7 +225,7 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Thời lượng phim
+          // thời lượng phim (duration)
           Center(
             child: Row(
               mainAxisSize: MainAxisSize.min,
@@ -239,7 +240,7 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
             ),
           ),
           const SizedBox(height: 8),
-          // Tên phim
+          // tên movie (title) --
           Center(
             child: Text(
               movieModel.title ?? "Không có tiêu đề",
@@ -252,7 +253,7 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
             ),
           ),
           const SizedBox(height: 12),
-          // Thể loại
+          // thể lọai (genres) --
           Center(
             child: Wrap(
               spacing: 8,
@@ -303,45 +304,45 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
         children: [
           Expanded(
             child: SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: [
-                const Icon(Icons.star, color: Colors.yellow, size: 20),
-                const SizedBox(width: 4),
-                Text(
-                  '${movieModel.rating ?? 0}',
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Text(
-                  movieModel.releaseDate?.split('T')[0] ?? '',
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w400,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    _extractAgeRating(movieModel.ageRating),
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: [
+                  const Icon(Icons.star, color: Colors.yellow, size: 20),
+                  const SizedBox(width: 4),
+                  Text(
+                    '${movieModel.rating ?? 0}',
                     style: const TextStyle(
-                      color: Colors.black,
+                      color: Colors.white,
                       fontWeight: FontWeight.w600,
-                      fontSize: 12,
                     ),
                   ),
-                ),
-              ],
+                  const SizedBox(width: 12),
+                  Text(
+                    movieModel.releaseDate?.split('T')[0] ?? '',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      _extractAgeRating(movieModel.ageRating),
+                      style: const TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
           ),
           ElevatedButton.icon(
             onPressed: youtubeId != null
@@ -387,12 +388,83 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
             ),
           ),
           const SizedBox(height: 8),
-          Text(
-            movieModel.description!,
-            style: const TextStyle(
-              color: Colors.white70,
-              fontSize: 14,
-              height: 1.5,
+          AnimatedCrossFade(
+            duration: const Duration(milliseconds: 300),
+            crossFadeState: _isDescriptionExpanded
+                ? CrossFadeState.showSecond
+                : CrossFadeState.showFirst,
+            firstChild: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  movieModel.description!.length > 200
+                      ? '${movieModel.description!.substring(0, 200)}...'
+                      : movieModel.description!,
+                  style: const TextStyle(
+                    color: Colors.white70,
+                    fontSize: 14,
+                    height: 1.5,
+                  ),
+                ),
+                if (movieModel.description!.length > 100)
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: TextButton(
+                      onPressed: () {
+                        setState(() {
+                          _isDescriptionExpanded = true;
+                        });
+                      },
+                      style: TextButton.styleFrom(
+                        padding: EdgeInsets.zero,
+                        minimumSize: Size.zero,
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      ),
+                      child: const Text(
+                        'Xem thêm',
+                        style: TextStyle(
+                          color: Colors.deepOrange,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+            secondChild: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  movieModel.description!,
+                  style: const TextStyle(
+                    color: Colors.white70,
+                    fontSize: 14,
+                    height: 1.5,
+                  ),
+                ),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: TextButton(
+                    onPressed: () {
+                      setState(() {
+                        _isDescriptionExpanded = false;
+                      });
+                    },
+                    style: TextButton.styleFrom(
+                      padding: EdgeInsets.zero,
+                      minimumSize: Size.zero,
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    ),
+                    child: const Text(
+                      'Thu gọn',
+                      style: TextStyle(
+                        color: Colors.deepOrange,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ],
@@ -420,7 +492,7 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
           ),
         ),
         SizedBox(
-          height: 120,
+          height: 140,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
             itemCount: movieModel.actors!.length,
@@ -433,22 +505,40 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
                 ),
                 child: Column(
                   children: [
+                    // Avatar của diễn viên
                     CircleAvatar(
                       radius: 35,
                       backgroundImage: _getProperImageProvider(actor.imageURL),
                       backgroundColor: Colors.grey,
                     ),
                     const SizedBox(height: 8),
+                    // Container chứa tên diễn viên với chiều cao cố định
+                    SizedBox(
+                      width: 70,
+                      height: 40, // Chiều cao cố định cho phần tên diễn viên
+                      child: Center(
+                        child: Text(
+                          actor.name ?? '',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 13,
+                          ),
+                          textAlign: TextAlign.center,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ),
                     SizedBox(
                       width: 70,
                       child: Text(
-                        actor.name ?? '',
+                        actor.role ?? '',
                         style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 12,
+                          color: Colors.white54,
+                          fontSize: 11,
                         ),
                         textAlign: TextAlign.center,
-                        maxLines: 2,
+                        maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
@@ -464,10 +554,9 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
 
   Widget _buildBottomButton(BuildContext context, MovieModel movieModel) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
+      padding: const EdgeInsets.symmetric(horizontal: 90.0, vertical: 16.0),
       child: ElevatedButton(
         onPressed: () {
-          // convert MovieModel sang Map để gửi qua route
           final movieMap = {
             'movieId': movieModel.movieId,
             'title': movieModel.title,
@@ -478,7 +567,6 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
             'rating': movieModel.rating,
             'releaseDate': movieModel.releaseDate,
             'ageRating': movieModel.ageRating,
-            // không thể gửi các trường phức tạp qua GoRouter nên cần convert đơn giản hoặc cập nhật SelectSeatMovieScreen
           };
 
           context.go('/select_seat', extra: movieMap);
@@ -492,7 +580,7 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
           ),
         ),
         child: const Text(
-          'Chọn ghế',
+          'Select Seats',
           style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
         ),
       ),

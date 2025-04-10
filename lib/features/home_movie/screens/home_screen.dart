@@ -265,7 +265,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildNowPlayingMovieCard(MovieModel movie) {
     return GestureDetector(
       onTap: () {
-        context.go('/detail', extra: movie.movieId);
+        context.go('/home/detail/${movie.movieId}');
       },
       child: Container(
         decoration: BoxDecoration(

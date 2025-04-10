@@ -87,6 +87,7 @@ class _SearchScreenState extends State<SearchScreen> {
                           hintText: 'Search your Movies...',
                           hintStyle: TextStyle(color: Colors.grey),
                           border: InputBorder.none,
+                          contentPadding: EdgeInsets.symmetric(vertical: 16),
                           suffixIcon: Icon(Icons.search, color: Colors.red),
                         ),
                       ),
@@ -144,7 +145,7 @@ class _SearchScreenState extends State<SearchScreen> {
                                   state.searchResults[index];
                               return GestureDetector(
                                 onTap: () {
-                                  context.go('/detail', extra: movie);
+                                  context.go('/search/detail/${movie.movieId}');
                                 },
                                 child: Container(
                                   margin: EdgeInsets.only(bottom: 16),
