@@ -19,30 +19,6 @@ class SearchBloc extends Bloc<SearchMovieEvent, SearchMovieState> {
     Emitter<SearchMovieState> emit,
   ) async {
     final trimmedQuery = event.query.trim();
-    if (trimmedQuery.isEmpty) {
-      emit(state.copyWith(status: SearchMovieStateStatus.loading));
-
-      try {
-        final List<MovieModel>? results = await _searchController.searchMovies(
-          '',
-        );
-        results?.shuffle();
-        emit(
-          state.copyWith(
-            status: SearchMovieStateStatus.success,
-            searchResults: results,
-          ),
-        );
-      } catch (e) {
-        emit(
-          state.copyWith(
-            status: SearchMovieStateStatus.error,
-            errorMessage: e.toString(),
-          ),
-        );
-      }
-      return;
-    }
 
     emit(state.copyWith(status: SearchMovieStateStatus.loading));
 
@@ -50,6 +26,7 @@ class SearchBloc extends Bloc<SearchMovieEvent, SearchMovieState> {
       final List<MovieModel>? results = await _searchController.searchMovies(
         trimmedQuery,
       );
+
       emit(
         state.copyWith(
           status: SearchMovieStateStatus.success,
