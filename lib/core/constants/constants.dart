@@ -9,5 +9,4 @@ class ApiConstants {
   static const String registerEndpoint = '/account/register';
   static const String loginEndpoint = '/account/login';
   // --------------------------------------------------------
-
 }
