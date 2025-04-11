@@ -5,11 +5,9 @@ import 'package:go_router/go_router.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:movie_booking_ticket/features/home_movie/screens/loading_placeholders.dart';
 
-import '../../../core/models/auth/user_model.dart';
 import '../../../core/models/movie_model.dart';
 import '../../../core/widgets/bottom_nav_bar.dart';
 import '../bloc/movie_bloc.dart';
-import '../controllers/movie_controller.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -267,7 +265,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildNowPlayingMovieCard(MovieModel movie) {
     return GestureDetector(
       onTap: () {
-        context.go('/detail', extra: movie);
+        context.go('/home/detail/${movie.movieId}');
       },
       child: Container(
         decoration: BoxDecoration(
@@ -284,7 +282,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildMoviePoster(MovieModel movie) {
     return GestureDetector(
       onTap: () {
-        context.go('/detail', extra: movie);
+        context.go('/detail', extra: movie.movieId);
       },
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

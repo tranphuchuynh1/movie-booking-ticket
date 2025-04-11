@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:movie_booking_ticket/core/models/auth/user_model.dart';
 import 'package:movie_booking_ticket/core/widgets/bottom_nav_bar.dart';
 import 'package:movie_booking_ticket/theme.dart';
 
 import '../../auth/bloc/auth_bloc.dart';
+import '../../auth/controllers/save_token_user_service.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -18,6 +20,30 @@ class _ProfileScreenState extends State<ProfileScreen> {
   bool _isAccountExpanded = false;
   bool _isSettingsExpanded = false;
   bool _isAboutExpanded = false;
+  UserModel? userModel;
+  bool _isLoading = true;
+  String Dora = "assets/images/dora.png";
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+  }
+
+  Future<void> _loadUserData() async{
+    try {
+      final user = await SaveTokenUserService.getUser();
+      setState(() {
+        userModel = user;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
+      debugPrint('Error loading user data: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -63,14 +89,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget _buildProfileInfo() {
     return Column(
       children: [
-        const CircleAvatar(
+         CircleAvatar(
           radius: 40,
-          backgroundImage: AssetImage('assets/images/dora.png'),
+          backgroundImage: AssetImage(userModel?.avatarUrl ?? Dora),
         ),
         const SizedBox(height: 12),
-        const Text(
-          'Huynh Nhon Vlog',
-          style: TextStyle(
+        Text(
+          userModel?.fullName ?? '${userModel?.userName}',
+          style: const TextStyle(
             color: Colors.white,
             fontSize: 18,
             fontWeight: FontWeight.bold,

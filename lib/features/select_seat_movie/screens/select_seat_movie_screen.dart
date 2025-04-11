@@ -4,9 +4,9 @@ import 'package:movie_booking_ticket/core/models/movie.dart';
 import 'package:movie_booking_ticket/theme.dart';
 
 class SelectSeatMovieScreen extends StatefulWidget {
-  final Movie movie;
 
-  const SelectSeatMovieScreen({super.key, required this.movie});
+
+  const SelectSeatMovieScreen({super.key});
   @override
   State<SelectSeatMovieScreen> createState() => SelectSeatMovieScreenState();
 }
@@ -88,7 +88,7 @@ class SelectSeatMovieScreenState extends State<SelectSeatMovieScreen> {
               child: Container(
                 decoration: BoxDecoration(
                   image: DecorationImage(
-                    image: AssetImage(widget.movie.posterUrl),
+                    image: AssetImage(''),
                     fit: BoxFit.cover,
                   ),
                 ),
@@ -257,7 +257,7 @@ class SelectSeatMovieScreenState extends State<SelectSeatMovieScreen> {
                                     : () {
                                       context.go(
                                         '/ticket',
-                                        extra: widget.movie,
+                                        extra: 'widget.movie',
                                       );
                                     },
                             style: ElevatedButton.styleFrom(
