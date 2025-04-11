@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:movie_booking_ticket/features/home_movie/screens/loading_placeholders.dart';
+import 'package:movie_booking_ticket/features/home_movie/screens/home_skeleton.dart';
 
 // import '../../../core/models/auth/user_model.dart';
 import '../../../core/models/movie_model.dart';

@@ -17,7 +17,6 @@ Future<String> CheckkToken() async {
   }
 }
 
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 

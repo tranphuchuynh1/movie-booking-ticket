@@ -1,8 +1,6 @@
 // placeholders.dart
-import 'package:carousel_slider/carousel_options.dart';
-import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
-import 'package:movie_booking_ticket/shimmer_effect.dart';
+import 'package:movie_booking_ticket/core/widgets/shimmer_effect.dart';
 
 /// Placeholder cho phần "Now Playing" (carousel) với rating, tiêu đề và danh sách thể loại
 class NowPlayingPlaceholder extends StatelessWidget {
