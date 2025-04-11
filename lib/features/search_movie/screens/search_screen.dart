@@ -5,6 +5,7 @@ import 'package:movie_booking_ticket/core/models/movie_model.dart';
 import 'package:movie_booking_ticket/features/search_movie/bloc/search_bloc.dart';
 import 'package:movie_booking_ticket/features/search_movie/bloc/search_event.dart';
 import 'package:movie_booking_ticket/features/search_movie/bloc/search_state.dart';
+import 'package:movie_booking_ticket/features/search_movie/screens/search_skeleton.dart';
 import '../../../core/widgets/bottom_nav_bar.dart';
 import 'package:flutter_debouncer/flutter_debouncer.dart';
 
@@ -24,30 +25,6 @@ class _SearchScreenState extends State<SearchScreen> {
     _debouncer.cancel();
     super.dispose();
   }
-  // List<Movie> _allMovies = [];
-  // List<Movie> _filteredMovies = [];
-
-  // @override
-  // void initState() {
-  //   super.initState();
-
-  //   final castData = CastData();
-  //   final moviesData = MoviesData(castData);
-  //   _allMovies = moviesData.getAllMovies();
-  //   _filteredMovies = _allMovies;
-  // }
-
-  // void _filterMovies(String query) {
-  //   setState(() {
-  //     _filteredMovies =
-  //         _allMovies
-  //             .where(
-  //               (movie) =>
-  //                   movie.title.toLowerCase().contains(query.toLowerCase()),
-  //             )
-  //             .toList();
-  //   });
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -114,8 +91,14 @@ class _SearchScreenState extends State<SearchScreen> {
                     child: BlocBuilder<SearchBloc, SearchMovieState>(
                       builder: (context, state) {
                         if (state.status == SearchMovieStateStatus.loading) {
-                          return const Center(
-                            child: CircularProgressIndicator(color: Colors.red),
+                          return ListView.separated(
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            itemCount: 5, // Number of placeholder items
+                            separatorBuilder:
+                                (context, index) => const SizedBox(height: 16),
+                            itemBuilder:
+                                (context, index) =>
+                                    const SearchResultPlaceholder(),
                           );
                         } else if (state.status ==
                             SearchMovieStateStatus.error) {

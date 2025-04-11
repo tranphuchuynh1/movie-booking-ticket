@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:movie_booking_ticket/core/models/movie_model.dart';
 import 'package:movie_booking_ticket/features/search_movie/bloc/search_event.dart';

@@ -25,9 +25,10 @@ GoRouter appRouter(String initialRoute) {
         routes: [
           GoRoute(
             path: 'detail/:movieId',
-            builder: (context, state) => MovieDetailScreen(
-              movieId: state.pathParameters['movieId'] ?? '',
-            ),
+            builder:
+                (context, state) => MovieDetailScreen(
+                  movieId: state.pathParameters['movieId'] ?? '',
+                ),
           ),
         ],
       ),
@@ -38,18 +39,19 @@ GoRouter appRouter(String initialRoute) {
         routes: [
           GoRoute(
             path: 'detail/:movieId',
-            builder: (context, state) => MovieDetailScreen(
-              movieId: state.pathParameters['movieId'] ?? '',
-            ),
+            builder:
+                (context, state) => MovieDetailScreen(
+                  movieId: state.pathParameters['movieId'] ?? '',
+                ),
           ),
         ],
       ),
 
       GoRoute(
         path: '/detail',
-        builder: (context, state) => MovieDetailScreen(
-          movieId: state.extra as String,
-        ),
+        builder:
+            (context, state) =>
+                MovieDetailScreen(movieId: state.extra as String),
       ),
 
       GoRoute(
@@ -64,9 +66,18 @@ GoRouter appRouter(String initialRoute) {
         },
       ),
       GoRoute(path: '/profile', builder: (context, state) => ProfileScreen()),
-      GoRoute(path: '/edit_profile', builder: (context, state) => EditProfileScreen()),
-      GoRoute(path: '/ticket_history', builder: (context, state) => TicketHistoryScreen()),
-      GoRoute(path: '/change_password', builder: (context, state) => ChangePasswordScreen()),
+      GoRoute(
+        path: '/edit_profile',
+        builder: (context, state) => EditProfileScreen(),
+      ),
+      GoRoute(
+        path: '/ticket_history',
+        builder: (context, state) => TicketHistoryScreen(),
+      ),
+      GoRoute(
+        path: '/change_password',
+        builder: (context, state) => ChangePasswordScreen(),
+      ),
     ],
   );
 }

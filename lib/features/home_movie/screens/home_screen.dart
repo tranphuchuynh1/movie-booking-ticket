@@ -3,11 +3,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:movie_booking_ticket/features/home_movie/screens/loading_placeholders.dart';
+import 'package:movie_booking_ticket/features/home_movie/screens/home_skeleton.dart';
 
+// import '../../../core/models/auth/user_model.dart';
 import '../../../core/models/movie_model.dart';
 import '../../../core/widgets/bottom_nav_bar.dart';
 import '../bloc/movie_bloc.dart';
+// import '../controllers/movie_controller.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -31,11 +33,6 @@ class _HomeScreenState extends State<HomeScreen> {
         backgroundColor: Colors.black,
         body: BlocBuilder<MovieBloc, MovieState>(
           builder: (context, state) {
-            // if (state.status == MovieStateStatus.loading) {
-            //   return const Center(
-            //     child: CircularProgressIndicator(color: Colors.red),
-            //   );
-            // }
             final bool isLoading = state.status == MovieStateStatus.loading;
 
             if (state.status == MovieStateStatus.error) {
@@ -77,8 +74,9 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             const SizedBox(height: 16),
 
+            // _buildNowPlayingPlaceholderCarousel(),
             (isLoading || state.nowPlayingMovies.isEmpty)
-                ? const NowPlayingPlaceholder()
+                ? _buildNowPlayingPlaceholderCarousel()
                 : _buildNowPlayingSection(state.nowPlayingMovies),
             const SizedBox(height: 10),
             const Padding(
@@ -113,11 +111,6 @@ class _HomeScreenState extends State<HomeScreen> {
             (isLoading || state.upcomingMovies.isEmpty)
                 ? const MovieSectionPlaceholder()
                 : _buildMovieSection('Upcoming', state.upcomingMovies),
-            // if (state.upcomingMovies.isNotEmpty)
-            //   const MovieSectionPlaceholder()
-            // else
-            //   _buildMovieSection('Upcoming', state.upcomingMovies),
-            // const SizedBox(height: 60),
           ],
         ),
       ),
@@ -179,6 +172,25 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
+
+  Widget _buildNowPlayingPlaceholderCarousel() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 34),
+      child: const NowPlayingPlaceholder(),
+    );
+  }
+
+  //   return SizedBox(
+  //     height: 450,
+  //     child: CarouselSlider.builder(
+  //       itemCount: 1, // số lượng placeholder muốn hiển thị, tùy bạn
+  //       options: CarouselOptions(height: 450, enlargeCenterPage: true),
+  //       itemBuilder: (context, index, realIndex) {
+  //         return const NowPlayingPlaceholder();
+  //       },
+  //     ),
+  //   );
+  // }
 
   Widget _buildMovieDetails(MovieModel movie) {
     return Column(

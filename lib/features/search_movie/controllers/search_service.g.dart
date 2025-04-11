@@ -1,12 +1,4 @@
-// GENERATED CODE - DO NOT MODIFY BY HAND
-
 part of 'search_service.dart';
-
-// **************************************************************************
-// RetrofitGenerator
-// **************************************************************************
-
-// ignore_for_file: unnecessary_brace_in_string_interps,no_leading_underscores_for_local_identifiers,unused_element,unnecessary_string_interpolations
 
 class _SearchService implements SearchService {
   _SearchService(this._dio, {this.baseUrl, this.errorLogger}) {
