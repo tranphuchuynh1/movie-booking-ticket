@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:movie_booking_ticket/core/models/movie.dart';
 import 'package:movie_booking_ticket/theme.dart';
 
 class SelectSeatMovieScreen extends StatefulWidget {
-
-
   const SelectSeatMovieScreen({super.key});
   @override
   State<SelectSeatMovieScreen> createState() => SelectSeatMovieScreenState();
@@ -13,17 +10,18 @@ class SelectSeatMovieScreen extends StatefulWidget {
 
 class SelectSeatMovieScreenState extends State<SelectSeatMovieScreen> {
   // 0 = Available (trắng), 1 = Selected (cam), 2 = Taken (xám)
+  // 3 = Ghế đôi còn trống
+  // 4 = Ghế đôi đã chọn
+  // 5 = Ghế đôi đã bán (taken)
+
   List<List<int>> seatMatrix = [
-    [2, 0, 0],
-    [0, 0, 0, 2, 0],
-    [0, 0, 0, 0, 2, 2, 0],
-    [0, 0, 0, 2, 0, 0, 2],
-    [0, 0, 2, 2, 0, 0, 2, 2, 0],
-    [0, 0, 0, 2, 0, 0, 2, 0, 0],
-    [0, 0, 0, 0, 2, 2, 0],
-    [2, 0, 0, 2, 0, 0, 2],
-    [0, 0, 0, 2, 0],
-    [2, 0, 0],
+    [0, 0, 2, 2, 0, 0, 2, 2, 0, 0],
+    [0, 0, 0, 2, 0, 0, 2, 0, 0, 0],
+    [0, 0, 2, 2, 0, 0, 2, 2, 0, 0],
+    [0, 0, 0, 2, 0, 0, 2, 0, 0, 0],
+    [0, 0, 2, 2, 0, 0, 2, 2, 0, 0],
+    [0, 0, 0, 2, 0, 0, 2, 0, 0, 0],
+    [3, 3, 3, 3, 3],
   ];
 
   final List<int> selectedSeats = [];
@@ -32,19 +30,39 @@ class SelectSeatMovieScreenState extends State<SelectSeatMovieScreen> {
 
   void toggleSeat(int row, int col) {
     setState(() {
-      // Tính index = row*10 + col (nếu 10 cột)
+      // index = row*10 + col ( 10 cột)
       int seatIndex = row * seatMatrix[row].length + col;
+      int seatValue = seatMatrix[row][col];
 
-      // Nếu ghế đang trống => chuyển sang Selected
-      if (seatMatrix[row][col] == 0) {
+      if (seatValue == 0) {
         seatMatrix[row][col] = 1;
         selectedSeats.add(seatIndex);
-      }
-      // Nếu ghế đang Selected => bỏ chọn
-      else if (seatMatrix[row][col] == 1) {
+      } else if (seatValue == 1) {
         seatMatrix[row][col] = 0;
         selectedSeats.remove(seatIndex);
       }
+      // Ghế đôi
+      else if (seatValue == 3) {
+        seatMatrix[row][col] = 4;
+        selectedSeats.add(seatIndex);
+      } else if (seatValue == 4) {
+        seatMatrix[row][col] = 3;
+        selectedSeats.remove(seatIndex);
+      }
+
+      // // Tính index = row*10 + col (nếu 10 cột)
+      // int seatIndex = row * seatMatrix[row].length + col;
+
+      // // Nếu ghế đang trống => chuyển sang Selected
+      // if (seatMatrix[row][col] == 0) {
+      //   seatMatrix[row][col] = 1;
+      //   selectedSeats.add(seatIndex);
+      // }
+      // // Nếu ghế đang Selected => bỏ chọn
+      // else if (seatMatrix[row][col] == 1) {
+      //   seatMatrix[row][col] = 0;
+      //   selectedSeats.remove(seatIndex);
+      // }
     });
   }
 
@@ -84,11 +102,11 @@ class SelectSeatMovieScreenState extends State<SelectSeatMovieScreen> {
             Positioned(
               left: 0,
               right: 0,
-              height: 250,
+              height: 300,
               child: Container(
                 decoration: BoxDecoration(
                   image: DecorationImage(
-                    image: AssetImage(''),
+                    image: AssetImage(''), // Poster img
                     fit: BoxFit.cover,
                   ),
                 ),
@@ -98,7 +116,7 @@ class SelectSeatMovieScreenState extends State<SelectSeatMovieScreen> {
             Positioned(
               left: 0,
               right: 0,
-              height: 250,
+              height: 300,
               child: Container(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
@@ -119,21 +137,20 @@ class SelectSeatMovieScreenState extends State<SelectSeatMovieScreen> {
             Positioned(
               left: 0,
               right: 0,
-              height: 200,
+              height: 300,
               child: Icon(Icons.play_arrow, color: tdWhite54, size: 50),
             ),
 
             Positioned(
-              top: 8,
-              left: 8,
+              top: 40,
+              left: 16,
               child: Container(
-                height: 30,
                 decoration: const BoxDecoration(
-                  color: tdRed,
+                  color: Colors.red,
                   shape: BoxShape.circle,
                 ),
                 child: IconButton(
-                  icon: const Icon(Icons.close, color: tdWhite70, size: 15),
+                  icon: const Icon(Icons.close, color: Colors.white, size: 20),
                   onPressed: () {
                     context.pop();
                   },
@@ -142,7 +159,7 @@ class SelectSeatMovieScreenState extends State<SelectSeatMovieScreen> {
             ),
 
             Positioned.fill(
-              top: 230,
+              top: 280,
               child: Container(
                 decoration: const BoxDecoration(
                   color: Colors.black,
@@ -153,22 +170,25 @@ class SelectSeatMovieScreenState extends State<SelectSeatMovieScreen> {
                 ),
                 child: Column(
                   children: [
-                    const SizedBox(height: 20),
-                    const Text(
-                      "Screen this side",
-                      style: TextStyle(color: Colors.white54, fontSize: 14),
-                    ),
+                    const SizedBox(height: 15),
+                    // const Text(
+                    //   "Screen this side",
+                    //   style: TextStyle(color: Colors.white54, fontSize: 14),
+                    // ),
 
                     //ghế
                     Expanded(
-                      child: SingleChildScrollView(
-                        child: Center(
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 8,
+                      child: Padding(
+                        padding: const EdgeInsets.only(bottom: 20),
+                        child: SingleChildScrollView(
+                          child: Center(
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 8,
+                              ),
+                              child: _buildSeatLayout(),
                             ),
-                            child: _buildSeatLayout(),
                           ),
                         ),
                       ),
@@ -182,7 +202,7 @@ class SelectSeatMovieScreenState extends State<SelectSeatMovieScreen> {
                         child: Row(
                           children: List.generate(days.length, (index) {
                             return Padding(
-                              padding: const EdgeInsets.only(right: 16.0),
+                              padding: const EdgeInsets.only(right: 14.0),
                               child: _buildDayItem(
                                 day: days[index],
                                 weekDay: weekdays[index % weekdays.length],
@@ -229,25 +249,28 @@ class SelectSeatMovieScreenState extends State<SelectSeatMovieScreen> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text(
-                                "Total Price",
-                                style: TextStyle(
-                                  color: tdWhite70,
-                                  fontSize: 15,
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  "Total Price",
+                                  style: TextStyle(
+                                    color: tdWhite70,
+                                    fontSize: 18,
+                                  ),
                                 ),
-                              ),
-                              Text(
-                                "\$${(selectedSeats.length * ticketPrice).toStringAsFixed(2)}",
-                                style: const TextStyle(
-                                  color: tdWhite,
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
+                                Text(
+                                  "${(selectedSeats.length * ticketPrice).toStringAsFixed(2)} VND",
+                                  style: const TextStyle(
+                                    color: tdWhite,
+                                    fontSize: 22,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                           // Buy Tickets
                           ElevatedButton(
@@ -300,28 +323,41 @@ class SelectSeatMovieScreenState extends State<SelectSeatMovieScreen> {
             return Row(
               mainAxisSize: MainAxisSize.min,
               children: List.generate(seatMatrix[row].length, (col) {
+                int seatValue = seatMatrix[row][col];
+
                 if (seatMatrix[row][col] == -1) {
                   // ẩn ghế -> trả về SizedBox
                   return const SizedBox(width: 24, height: 24);
                 } else {
                   Color seatColor;
-                  if (seatMatrix[row][col] == 0) {
+                  if (seatValue == 0 || seatValue == 3) {
                     seatColor = tdWhite;
-                  } else if (seatMatrix[row][col] == 1) {
+                  } else if (seatValue == 1 || seatValue == 4) {
                     seatColor = tdRed;
                   } else {
                     seatColor = tdGreyDark;
                   }
+
+                  bool isDoubleSeat =
+                      (seatValue == 3 || seatValue == 4 || seatValue == 5);
+
                   return GestureDetector(
                     onTap: () => toggleSeat(row, col),
                     child: Container(
                       margin: const EdgeInsets.only(
                         right: 7,
                         left: 7,
-                        top: 4,
+                        top: 10,
                         bottom: 4,
                       ),
-                      child: Icon(Icons.chair, color: seatColor, size: 22),
+
+                      child: Icon(
+                        isDoubleSeat
+                            ? Icons.weekend_rounded
+                            : Icons.chair_rounded,
+                        color: seatColor,
+                        size: isDoubleSeat ? 34 : 24,
+                      ),
                     ),
                   );
                 }
@@ -333,11 +369,11 @@ class SelectSeatMovieScreenState extends State<SelectSeatMovieScreen> {
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            _seatLegend(tdWhite, "Available"),
-            const SizedBox(width: 20),
-            _seatLegend(tdGreyDark, "Taken"),
-            const SizedBox(width: 20),
-            _seatLegend(tdRed, "Selected"),
+            _seatLegend(tdWhite, "  Available"),
+            const SizedBox(width: 24),
+            _seatLegend(tdGreyDark, "  Taken"),
+            const SizedBox(width: 24),
+            _seatLegend(tdRed, "  Selected"),
           ],
         ),
       ],
@@ -351,10 +387,10 @@ class SelectSeatMovieScreenState extends State<SelectSeatMovieScreen> {
         SizedBox(
           width: 18,
           height: 18,
-          child: Icon(Icons.chair_rounded, color: color, size: 20),
+          child: Icon(Icons.chair_rounded, color: color, size: 22),
         ),
         const SizedBox(width: 6),
-        Text(text, style: const TextStyle(color: tdWhite70, fontSize: 12)),
+        Text(text, style: const TextStyle(color: tdWhite70, fontSize: 14)),
       ],
     );
   }
@@ -369,9 +405,9 @@ class SelectSeatMovieScreenState extends State<SelectSeatMovieScreen> {
       onTap: onTap,
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 6),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 18),
         decoration: BoxDecoration(
-          color: isSelected ? Colors.deepOrange : Colors.black,
+          color: isSelected ? Colors.deepOrange : Colors.grey.shade900,
           borderRadius: BorderRadius.circular(30),
         ),
         child: Column(
@@ -381,7 +417,7 @@ class SelectSeatMovieScreenState extends State<SelectSeatMovieScreen> {
               day,
               style: TextStyle(
                 color: Colors.white,
-                fontSize: 18,
+                fontSize: 20,
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
               ),
             ),
@@ -390,7 +426,7 @@ class SelectSeatMovieScreenState extends State<SelectSeatMovieScreen> {
               weekDay,
               style: TextStyle(
                 color: Colors.white,
-                fontSize: 14,
+                fontSize: 16,
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
               ),
             ),
@@ -407,15 +443,18 @@ class SelectSeatMovieScreenState extends State<SelectSeatMovieScreen> {
   }) {
     return GestureDetector(
       onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 14),
-        decoration: BoxDecoration(
-          color: isSelected ? tdRed : Colors.grey.shade800,
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Text(
-          time,
-          style: const TextStyle(fontSize: 14, color: Colors.white),
+      child: Padding(
+        padding: const EdgeInsets.only(top: 10, bottom: 10, left: 8),
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 14),
+          decoration: BoxDecoration(
+            color: isSelected ? Colors.deepOrange : Colors.grey.shade800,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Text(
+            time,
+            style: const TextStyle(fontSize: 16, color: Colors.white),
+          ),
         ),
       ),
     );
