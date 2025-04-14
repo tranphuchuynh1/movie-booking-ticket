@@ -12,6 +12,7 @@ import 'package:movie_booking_ticket/features/detail_movie/screens/detail_movie_
 import 'package:movie_booking_ticket/features/my_ticket_movie/screens/ticket_movie_screen.dart';
 import 'package:movie_booking_ticket/features/select_seat_movie/screens/select_seat_movie_screen.dart';
 
+
 GoRouter appRouter(String initialRoute) {
   return GoRouter(
     initialLocation: initialRoute,
@@ -56,7 +57,10 @@ GoRouter appRouter(String initialRoute) {
 
       GoRoute(
         path: '/select_seat',
-        builder: (context, state) => SelectSeatMovieScreen(),
+        builder: (context, state) {
+          final movieId = state.extra as String;
+          return SelectSeatMovieScreen(movieId: movieId);
+        },
       ),
       GoRoute(
         path: '/ticket',

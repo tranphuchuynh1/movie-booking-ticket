@@ -8,6 +8,9 @@ class ApiConstants {
   static const String myTicketendpoint =
       '/orders/movies/{userId}/tickets/{movieId}';
 
+  // endpoint booking
+  static const String bookingsEndpoint = '/bookings';
+
   // endpoint auth
   static const String registerEndpoint = '/account/register';
   static const String loginEndpoint = '/account/login';
