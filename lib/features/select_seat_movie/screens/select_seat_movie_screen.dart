@@ -49,20 +49,6 @@ class SelectSeatMovieScreenState extends State<SelectSeatMovieScreen> {
         seatMatrix[row][col] = 3;
         selectedSeats.remove(seatIndex);
       }
-
-      // // Tính index = row*10 + col (nếu 10 cột)
-      // int seatIndex = row * seatMatrix[row].length + col;
-
-      // // Nếu ghế đang trống => chuyển sang Selected
-      // if (seatMatrix[row][col] == 0) {
-      //   seatMatrix[row][col] = 1;
-      //   selectedSeats.add(seatIndex);
-      // }
-      // // Nếu ghế đang Selected => bỏ chọn
-      // else if (seatMatrix[row][col] == 1) {
-      //   seatMatrix[row][col] = 0;
-      //   selectedSeats.remove(seatIndex);
-      // }
     });
   }
 
@@ -168,141 +154,139 @@ class SelectSeatMovieScreenState extends State<SelectSeatMovieScreen> {
                     topRight: Radius.circular(20),
                   ),
                 ),
-                child: Column(
-                  children: [
-                    const SizedBox(height: 15),
-                    // const Text(
-                    //   "Screen this side",
-                    //   style: TextStyle(color: Colors.white54, fontSize: 14),
-                    // ),
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 15),
+                      const Text(
+                        "Screen this side",
+                        style: TextStyle(color: Colors.white54, fontSize: 14),
+                      ),
 
-                    //ghế
-                    Expanded(
-                      child: Padding(
+                      //ghế
+                      Padding(
                         padding: const EdgeInsets.only(bottom: 20),
-                        child: SingleChildScrollView(
-                          child: Center(
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 8,
-                              ),
-                              child: _buildSeatLayout(),
+                        child: Center(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 8,
                             ),
+                            child: _buildSeatLayout(),
                           ),
                         ),
                       ),
-                    ),
 
-                    // chọn ngày
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 14.0),
-                      child: SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: Row(
-                          children: List.generate(days.length, (index) {
-                            return Padding(
-                              padding: const EdgeInsets.only(right: 14.0),
-                              child: _buildDayItem(
-                                day: days[index],
-                                weekDay: weekdays[index % weekdays.length],
-                                isSelected: selectedDayIndex == index,
-                                onTap: () {
-                                  setState(() {
-                                    selectedDayIndex = index;
-                                  });
-                                },
-                              ),
-                            );
-                          }),
+                      // chọn ngày
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 14.0),
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Row(
+                            children: List.generate(days.length, (index) {
+                              return Padding(
+                                padding: const EdgeInsets.only(right: 14.0),
+                                child: _buildDayItem(
+                                  day: days[index],
+                                  weekDay: weekdays[index % weekdays.length],
+                                  isSelected: selectedDayIndex == index,
+                                  onTap: () {
+                                    setState(() {
+                                      selectedDayIndex = index;
+                                    });
+                                  },
+                                ),
+                              );
+                            }),
+                          ),
+                        ),
+                      ), // chọn giờ chiếu
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8.0),
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Row(
+                            children: List.generate(times.length, (index) {
+                              return Padding(
+                                padding: const EdgeInsets.only(right: 12.0),
+                                child: _buildTimeItem(
+                                  times[index],
+                                  isSelected: selectedTimeIndex == index,
+                                  onTap: () {
+                                    setState(() {
+                                      selectedTimeIndex = index;
+                                    });
+                                  },
+                                ),
+                              );
+                            }),
+                          ),
                         ),
                       ),
-                    ), // chọn giờ chiếu
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8.0),
-                      child: SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
+                      // tổng giá + Nút mua vé
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 10,
+                        ),
                         child: Row(
-                          children: List.generate(times.length, (index) {
-                            return Padding(
-                              padding: const EdgeInsets.only(right: 12.0),
-                              child: _buildTimeItem(
-                                times[index],
-                                isSelected: selectedTimeIndex == index,
-                                onTap: () {
-                                  setState(() {
-                                    selectedTimeIndex = index;
-                                  });
-                                },
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text(
+                                    "Total Price",
+                                    style: TextStyle(
+                                      color: tdWhite70,
+                                      fontSize: 18,
+                                    ),
+                                  ),
+                                  Text(
+                                    "${(selectedSeats.length * ticketPrice).toStringAsFixed(2)} VND",
+                                    style: const TextStyle(
+                                      color: tdWhite,
+                                      fontSize: 22,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
                               ),
-                            );
-                          }),
+                            ),
+                            // Buy Tickets
+                            ElevatedButton(
+                              onPressed:
+                                  selectedSeats.isEmpty
+                                      ? null
+                                      : () {
+                                        context.go(
+                                          '/ticket',
+                                          extra: 'widget.movie',
+                                        );
+                                      },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: tdRed,
+                                disabledBackgroundColor: tdWhite54,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 12,
+                                  horizontal: 18,
+                                ),
+                              ),
+                              child: const Text(
+                                "Buy Tickets",
+                                style: TextStyle(fontSize: 18, color: tdWhite),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                    ),
-                    // tổng giá + Nút mua vé
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 10,
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text(
-                                  "Total Price",
-                                  style: TextStyle(
-                                    color: tdWhite70,
-                                    fontSize: 18,
-                                  ),
-                                ),
-                                Text(
-                                  "${(selectedSeats.length * ticketPrice).toStringAsFixed(2)} VND",
-                                  style: const TextStyle(
-                                    color: tdWhite,
-                                    fontSize: 22,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          // Buy Tickets
-                          ElevatedButton(
-                            onPressed:
-                                selectedSeats.isEmpty
-                                    ? null
-                                    : () {
-                                      context.go(
-                                        '/ticket',
-                                        extra: 'widget.movie',
-                                      );
-                                    },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: tdRed,
-                              disabledBackgroundColor: tdWhite54,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              padding: const EdgeInsets.symmetric(
-                                vertical: 12,
-                                horizontal: 18,
-                              ),
-                            ),
-                            child: const Text(
-                              "Buy Tickets",
-                              style: TextStyle(fontSize: 18, color: tdWhite),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -314,69 +298,86 @@ class SelectSeatMovieScreenState extends State<SelectSeatMovieScreen> {
 
   //  layout ghế
   Widget _buildSeatLayout() {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        // Mỗi row = 1 Row widget, each seat = Container
-        Column(
-          children: List.generate(seatMatrix.length, (row) {
-            return Row(
-              mainAxisSize: MainAxisSize.min,
-              children: List.generate(seatMatrix[row].length, (col) {
-                int seatValue = seatMatrix[row][col];
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final double totalWidth = constraints.maxWidth;
 
-                if (seatMatrix[row][col] == -1) {
-                  // ẩn ghế -> trả về SizedBox
-                  return const SizedBox(width: 24, height: 24);
-                } else {
-                  Color seatColor;
-                  if (seatValue == 0 || seatValue == 3) {
-                    seatColor = tdWhite;
-                  } else if (seatValue == 1 || seatValue == 4) {
-                    seatColor = tdRed;
-                  } else {
-                    seatColor = tdGreyDark;
-                  }
+        final int seatsPerRow =
+            seatMatrix.isNotEmpty ? seatMatrix[0].length : 0;
+        const double margin = 6.0;
 
-                  bool isDoubleSeat =
-                      (seatValue == 3 || seatValue == 4 || seatValue == 5);
+        final double totalMargin = margin * 2 * seatsPerRow;
 
-                  return GestureDetector(
-                    onTap: () => toggleSeat(row, col),
-                    child: Container(
-                      margin: const EdgeInsets.only(
-                        right: 7,
-                        left: 7,
-                        top: 10,
-                        bottom: 4,
-                      ),
+        // Kích thước tối đa dành cho icon ghế
+        final double availableWidthForIcons = totalWidth - totalMargin;
+        final double baseIconSize = availableWidthForIcons / seatsPerRow;
+        const double doubleSeatMultiplier = 1.5;
 
-                      child: Icon(
-                        isDoubleSeat
-                            ? Icons.weekend_rounded
-                            : Icons.chair_rounded,
-                        color: seatColor,
-                        size: isDoubleSeat ? 34 : 24,
-                      ),
-                    ),
-                  );
-                }
-              }),
-            );
-          }),
-        ),
-        const SizedBox(height: 15),
-        Row(
+        return Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            _seatLegend(tdWhite, "  Available"),
-            const SizedBox(width: 24),
-            _seatLegend(tdGreyDark, "  Taken"),
-            const SizedBox(width: 24),
-            _seatLegend(tdRed, "  Selected"),
+            // Mỗi row = 1 Row widget, each seat = Container
+            Column(
+              children: List.generate(seatMatrix.length, (row) {
+                return Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: List.generate(seatMatrix[row].length, (col) {
+                    int seatValue = seatMatrix[row][col];
+
+                    if (seatMatrix[row][col] == -1) {
+                      // ẩn ghế -> trả về SizedBox
+                      return const SizedBox(width: 24, height: 24);
+                    } else {
+                      Color seatColor;
+                      if (seatValue == 0 || seatValue == 3) {
+                        seatColor = tdWhite;
+                      } else if (seatValue == 1 || seatValue == 4) {
+                        seatColor = tdRed;
+                      } else {
+                        seatColor = tdGreyDark;
+                      }
+
+                      bool isDoubleSeat =
+                          (seatValue == 3 || seatValue == 4 || seatValue == 5);
+
+                      double iconSize =
+                          isDoubleSeat
+                              ? baseIconSize * doubleSeatMultiplier
+                              : baseIconSize;
+
+                      return GestureDetector(
+                        onTap: () => toggleSeat(row, col),
+                        child: Padding(
+                          padding: const EdgeInsets.all(margin),
+
+                          child: Icon(
+                            isDoubleSeat
+                                ? Icons.weekend_rounded
+                                : Icons.chair_rounded,
+                            color: seatColor,
+                            size: iconSize,
+                          ),
+                        ),
+                      );
+                    }
+                  }),
+                );
+              }),
+            ),
+            const SizedBox(height: 15),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                _seatLegend(tdWhite, "  Available"),
+                const SizedBox(width: 24),
+                _seatLegend(tdGreyDark, "  Taken"),
+                const SizedBox(width: 24),
+                _seatLegend(tdRed, "  Selected"),
+              ],
+            ),
           ],
-        ),
-      ],
+        );
+      },
     );
   }
 
