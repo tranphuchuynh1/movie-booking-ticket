@@ -14,7 +14,11 @@ class FetchSeatsEvent extends SelectSeatEvent {
   FetchSeatsEvent(this.showtimeId);
 }
 
-class FetchBookedSeatsEvent extends SelectSeatEvent {}
+class FetchBookedSeatsEvent extends SelectSeatEvent {
+  final String showtimeId;
+
+  FetchBookedSeatsEvent(this.showtimeId);
+}
 
 class SelectDateEvent extends SelectSeatEvent {
   final String date;

@@ -10,7 +10,7 @@ part of 'select_seat_movie_service.dart';
 
 class _BookingService implements BookingService {
   _BookingService(this._dio, {this.baseUrl, this.errorLogger}) {
-    baseUrl ??= 'http://minhtue-001-site1.ktempurl.com/api';
+    baseUrl ??= 'https://minhtue-001-site1.ktempurl.com/api';
   }
 
   final Dio _dio;
@@ -94,14 +94,12 @@ class _BookingService implements BookingService {
   }
 
   @override
-  Future<BaseResponse<List<SeatModel>>> getBookedSeats(
-    String showtimeId,
-  ) async {
+  Future<List<String>> getBookedSeats(String showtimeId) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
     const Map<String, dynamic>? _data = null;
-    final _options = _setStreamType<BaseResponse<List<SeatModel>>>(
+    final _options = _setStreamType<List<String>>(
       Options(method: 'GET', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
@@ -111,20 +109,10 @@ class _BookingService implements BookingService {
           )
           .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
     );
-    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late BaseResponse<List<SeatModel>> _value;
+    final _result = await _dio.fetch<List<dynamic>>(_options);
+    late List<String> _value;
     try {
-      _value = BaseResponse<List<SeatModel>>.fromJson(
-        _result.data!,
-        (json) =>
-            json is List<dynamic>
-                ? json
-                    .map<SeatModel>(
-                      (i) => SeatModel.fromJson(i as Map<String, dynamic>),
-                    )
-                    .toList()
-                : List.empty(),
-      );
+      _value = _result.data!.cast<String>();
     } on Object catch (e, s) {
       errorLogger?.logError(e, s, _options);
       rethrow;

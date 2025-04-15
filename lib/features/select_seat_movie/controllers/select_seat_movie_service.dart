@@ -19,7 +19,6 @@ abstract class BookingService {
       @Path('showtimeId') String showtimeId);
 
   @GET('${ApiConstants.bookingsEndpoint}/booked-seat/{showtimeId}')
-  Future<BaseResponse<List<SeatModel>>> getBookedSeats(
-      @Path('showtimeId') String showtimeId);
+  Future<List<String>> getBookedSeats(@Path('showtimeId') String showtimeId);
 
 }

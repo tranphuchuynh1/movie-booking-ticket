@@ -28,11 +28,12 @@ class BookingController {
     }
   }
 
-  Future<List<SeatModel>> getBookedSeats(String showtimeId) async {
+  Future<List<String>> getBookedSeats(String showtimeId) async {
     try {
       final response = await _bookingService.getBookedSeats(showtimeId);
-      return handleResponse(response);
+      return response; // API trả về trực tiếp một mảng String , k return về 1 baserespone
     } catch (e) {
+      print('Error in getBookedSeats: ${e.toString()}');
       throw Exception('Failed to load booked seats: ${e.toString()}');
     }
   }

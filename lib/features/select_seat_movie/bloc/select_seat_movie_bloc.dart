@@ -27,7 +27,7 @@ class SelectSeatBloc extends Bloc<SelectSeatEvent, SelectSeatState> {
     try {
       final showtimes = await _bookingController.getShowtimes(event.movieId);
 
-      // group showtimes by date for easier display
+      // nhóm giờ chiếu theo ngày để hiển thị dễ dàng hơn
       final Map<String, List<ShowtimeModel>> showtimesByDate = {};
 
       for (var showtime in showtimes) {
@@ -40,7 +40,7 @@ class SelectSeatBloc extends Bloc<SelectSeatEvent, SelectSeatState> {
         }
       }
 
-      // select the first date and time by default if available
+      // chọn ngày và giờ đầu tiên theo mặc định
       String? selectedDate;
       ShowtimeModel? selectedShowtime;
 
@@ -60,7 +60,6 @@ class SelectSeatBloc extends Bloc<SelectSeatEvent, SelectSeatState> {
         errorMessage: null,
       ));
 
-      // fetch seats if we have a selected showtime
       if (selectedShowtime != null && selectedShowtime.id != null) {
         add(FetchSeatsEvent(selectedShowtime.id!));
       }
@@ -104,40 +103,83 @@ class SelectSeatBloc extends Bloc<SelectSeatEvent, SelectSeatState> {
       Emitter<SelectSeatState> emit,
       ) async {
     try {
-      final bookedSeats = await _bookingController.getBookedSeats(
-          state.selectedShowtime?.id ?? '');
+      final bookedSeatIds = await _bookingController.getBookedSeats(event.showtimeId);
 
-      // -> Extract the seatIds
-      final bookedSeatIds = bookedSeats.map((seat) => seat.seatId ?? '').toList();
+      print('Fetched booked seat IDs: $bookedSeatIds');
 
+      // update state với danh sách ghế đã đặt
       emit(state.copyWith(
         bookedSeatIds: bookedSeatIds,
       ));
+
+      // đảm bảo không có ghế đã đặt nào được chọn
+      if (state.selectedSeats.any((seat) => bookedSeatIds.contains(seat.seatId))) {
+        final updatedSelectedSeats = state.selectedSeats
+            .where((seat) => !bookedSeatIds.contains(seat.seatId))
+            .toList();
+
+        emit(state.copyWith(
+          selectedSeats: updatedSelectedSeats,
+        ));
+      }
     } catch (e) {
-      // Just log the error, don't change state
       print('Error fetching booked seats: ${e.toString()}');
     }
   }
 
-  void _onSelectDate(
+
+  Future<void> _onSelectDate(
       SelectDateEvent event,
       Emitter<SelectSeatState> emit,
-      ) {
-    // Get the showtimes for this date
-    final showtimesForDate = state.showtimesByDate[event.date] ?? [];
-
-    // Select the first time slot by default
-    final selectedShowtime = showtimesForDate.isNotEmpty ? showtimesForDate.first : null;
-
+      ) async {
+    // Cập nhật ngày đã chọn
     emit(state.copyWith(
       selectedDate: event.date,
-      selectedShowtime: selectedShowtime,
-      selectedSeats: [],
+      selectedShowtime: null,
+      selectedSeats: const [],
     ));
 
-    // Fetch seats if we have a selected showtime
-    if (selectedShowtime != null && selectedShowtime.id != null) {
-      add(FetchSeatsEvent(selectedShowtime.id!));
+    // Lấy các suất chiếu cho ngày đã chọn
+    final showtimesForDate = state.showtimesByDate[event.date] ?? [];
+    if (showtimesForDate.isEmpty) return;
+
+    // Sắp xếp theo thời gian
+    showtimesForDate.sort((a, b) {
+      if (a.time == null || b.time == null) return 0;
+      return a.time!.compareTo(b.time!);
+    });
+
+    // Lọc suất chiếu còn hiệu lực
+    final now = DateTime.now();
+    final validShowtimes = showtimesForDate.where((showtime) {
+      try {
+        if (showtime.date == null || showtime.time == null) return false;
+
+        final dateTime = DateTime.parse(showtime.date!);
+        final timeParts = showtime.time!.split(':');
+
+        final showtimeDateTime = DateTime(
+          dateTime.year,
+          dateTime.month,
+          dateTime.day,
+          int.parse(timeParts[0]),
+          int.parse(timeParts[1]),
+        );
+
+        return showtimeDateTime.isAfter(now);
+      } catch (_) {
+        return false;
+      }
+    }).toList();
+
+    // Chọn suất chiếu còn hiệu lực đầu tiên hoặc suất đầu tiên nếu không còn suất nào hiệu lực
+    final selectedShowtime = validShowtimes.isNotEmpty
+        ? validShowtimes.first
+        : showtimesForDate.first;
+
+    if (selectedShowtime.id != null) {
+      emit(state.copyWith(selectedShowtime: selectedShowtime));
+      add(FetchBookedSeatsEvent(selectedShowtime.id!));
     }
   }
 
@@ -171,7 +213,9 @@ class SelectSeatBloc extends Bloc<SelectSeatEvent, SelectSeatState> {
 
     if (seatIndex != -1) {
       final seat = updatedSeats[seatIndex];
-      if (!seat.isTaken) {
+
+      // Kiểm tra xem ghế đã được đặt chưa
+      if (!state.bookedSeatIds.contains(seat.seatId)) {
         updatedSeats[seatIndex] = seat.copyWith(
           isSelected: !seat.isSelected,
         );
@@ -190,7 +234,7 @@ class SelectSeatBloc extends Bloc<SelectSeatEvent, SelectSeatState> {
     ));
   }
 
-  // Helper method to create a seat matrix for the UI
+  // Phương pháp trợ giúp để tạo ma trận chỗ ngồi cho UI
   List<List<SeatModel>> _createSeatMatrix(List<SeatModel> seats) {
     if (seats.isEmpty) return [];
 
