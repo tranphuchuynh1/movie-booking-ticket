@@ -1,5 +1,12 @@
 import 'package:flutter/material.dart';
-import '../../../core/widgets/bottom_nav_bar.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+import 'package:movie_booking_ticket/core/models/movie_model.dart';
+import 'package:movie_booking_ticket/core/widgets/bottom_nav_bar.dart';
+import 'package:movie_booking_ticket/features/auth/controllers/save_token_user_service.dart';
+import 'package:movie_booking_ticket/features/ticket_history/bloc/ticket_bloc.dart';
+import 'package:movie_booking_ticket/features/ticket_history/bloc/ticket_event.dart';
+import 'package:movie_booking_ticket/features/ticket_history/bloc/ticket_state.dart';
 
 class TicketHistoryScreen extends StatefulWidget {
   const TicketHistoryScreen({super.key});
@@ -9,81 +16,135 @@ class TicketHistoryScreen extends StatefulWidget {
 }
 
 class _TicketHistoryScreenState extends State<TicketHistoryScreen> {
-  // fake tạm @@
-  final List<Map<String, String>> _dummyMovies = [
-    {
-      "title": "Spider Man",
-      "posterUrl": "assets/images/spider.jpg",
-    },
-  ];
+  String? _userId;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserId();
+  }
+
+  Future<void> _loadUserId() async {
+    final user = await SaveTokenUserService.getUser();
+    setState(() {
+      _userId = user?.userId;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black,
-      body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Tiêu đề màn hình
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 40, 16, 16),
-              child: Center(
-                child: Text(
-                  'Tickets History',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ),
+    if (_userId == null) {
+      return Scaffold(
+        backgroundColor: Colors.black,
+        body: const Center(child: CircularProgressIndicator()),
+      );
+    }
 
-            // Hiển thị danh sách phim (dữ liệu giả lập)
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: GridView.builder(
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    childAspectRatio: 0.7,
-                    crossAxisSpacing: 16,
-                    mainAxisSpacing: 16,
-                  ),
-                  itemCount: _dummyMovies.length,
-                  itemBuilder: (context, index) {
-                    return _buildTicketItem(
-                      _dummyMovies[index]["title"]!,
-                      _dummyMovies[index]["posterUrl"]!,
-                    );
-                  },
-                ),
-              ),
-            ),
-          ],
+    return BlocProvider<TicketBloc>(
+      create: (_) => TicketBloc()..add(FetchTicketHistoryEvent(_userId!)),
+      child: Scaffold(
+        backgroundColor: Colors.black,
+        appBar: AppBar(
+          backgroundColor: Colors.black,
+          title: const Text("Tickets History", textAlign: TextAlign.center),
         ),
+        body: SafeArea(
+          child: BlocBuilder<TicketBloc, TicketState>(
+            builder: (context, state) {
+              if (state.status == TicketStateStatus.loading) {
+                return const Center(
+                  child: CircularProgressIndicator(color: Colors.red),
+                );
+              } else if (state.status == TicketStateStatus.error) {
+                return Center(
+                  child: Text(
+                    state.errorMessage ?? "Error occurred",
+                    style: const TextStyle(color: Colors.red),
+                  ),
+                );
+              } else if (state.orders == null || state.orders!.isEmpty) {
+                return const Center(
+                  child: Text(
+                    "No purchased movies found",
+                    style: TextStyle(color: Colors.white),
+                  ),
+                );
+              } else {
+                final List<MovieTicketModel> movies = state.orders!;
+                return Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16.0,
+                    vertical: 10,
+                  ),
+                  child: GridView.builder(
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          childAspectRatio: 0.7,
+                          crossAxisSpacing: 16,
+                          mainAxisSpacing: 16,
+                        ),
+                    itemCount: movies.length,
+                    itemBuilder: (context, index) {
+                      return GestureDetector(
+                        onTap: () {
+                          context.go('/ticket', extra: movies);
+                        },
+                        child: _buildTicketItem(movies[index]),
+                      );
+                    },
+                  ),
+                );
+              }
+            },
+          ),
+        ),
+        bottomNavigationBar: const BottomNavBar(selectedIndex: 2),
       ),
-      bottomNavigationBar: const BottomNavBar(selectedIndex: 2),
     );
   }
 
-  Widget _buildTicketItem(String title, String posterUrl) {
+  Widget _buildTicketItem(MovieTicketModel movie) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Expanded(
           child: ClipRRect(
             borderRadius: BorderRadius.circular(16),
-            child: Image.asset(
-              posterUrl, // Dùng ảnh từ thư mục assets
-              fit: BoxFit.cover,
+            child: Builder(
+              builder: (context) {
+                final image = movie.image;
+                print("Image: $image");
+                if (movie.image != null && movie.image!.isNotEmpty) {
+                  return Image.network(movie.image!, fit: BoxFit.cover);
+                } else {
+                  return Container(
+                    color: Colors.grey,
+                    child: const Icon(
+                      Icons.movie,
+                      color: Colors.white,
+                      size: 40,
+                    ),
+                  );
+                }
+              },
             ),
+
+            // (movie.image != null && movie.image!.isNotEmpty)
+            //     ? Image.network(movie.image!, fit: BoxFit.cover)
+            //     : Container(
+            //       color: Colors.grey,
+            //       child: const Icon(
+            //         Icons.movie,
+            //         color: Colors.white,
+            //         size: 40,
+            //       ),
+            //     ),
           ),
         ),
         const SizedBox(height: 8),
         Text(
-          title,
+          movie.title ?? 'No Title',
           style: const TextStyle(
             color: Colors.white,
             fontSize: 16,

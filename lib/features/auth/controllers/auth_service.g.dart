@@ -10,7 +10,7 @@ part of 'auth_service.dart';
 
 class _AuthService implements AuthService {
   _AuthService(this._dio, {this.baseUrl, this.errorLogger}) {
-    baseUrl ??= 'http://minhtue-001-site1.ktempurl.com/api';
+    baseUrl ??= 'https://minhtue-001-site1.ktempurl.com/api';
   }
 
   final Dio _dio;

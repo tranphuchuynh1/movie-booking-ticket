@@ -27,6 +27,14 @@ class SaveTokenUserService {
     await prefs.remove(USER_KEY);
   }
 
+  static Future<String?> getAccessToken() async {
+    final user = await getUser();
+    if (user != null && user.jwtToken != null) {
+      return user.jwtToken;
+    }
+    return null;
+  }
+
   // check user dùng đã login và token còn hiệu lực hay k
   static Future<bool> isLoggedIn() async {
     final user = await getUser();

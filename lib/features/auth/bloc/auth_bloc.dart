@@ -9,8 +9,9 @@ part 'auth_event.dart';
 part 'auth_state.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
-  final AuthController _authController = AuthController(dio: DioClient.instance);
-
+  final AuthController _authController = AuthController(
+    dio: DioClient.instance,
+  );
 
   AuthBloc({bool checkAuthOnInit = true}) : super(AuthState()) {
     on<LoginEvent>(_onLogin);
@@ -18,16 +19,15 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<LogoutEvent>(_onLogout);
     on<CheckAuthEvent>(_onCheckAuth);
 
-
     if (checkAuthOnInit) {
       add(CheckAuthEvent(showLoading: false));
     }
   }
 
   Future<void> _onCheckAuth(
-      CheckAuthEvent event,
-      Emitter<AuthState> emit,
-      ) async {
+    CheckAuthEvent event,
+    Emitter<AuthState> emit,
+  ) async {
     if (event.showLoading) {
       emit(state.copyWith(status: AuthStateStatus.loading));
     }
@@ -38,59 +38,49 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
       if (isLoggedIn) {
         final user = await SaveTokenUserService.getUser();
-        emit(state.copyWith(
-          status: AuthStateStatus.authenticated,
-          user: user,
-        ));
+        emit(state.copyWith(status: AuthStateStatus.authenticated, user: user));
       } else {
         emit(state.copyWith(status: AuthStateStatus.unauthenticated));
       }
     } catch (e) {
       print("CheckAuth Error: ${e.toString()}");
-      emit(state.copyWith(
-        status: AuthStateStatus.error,
-        errorMessage: e.toString(),
-      ));
+      emit(
+        state.copyWith(
+          status: AuthStateStatus.error,
+          errorMessage: e.toString(),
+        ),
+      );
     }
   }
 
-  Future<void> _onLogin(
-      LoginEvent event,
-      Emitter<AuthState> emit,
-      ) async {
+  Future<void> _onLogin(LoginEvent event, Emitter<AuthState> emit) async {
     emit(state.copyWith(status: AuthStateStatus.loading));
     print("Login: Attempting login for ${event.username}");
 
     try {
-      final user = await _authController.login(
-        event.username,
-        event.password,
-      );
-
+      final user = await _authController.login(event.username, event.password);
 
       // Lưu thông tin user
       await SaveTokenUserService.saveUser(user);
       print("Login: User data saved");
 
-      emit(state.copyWith(
-        status: AuthStateStatus.authenticated,
-        user: user,
-      ));
+      emit(state.copyWith(status: AuthStateStatus.authenticated, user: user));
     } catch (e) {
       print("Login Error: ${e.toString()}");
-      emit(state.copyWith(
-        status: AuthStateStatus.error,
-        errorMessage: e.toString(),
-      ));
+      emit(
+        state.copyWith(
+          status: AuthStateStatus.error,
+          errorMessage: e.toString(),
+        ),
+      );
     }
   }
 
-  Future<void> _onRegister(
-      RegisterEvent event,
-      Emitter<AuthState> emit,
-      ) async {
+  Future<void> _onRegister(RegisterEvent event, Emitter<AuthState> emit) async {
     emit(state.copyWith(status: AuthStateStatus.loading));
-    print("Register: Attempting register for ${event.username}, email: ${event.email}");
+    print(
+      "Register: Attempting register for ${event.username}, email: ${event.email}",
+    );
 
     try {
       final user = await _authController.register(
@@ -100,27 +90,22 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         event.confirmPassword,
       );
 
-
       await SaveTokenUserService.saveUser(user);
       print("Register: User data saved");
 
-      emit(state.copyWith(
-        status: AuthStateStatus.authenticated,
-        user: user,
-      ));
+      emit(state.copyWith(status: AuthStateStatus.authenticated, user: user));
     } catch (e) {
       print("Register Error: ${e.toString()}");
-      emit(state.copyWith(
-        status: AuthStateStatus.error,
-        errorMessage: e.toString(),
-      ));
+      emit(
+        state.copyWith(
+          status: AuthStateStatus.error,
+          errorMessage: e.toString(),
+        ),
+      );
     }
   }
 
-  void _onLogout(
-      LogoutEvent event,
-      Emitter<AuthState> emit,
-      ) async {
+  void _onLogout(LogoutEvent event, Emitter<AuthState> emit) async {
     print("Logout: Clearing user data");
     await SaveTokenUserService.clearUser();
     emit(AuthState());
