@@ -219,3 +219,45 @@ class MovieTicketModel {
       _$MovieTicketModelFromJson(json);
   Map<String, dynamic> toJson() => _$MovieTicketModelToJson(this);
 }
+
+@JsonSerializable()
+class MyTicketModel {
+  @JsonKey(name: 'id')
+  final String? id;
+
+  @JsonKey(name: 'imageMovie')
+  final String? imageMovie;
+
+  @JsonKey(name: 'hall')
+  final String? hall;
+
+  @JsonKey(name: 'showTimeDate')
+  final String? showTimeDate;
+
+  @JsonKey(name: 'showTimeStart')
+  final String? showTimeStart;
+
+  @JsonKey(name: 'seatRow')
+  final String? seatRow;
+
+  @JsonKey(name: 'seatNumber')
+  final int? seatNumber;
+
+  @JsonKey(name: 'qrCode')
+  final String? qrCode;
+
+  MyTicketModel({
+    this.id,
+    this.imageMovie,
+    this.hall,
+    this.showTimeDate,
+    this.showTimeStart,
+    this.seatRow,
+    this.seatNumber,
+    this.qrCode,
+  });
+
+  factory MyTicketModel.fromJson(Map<String, dynamic> json) =>
+      _$MyTicketModelFromJson(json);
+  Map<String, dynamic> toJson() => _$MyTicketModelToJson(this);
+}

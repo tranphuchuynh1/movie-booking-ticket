@@ -7,6 +7,7 @@ import 'package:movie_booking_ticket/features/auth/controllers/save_token_user_s
 import 'package:movie_booking_ticket/features/ticket_history/bloc/ticket_bloc.dart';
 import 'package:movie_booking_ticket/features/ticket_history/bloc/ticket_event.dart';
 import 'package:movie_booking_ticket/features/ticket_history/bloc/ticket_state.dart';
+import 'package:movie_booking_ticket/features/ticket_history/screen/ticket_history_skeleton.dart';
 
 class TicketHistoryScreen extends StatefulWidget {
   const TicketHistoryScreen({super.key});
@@ -44,17 +45,29 @@ class _TicketHistoryScreenState extends State<TicketHistoryScreen> {
       create: (_) => TicketBloc()..add(FetchTicketHistoryEvent(_userId!)),
       child: Scaffold(
         backgroundColor: Colors.black,
+
         appBar: AppBar(
           backgroundColor: Colors.black,
-          title: const Text("Tickets History", textAlign: TextAlign.center),
+          title: Padding(
+            padding: const EdgeInsets.only(top: 20),
+            child: Center(
+              child: const Text(
+                "Tickets History",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
         ),
         body: SafeArea(
           child: BlocBuilder<TicketBloc, TicketState>(
             builder: (context, state) {
               if (state.status == TicketStateStatus.loading) {
-                return const Center(
-                  child: CircularProgressIndicator(color: Colors.red),
-                );
+                return TicketHistorySkeleton();
               } else if (state.status == TicketStateStatus.error) {
                 return Center(
                   child: Text(
@@ -88,7 +101,8 @@ class _TicketHistoryScreenState extends State<TicketHistoryScreen> {
                     itemBuilder: (context, index) {
                       return GestureDetector(
                         onTap: () {
-                          context.go('/ticket', extra: movies);
+                          context.go('/ticket/', extra: movies);
+                          print('movies[index] ${movies[index].movieId}');
                         },
                         child: _buildTicketItem(movies[index]),
                       );
@@ -113,8 +127,6 @@ class _TicketHistoryScreenState extends State<TicketHistoryScreen> {
             borderRadius: BorderRadius.circular(16),
             child: Builder(
               builder: (context) {
-                final image = movie.image;
-                print("Image: $image");
                 if (movie.image != null && movie.image!.isNotEmpty) {
                   return Image.network(movie.image!, fit: BoxFit.cover);
                 } else {
@@ -129,17 +141,6 @@ class _TicketHistoryScreenState extends State<TicketHistoryScreen> {
                 }
               },
             ),
-
-            // (movie.image != null && movie.image!.isNotEmpty)
-            //     ? Image.network(movie.image!, fit: BoxFit.cover)
-            //     : Container(
-            //       color: Colors.grey,
-            //       child: const Icon(
-            //         Icons.movie,
-            //         color: Colors.white,
-            //         size: 40,
-            //       ),
-            //     ),
           ),
         ),
         const SizedBox(height: 8),
