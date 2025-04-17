@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:movie_booking_ticket/core/models/movie.dart';
 import 'package:movie_booking_ticket/features/profile_screen/screens/change_password.dart';
@@ -11,6 +13,9 @@ import 'package:movie_booking_ticket/features/home_movie/screens/home_screen.dar
 import 'package:movie_booking_ticket/features/detail_movie/screens/detail_movie_screen.dart';
 import 'package:movie_booking_ticket/features/my_ticket_movie/screens/ticket_movie_screen.dart';
 import 'package:movie_booking_ticket/features/select_seat_movie/screens/select_seat_movie_screen.dart';
+
+import '../../features/payment/controllers/booking_controller.dart';
+import '../../features/payment/screens/payment_webview_screen.dart';
 
 
 GoRouter appRouter(String initialRoute) {
@@ -58,26 +63,115 @@ GoRouter appRouter(String initialRoute) {
       GoRoute(
         path: '/select_seat',
         builder: (context, state) {
-          final movieId = state.extra as String;
+          if (state.extra == null) {
+            // Trường hợp quay lại từ màn hình thanh toán bị hủy
+            return Scaffold(
+              backgroundColor: Colors.black,
+              body: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.error_outline, color: Colors.red, size: 60),
+                    SizedBox(height: 16),
+                    Text(
+                      'Không thể tải thông tin phim',
+                      style: TextStyle(color: Colors.white, fontSize: 18),
+                      textAlign: TextAlign.center,
+                    ),
+                    SizedBox(height: 24),
+                    ElevatedButton(
+                      onPressed: () => context.go('/home'),
+                      style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                      child: Text('Quay về trang chủ'),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }
+
+          final movieId = state.extra.toString();
           return SelectSeatMovieScreen(movieId: movieId);
         },
       ),
+
+      GoRoute(
+          path: '/payment_callback',
+          builder: (context, state) {
+            print("DEBUG - Payment callback route params: ${state.uri.queryParameters}");
+            final success = state.uri.queryParameters['success']?.toLowerCase() == 'true';
+            final message = state.uri.queryParameters['message'] ?? '';
+            final orderId = state.uri.queryParameters['orderId'];
+
+            if (success == 'true' && orderId != null) {
+              context.go('/ticket', extra: orderId);
+              print("DEBUG: URI = ${state.uri}");
+              print("DEBUG: Extra data = ${state.extra}");
+            } else {
+              // Chuyển về màn hình chọn ghế với thông báo lỗi
+              context.go('/select_seat');
+            }
+
+            return Scaffold(body: Center(child: CircularProgressIndicator()));
+          }
+      ),
+
+      GoRoute(
+        path: '/payment_webview',
+        builder: (context, state) {
+          final Map<String, dynamic> params = state.extra as Map<String, dynamic>;
+          return PaymentWebViewScreen(
+            paymentUrl: params['paymentUrl'],
+            orderId: params['orderId'],
+          );
+        },
+      ),
+
       GoRoute(
         path: '/ticket',
         builder: (context, state) {
-          final movie = state.extra as Movie;
-          return TicketMovieScreen(movie: movie);
+          print("DEBUG: state.extra = ${state.extra}");
+          print("DEBUG: type of state.extra = ${state.extra?.runtimeType}");
+
+          if (state.extra == null) {
+            return Scaffold(
+              backgroundColor: Colors.black,
+              body: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.error_outline, color: Colors.red, size: 60),
+                    SizedBox(height: 16),
+                    Text(
+                      'Không thể tải thông tin vé - Thiếu thông tin đơn hàng',
+                      style: TextStyle(color: Colors.white, fontSize: 18),
+                      textAlign: TextAlign.center,
+                    ),
+                    SizedBox(height: 24),
+                    ElevatedButton(
+                      onPressed: () => context.go('/home'),
+                      style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                      child: Text('Quay về trang chủ'),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }
+
+          final orderId = state.extra.toString();
+          return TicketMovieScreen(orderId: orderId);
         },
-      ),
-      GoRoute(
-        path: '/ticket_history',
-        builder: (context, state) => TicketHistoryScreen(),
       ),
 
       GoRoute(path: '/profile', builder: (context, state) => ProfileScreen()),
       GoRoute(
         path: '/edit_profile',
         builder: (context, state) => EditProfileScreen(),
+      ),
+      GoRoute(
+        path: '/ticket_history',
+        builder: (context, state) => TicketHistoryScreen(),
       ),
       GoRoute(
         path: '/change_password',

@@ -6,6 +6,9 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:movie_booking_ticket/theme.dart';
 
+import '../../../core/models/payment/order_request.dart';
+import '../../auth/controllers/save_token_user_service.dart';
+import '../../payment/controllers/booking_controller.dart';
 import '../bloc/select_seat_movie_bloc.dart';
 
 class SelectSeatMovieScreen extends StatefulWidget {
@@ -164,7 +167,7 @@ class _SelectSeatMovieScreenState extends State<SelectSeatMovieScreen> {
 
                   // Main content
                   Positioned.fill(
-                    top: 280,
+                    top: 250,
                     child: Container(
                       decoration: const BoxDecoration(
                         color: Colors.black,
@@ -583,24 +586,74 @@ class _SelectSeatMovieScreenState extends State<SelectSeatMovieScreen> {
     );
   }
 
-  void _processPurchase(BuildContext context, SelectSeatState state) {
+  void _processPurchase(BuildContext context, SelectSeatState state) async {
     if (state.selectedShowtime == null) return;
 
-    // Create booking data
-    final bookingData = {
-      'showtimeId': state.selectedShowtime!.id,
-      'movieId': state.selectedShowtime!.movieId,
-      'date': state.selectedShowtime!.date,
-      'time': state.selectedShowtime!.time,
-      'roomName': state.selectedShowtime!.roomName,
-      'price': state.totalPrice,
-      'seats': state.selectedSeats.map((seat) => {
-        'seatId': seat.seatId,
-        'row': seat.row,
-        'number': seat.number,
-        'type': seat.type,
-      }).toList(),
-    };
-    context.go('/ticket', extra: bookingData);
+    // Hiển thị dialog loading
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CircularProgressIndicator(color: tdRed),
+            SizedBox(height: 16),
+            Text(
+              'Đang xử lý thanh toán...',
+              style: TextStyle(color: Colors.white),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    try {
+      // Lấy userId từ localStorage
+      final user = await SaveTokenUserService.getUser();
+      if (user == null || user.userId == null) {
+        throw Exception('Người dùng chưa đăng nhập');
+      }
+
+      // Tạo danh sách ticket requests
+      final tickets = state.selectedSeats.map((seat) => TicketRequest(
+        showtimeId: state.selectedShowtime!.id!,
+        seatId: seat.seatId ?? '',
+      )).toList();
+
+      // Sử dụng BookingController trực tiếp
+      final bookingController = BookingController();
+
+      // Tạo đơn hàng
+      final orderResponse = await bookingController.createOrder(
+        user.userId!,
+        tickets,
+        [], // Không có extras
+      );
+
+      // Lấy URL thanh toán
+      final paymentUrl = await bookingController.getPaymentUrl(
+          orderResponse.orderId,
+          orderResponse.totalAmount
+      );
+
+      // Đóng dialog loading
+      Navigator.pop(context);
+
+      context.go('/payment_webview', extra: {
+        'paymentUrl': paymentUrl,
+        'orderId': orderResponse.orderId,
+      });
+
+    } catch (e) {
+      // Đóng dialog loading
+      Navigator.pop(context);
+
+      // Hiển thị lỗi
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Lỗi: ${e.toString()}')),
+      );
+    }
   }
+
 }
