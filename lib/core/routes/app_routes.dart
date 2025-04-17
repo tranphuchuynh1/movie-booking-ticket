@@ -65,14 +65,15 @@ GoRouter appRouter(String initialRoute) {
           return TicketMovieScreen(movie: movie);
         },
       ),
+      GoRoute(
+        path: '/ticket_history',
+        builder: (context, state) => TicketHistoryScreen(),
+      ),
+
       GoRoute(path: '/profile', builder: (context, state) => ProfileScreen()),
       GoRoute(
         path: '/edit_profile',
         builder: (context, state) => EditProfileScreen(),
-      ),
-      GoRoute(
-        path: '/ticket_history',
-        builder: (context, state) => TicketHistoryScreen(),
       ),
       GoRoute(
         path: '/change_password',

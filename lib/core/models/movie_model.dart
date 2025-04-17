@@ -2,7 +2,7 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'movie_model.g.dart';
 
-enum MovieStatus {playing, upcoming}
+enum MovieStatus { playing, upcoming }
 
 @JsonSerializable()
 class MovieModel {
@@ -42,6 +42,9 @@ class MovieModel {
   @JsonKey(name: 'actors')
   final List<ActorModel>? actors;
 
+  @JsonKey(name: 'orders')
+  final List<OrderModel>? orders;
+
   String? trailerUrl;
   List<String>? imageMovie;
 
@@ -60,6 +63,7 @@ class MovieModel {
     this.actors,
     this.trailerUrl,
     this.imageMovie,
+    this.orders,
   });
 
   factory MovieModel.fromJson(Map<String, dynamic> json) {
@@ -85,7 +89,6 @@ class MovieModel {
 
   Map<String, dynamic> toJson() => _$MovieModelToJson(this);
 
-
   MovieModel copyWith({
     String? movieId,
     String? title,
@@ -101,6 +104,8 @@ class MovieModel {
     List<ActorModel>? actors,
     String? trailerUrl,
     List<String>? imageMovie,
+    List<OrderModel>? orders,
+    List<MovieTicketModel>? images,
   }) {
     return MovieModel(
       movieId: movieId ?? this.movieId,
@@ -117,6 +122,7 @@ class MovieModel {
       actors: actors ?? this.actors,
       trailerUrl: trailerUrl ?? this.trailerUrl,
       imageMovie: imageMovie ?? this.imageMovie,
+      orders: orders ?? this.orders,
     );
   }
 }
@@ -146,7 +152,8 @@ class MediaModel {
     this.mediaURL,
   });
 
-  factory MediaModel.fromJson(Map<String, dynamic> json) => _$MediaModelFromJson(json);
+  factory MediaModel.fromJson(Map<String, dynamic> json) =>
+      _$MediaModelFromJson(json);
   Map<String, dynamic> toJson() => _$MediaModelToJson(this);
 }
 
@@ -164,13 +171,93 @@ class ActorModel {
   @JsonKey(name: 'role')
   final String? role;
 
-  ActorModel({
+  ActorModel({this.id, this.name, this.imageURL, this.role});
+
+  factory ActorModel.fromJson(Map<String, dynamic> json) =>
+      _$ActorModelFromJson(json);
+  Map<String, dynamic> toJson() => _$ActorModelToJson(this);
+}
+
+@JsonSerializable()
+class OrderModel {
+  @JsonKey(name: 'orderId')
+  final String? orderId;
+
+  @JsonKey(name: 'userId')
+  final String? userId;
+
+  @JsonKey(name: 'movie')
+  final MovieModel? movie;
+
+  @JsonKey(name: 'orderDate')
+  final String? orderDate;
+
+  OrderModel({this.orderId, this.userId, this.movie, this.orderDate});
+
+  factory OrderModel.fromJson(Map<String, dynamic> json) =>
+      _$OrderModelFromJson(json);
+  Map<String, dynamic> toJson() => _$OrderModelToJson(this);
+}
+
+@JsonSerializable()
+class MovieTicketModel {
+  @JsonKey(name: 'movieId')
+  final String? movieId;
+
+  @JsonKey(name: 'title')
+  final String? title;
+
+  @JsonKey(name: 'image')
+  final String? image;
+
+  @JsonKey(name: 'status')
+  final String? status;
+
+  MovieTicketModel({this.movieId, this.title, this.image, this.status});
+
+  factory MovieTicketModel.fromJson(Map<String, dynamic> json) =>
+      _$MovieTicketModelFromJson(json);
+  Map<String, dynamic> toJson() => _$MovieTicketModelToJson(this);
+}
+
+@JsonSerializable()
+class MyTicketModel {
+  @JsonKey(name: 'id')
+  final String? id;
+
+  @JsonKey(name: 'imageMovie')
+  final String? imageMovie;
+
+  @JsonKey(name: 'hall')
+  final String? hall;
+
+  @JsonKey(name: 'showTimeDate')
+  final String? showTimeDate;
+
+  @JsonKey(name: 'showTimeStart')
+  final String? showTimeStart;
+
+  @JsonKey(name: 'seatRow')
+  final String? seatRow;
+
+  @JsonKey(name: 'seatNumber')
+  final int? seatNumber;
+
+  @JsonKey(name: 'qrCode')
+  final String? qrCode;
+
+  MyTicketModel({
     this.id,
-    this.name,
-    this.imageURL,
-    this.role,
+    this.imageMovie,
+    this.hall,
+    this.showTimeDate,
+    this.showTimeStart,
+    this.seatRow,
+    this.seatNumber,
+    this.qrCode,
   });
 
-  factory ActorModel.fromJson(Map<String, dynamic> json) => _$ActorModelFromJson(json);
-  Map<String, dynamic> toJson() => _$ActorModelToJson(this);
+  factory MyTicketModel.fromJson(Map<String, dynamic> json) =>
+      _$MyTicketModelFromJson(json);
+  Map<String, dynamic> toJson() => _$MyTicketModelToJson(this);
 }

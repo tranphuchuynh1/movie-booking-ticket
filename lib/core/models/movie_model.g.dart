@@ -28,6 +28,10 @@ MovieModel _$MovieModelFromJson(Map<String, dynamic> json) => MovieModel(
   trailerUrl: json['trailerUrl'] as String?,
   imageMovie:
       (json['imageMovie'] as List<dynamic>?)?.map((e) => e as String).toList(),
+  orders:
+      (json['orders'] as List<dynamic>?)
+          ?.map((e) => OrderModel.fromJson(e as Map<String, dynamic>))
+          .toList(),
 );
 
 Map<String, dynamic> _$MovieModelToJson(MovieModel instance) =>
@@ -44,6 +48,7 @@ Map<String, dynamic> _$MovieModelToJson(MovieModel instance) =>
       'genres': instance.genres,
       'media': instance.media,
       'actors': instance.actors,
+      'orders': instance.orders,
       'trailerUrl': instance.trailerUrl,
       'imageMovie': instance.imageMovie,
     };
@@ -78,4 +83,62 @@ Map<String, dynamic> _$ActorModelToJson(ActorModel instance) =>
       'name': instance.name,
       'imageURL': instance.imageURL,
       'role': instance.role,
+    };
+
+OrderModel _$OrderModelFromJson(Map<String, dynamic> json) => OrderModel(
+  orderId: json['orderId'] as String?,
+  userId: json['userId'] as String?,
+  movie:
+      json['movie'] == null
+          ? null
+          : MovieModel.fromJson(json['movie'] as Map<String, dynamic>),
+  orderDate: json['orderDate'] as String?,
+);
+
+Map<String, dynamic> _$OrderModelToJson(OrderModel instance) =>
+    <String, dynamic>{
+      'orderId': instance.orderId,
+      'userId': instance.userId,
+      'movie': instance.movie,
+      'orderDate': instance.orderDate,
+    };
+
+MovieTicketModel _$MovieTicketModelFromJson(Map<String, dynamic> json) =>
+    MovieTicketModel(
+      movieId: json['movieId'] as String?,
+      title: json['title'] as String?,
+      image: json['image'] as String?,
+      status: json['status'] as String?,
+    );
+
+Map<String, dynamic> _$MovieTicketModelToJson(MovieTicketModel instance) =>
+    <String, dynamic>{
+      'movieId': instance.movieId,
+      'title': instance.title,
+      'image': instance.image,
+      'status': instance.status,
+    };
+
+MyTicketModel _$MyTicketModelFromJson(Map<String, dynamic> json) =>
+    MyTicketModel(
+      id: json['id'] as String?,
+      imageMovie: json['imageMovie'] as String?,
+      hall: json['hall'] as String?,
+      showTimeDate: json['showTimeDate'] as String?,
+      showTimeStart: json['showTimeStart'] as String?,
+      seatRow: json['seatRow'] as String?,
+      seatNumber: (json['seatNumber'] as num?)?.toInt(),
+      qrCode: json['qrCode'] as String?,
+    );
+
+Map<String, dynamic> _$MyTicketModelToJson(MyTicketModel instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+      'imageMovie': instance.imageMovie,
+      'hall': instance.hall,
+      'showTimeDate': instance.showTimeDate,
+      'showTimeStart': instance.showTimeStart,
+      'seatRow': instance.seatRow,
+      'seatNumber': instance.seatNumber,
+      'qrCode': instance.qrCode,
     };

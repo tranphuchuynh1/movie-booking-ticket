@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'search_service.dart';
+part of 'ticket_service.dart';
 
 // **************************************************************************
 // RetrofitGenerator
@@ -8,8 +8,8 @@ part of 'search_service.dart';
 
 // ignore_for_file: unnecessary_brace_in_string_interps,no_leading_underscores_for_local_identifiers,unused_element,unnecessary_string_interpolations
 
-class _SearchService implements SearchService {
-  _SearchService(this._dio, {this.baseUrl, this.errorLogger}) {
+class _TicketService implements TicketService {
+  _TicketService(this._dio, {this.baseUrl, this.errorLogger}) {
     baseUrl ??= 'https://minhtue-001-site1.ktempurl.com/api';
   }
 
@@ -20,31 +20,34 @@ class _SearchService implements SearchService {
   final ParseErrorLogger? errorLogger;
 
   @override
-  Future<BaseResponse<List<MovieModel>>> searchMovies(String query) async {
+  Future<BaseResponse<List<MovieTicketModel>>> getMovieOrdersTicket(
+    String userId,
+  ) async {
     final _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{r'Search': query};
+    final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
     const Map<String, dynamic>? _data = null;
-    final _options = _setStreamType<BaseResponse<List<MovieModel>>>(
+    final _options = _setStreamType<BaseResponse<List<MovieTicketModel>>>(
       Options(method: 'GET', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            '/movies',
+            '/orders/movies/${userId}',
             queryParameters: queryParameters,
             data: _data,
           )
           .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
     );
     final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late BaseResponse<List<MovieModel>> _value;
+    late BaseResponse<List<MovieTicketModel>> _value;
     try {
-      _value = BaseResponse<List<MovieModel>>.fromJson(
+      _value = BaseResponse<List<MovieTicketModel>>.fromJson(
         _result.data!,
         (json) =>
             json is List<dynamic>
                 ? json
-                    .map<MovieModel>(
-                      (i) => MovieModel.fromJson(i as Map<String, dynamic>),
+                    .map<MovieTicketModel>(
+                      (i) =>
+                          MovieTicketModel.fromJson(i as Map<String, dynamic>),
                     )
                     .toList()
                 : List.empty(),

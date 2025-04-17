@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:movie_booking_ticket/core/models/movie_model.dart';
+import 'package:movie_booking_ticket/features/detail_movie/screens/detail_movie_skeleton.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 import '../../../localization/app_localizations.dart';
 import '../bloc/detail_movie_bloc.dart';
@@ -10,10 +11,7 @@ import 'dart:convert';
 class MovieDetailScreen extends StatefulWidget {
   final String movieId;
 
-  const MovieDetailScreen({
-    super.key,
-    required this.movieId,
-  });
+  const MovieDetailScreen({super.key, required this.movieId});
 
   @override
   State<MovieDetailScreen> createState() => _MovieDetailScreenState();
@@ -37,7 +35,9 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
 
   ImageProvider _getProperImageProvider(String? url) {
     if (url == null || url.isEmpty) {
-      return const NetworkImage('https://upload.wikimedia.org/wikipedia/commons/thumb/5/50/User_icon-cp.svg/1656px-User_icon-cp.svg.png');
+      return const NetworkImage(
+        'https://upload.wikimedia.org/wikipedia/commons/thumb/5/50/User_icon-cp.svg/1656px-User_icon-cp.svg.png',
+      );
     }
 
     if (url.startsWith('data:image')) {
@@ -67,15 +67,9 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
       child: BlocBuilder<MovieDetailBloc, MovieDetailState>(
         builder: (context, state) {
           if (state.status == MovieDetailStatus.loading) {
-            return const Scaffold(
-              backgroundColor: Colors.black,
-              body: Center(
-                child: CircularProgressIndicator(
-                  color: Colors.deepOrange,
-                ),
-              ),
-            );
-          } else if (state.status == MovieDetailStatus.success && state.movieDetail != null) {
+            return const DetailMovieSkeleton();
+          } else if (state.status == MovieDetailStatus.success &&
+              state.movieDetail != null) {
             return _buildContent(context, state.movieDetail!);
           } else {
             return Scaffold(
@@ -84,10 +78,15 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Icon(Icons.error_outline, color: Colors.red, size: 48),
+                    const Icon(
+                      Icons.error_outline,
+                      color: Colors.red,
+                      size: 48,
+                    ),
                     const SizedBox(height: 16),
                     Text(
-                      state.errorMessage ?? 'Đã xảy ra lỗi khi tải thông tin phim',
+                      state.errorMessage ??
+                          'Đã xảy ra lỗi khi tải thông tin phim',
                       style: const TextStyle(color: Colors.white),
                     ),
                     const SizedBox(height: 16),
@@ -135,7 +134,7 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
     String? posterImageUrl;
     if (movieModel.media != null && movieModel.media!.isNotEmpty) {
       final imageMedia = movieModel.media!.firstWhere(
-            (media) => media.mediaType == 'Image',
+        (media) => media.mediaType == 'Image',
         orElse: () => MediaModel(),
       );
       posterImageUrl = imageMedia.mediaURL;
@@ -149,7 +148,10 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
           width: double.infinity,
           decoration: BoxDecoration(
             image: DecorationImage(
-              image: NetworkImage(posterImageUrl ?? 'https://via.placeholder.com/400x600?text=No+Image'),
+              image: NetworkImage(
+                posterImageUrl ??
+                    'https://via.placeholder.com/400x600?text=No+Image',
+              ),
               fit: BoxFit.cover,
             ),
           ),
@@ -208,7 +210,10 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
                   ),
                 ],
                 image: DecorationImage(
-                  image: NetworkImage(posterImageUrl ?? 'https://via.placeholder.com/200x300?text=No+Image'),
+                  image: NetworkImage(
+                    posterImageUrl ??
+                        'https://via.placeholder.com/200x300?text=No+Image',
+                  ),
                   fit: BoxFit.cover,
                 ),
               ),
@@ -233,7 +238,9 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
                 const Icon(Icons.access_time, color: Colors.white54, size: 16),
                 const SizedBox(width: 4),
                 Text(
-                  movieModel.duration != null ? '${movieModel.duration} phút' : 'Đang cập nhật',
+                  movieModel.duration != null
+                      ? '${movieModel.duration} phút'
+                      : 'Đang cập nhật',
                   style: const TextStyle(color: Colors.white54),
                 ),
               ],
@@ -259,23 +266,27 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
               spacing: 8,
               runSpacing: 8,
               alignment: WrapAlignment.center,
-              children: (movieModel.genres ?? []).map((genre) {
-                return Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.white24),
-                    borderRadius: BorderRadius.circular(20),
-                    color: Colors.black,
-                  ),
-                  child: Text(
-                    genre,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 12,
-                    ),
-                  ),
-                );
-              }).toList(),
+              children:
+                  (movieModel.genres ?? []).map((genre) {
+                    return Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.white24),
+                        borderRadius: BorderRadius.circular(20),
+                        color: Colors.black,
+                      ),
+                      child: Text(
+                        genre,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
+                        ),
+                      ),
+                    );
+                  }).toList(),
             ),
           ),
         ],
@@ -287,7 +298,7 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
     String? trailerUrl;
     if (movieModel.media != null && movieModel.media!.isNotEmpty) {
       final videoMedia = movieModel.media!.firstWhere(
-            (media) => media.mediaType == 'Video',
+        (media) => media.mediaType == 'Video',
         orElse: () => MediaModel(),
       );
       trailerUrl = videoMedia.mediaURL;
@@ -326,7 +337,10 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
                   ),
                   const SizedBox(width: 12),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(8),
@@ -345,14 +359,16 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
             ),
           ),
           ElevatedButton.icon(
-            onPressed: youtubeId != null
-                ? () {
-              showDialog(
-                context: context,
-                builder: (context) => TrailerDialog(videoId: youtubeId!),
-              );
-            }
-                : null,
+            onPressed:
+                youtubeId != null
+                    ? () {
+                      showDialog(
+                        context: context,
+                        builder:
+                            (context) => TrailerDialog(videoId: youtubeId!),
+                      );
+                    }
+                    : null,
             icon: const Icon(Icons.play_circle, color: Colors.white),
             label: const Text('Trailer', style: TextStyle(color: Colors.white)),
             style: ElevatedButton.styleFrom(
@@ -390,9 +406,10 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
           const SizedBox(height: 8),
           AnimatedCrossFade(
             duration: const Duration(milliseconds: 300),
-            crossFadeState: _isDescriptionExpanded
-                ? CrossFadeState.showSecond
-                : CrossFadeState.showFirst,
+            crossFadeState:
+                _isDescriptionExpanded
+                    ? CrossFadeState.showSecond
+                    : CrossFadeState.showFirst,
             firstChild: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -597,10 +614,7 @@ class TrailerDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     final controller = YoutubePlayerController(
       initialVideoId: videoId,
-      flags: const YoutubePlayerFlags(
-        autoPlay: true,
-        mute: false,
-      ),
+      flags: const YoutubePlayerFlags(autoPlay: true, mute: false),
     );
 
     return Dialog(
