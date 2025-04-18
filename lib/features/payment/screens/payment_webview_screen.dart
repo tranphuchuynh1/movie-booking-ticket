@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:movie_booking_ticket/core/models/payment/order_response.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:movie_booking_ticket/theme.dart';
 
@@ -66,17 +67,27 @@ class _PaymentWebViewScreenState extends State<PaymentWebViewScreen> {
 
     print("DEBUG - Payment result: success=$success, orderId=$orderId, message=$message");
 
-    if (success && orderId.isNotEmpty) {
-      // can thêm delay nhỏ để đảm bảo state được cập nhật
-      Future.delayed(Duration(milliseconds: 100), () {
-        context.go('/ticket', extra: orderId);
-      });
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Thanh toán thất bại: $message')),
-      );
-      context.go('/select_seat');
-    }
+      if (success && orderId.isNotEmpty) {
+        // Thành công, chuyển đến màn hình vé
+        Future.delayed(Duration(milliseconds: 100), () {
+          context.go('/ticket', extra: orderId);
+        });
+      } else {
+        // Thất bại, quay lại màn hình chọn ghế
+        SharedPreferences.getInstance().then((prefs) {
+          final movieId = prefs.getString('last_selected_movie_id');
+          if (movieId != null && movieId.isNotEmpty) {
+            context.go('/select_seat', extra: movieId);
+          } else {
+            context.go('/home');
+          }
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Thanh toán thất bại: $message')),
+        );
+      }
+
   }
 
   @override
@@ -87,9 +98,18 @@ class _PaymentWebViewScreenState extends State<PaymentWebViewScreen> {
         backgroundColor: Colors.black,
         leading: IconButton(
           icon: Icon(Icons.close),
-          onPressed: () {
-            // Hủy thanh toán
-            context.pop(context);
+          onPressed: () async {
+            // Lấy movieId từ SharedPreferences
+            final prefs = await SharedPreferences.getInstance();
+            final movieId = prefs.getString('last_selected_movie_id');
+
+            // back màn hình chọn ghế với movieId
+            if (movieId != null && movieId.isNotEmpty) {
+              context.go('/select_seat', extra: movieId);
+            } else {
+              // Nếu không có movieId, trở về trang chủ
+              context.go('/home');
+            }
           },
         ),
       ),

@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:movie_booking_ticket/theme.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../core/models/payment/order_request.dart';
 import '../../auth/controllers/save_token_user_service.dart';
@@ -159,7 +160,7 @@ class _SelectSeatMovieScreenState extends State<SelectSeatMovieScreen> {
                       child: IconButton(
                         icon: const Icon(Icons.close, color: Colors.white, size: 20),
                         onPressed: () {
-                          context.pop();
+                          context.go('/detail', extra: widget.movieId);
                         },
                       ),
                     ),
@@ -257,11 +258,12 @@ class _SelectSeatMovieScreenState extends State<SelectSeatMovieScreen> {
       );
     }
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
+    return SingleChildScrollView(
+        child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+    child: Column(
+    mainAxisSize: MainAxisSize.min,
+    children: [
 
           // Seat matrix
           Column(
@@ -312,6 +314,7 @@ class _SelectSeatMovieScreenState extends State<SelectSeatMovieScreen> {
           ),
         ],
       ),
+    ),
     );
   }
 
@@ -589,6 +592,10 @@ class _SelectSeatMovieScreenState extends State<SelectSeatMovieScreen> {
   void _processPurchase(BuildContext context, SelectSeatState state) async {
     if (state.selectedShowtime == null) return;
 
+    // Lưu movieId vào SharedPreferences trc khi route qua screen Vnpay
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('last_selected_movie_id', widget.movieId);
+
     // Hiển thị dialog loading
     showDialog(
       context: context,
@@ -637,7 +644,6 @@ class _SelectSeatMovieScreenState extends State<SelectSeatMovieScreen> {
           orderResponse.totalAmount
       );
 
-      // Đóng dialog loading
       Navigator.pop(context);
 
       context.go('/payment_webview', extra: {

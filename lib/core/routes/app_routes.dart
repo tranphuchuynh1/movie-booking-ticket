@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:movie_booking_ticket/core/models/movie.dart';
 import 'package:movie_booking_ticket/features/profile_screen/screens/change_password.dart';
 import 'package:movie_booking_ticket/features/profile_screen/screens/edit_profile_screen.dart';
 import 'package:movie_booking_ticket/features/profile_screen/screens/profile_screen.dart';
@@ -13,8 +11,8 @@ import 'package:movie_booking_ticket/features/home_movie/screens/home_screen.dar
 import 'package:movie_booking_ticket/features/detail_movie/screens/detail_movie_screen.dart';
 import 'package:movie_booking_ticket/features/my_ticket_movie/screens/ticket_movie_screen.dart';
 import 'package:movie_booking_ticket/features/select_seat_movie/screens/select_seat_movie_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../features/payment/controllers/booking_controller.dart';
 import '../../features/payment/screens/payment_webview_screen.dart';
 
 
@@ -64,7 +62,7 @@ GoRouter appRouter(String initialRoute) {
         path: '/select_seat',
         builder: (context, state) {
           if (state.extra == null) {
-            // Trường hợp quay lại từ màn hình thanh toán bị hủy
+            // case back từ màn hình thanh toán bị hủy
             return Scaffold(
               backgroundColor: Colors.black,
               body: Center(
@@ -103,13 +101,18 @@ GoRouter appRouter(String initialRoute) {
             final message = state.uri.queryParameters['message'] ?? '';
             final orderId = state.uri.queryParameters['orderId'];
 
-            if (success == 'true' && orderId != null) {
+            if (success && orderId != null) {
               context.go('/ticket', extra: orderId);
-              print("DEBUG: URI = ${state.uri}");
-              print("DEBUG: Extra data = ${state.extra}");
             } else {
-              // Chuyển về màn hình chọn ghế với thông báo lỗi
-              context.go('/select_seat');
+              // Lấy movieId từ SharedPreferences
+              SharedPreferences.getInstance().then((prefs) {
+                final movieId = prefs.getString('last_selected_movie_id');
+                if (movieId != null && movieId.isNotEmpty) {
+                  context.go('/select_seat', extra: movieId);
+                } else {
+                  context.go('/home');
+                }
+              });
             }
 
             return Scaffold(body: Center(child: CircularProgressIndicator()));

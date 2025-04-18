@@ -6,6 +6,9 @@ import 'package:movie_booking_ticket/features/my_ticket_movie/bloc/ticket_bloc.d
 import 'package:movie_booking_ticket/theme.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
+import '../../../core/models/ticket_model.dart';
+
+
 class TicketMovieScreen extends StatelessWidget {
   final String orderId;
 
@@ -20,7 +23,21 @@ class TicketMovieScreen extends StatelessWidget {
   }
 }
 
-class _TicketMovieView extends StatelessWidget {
+class _TicketMovieView extends StatefulWidget {
+  @override
+  State<_TicketMovieView> createState() => _TicketMovieViewState();
+}
+
+class _TicketMovieViewState extends State<_TicketMovieView> {
+  final PageController _pageController = PageController();
+  int _currentPage = 0;
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -32,289 +49,338 @@ class _TicketMovieView extends StatelessWidget {
               child: CircularProgressIndicator(color: tdRed),
             );
           } else if (state.status == TicketStatus.error) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.error_outline, color: tdRed, size: 64),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Không thể tải thông tin vé',
-                    style: const TextStyle(color: Colors.white, fontSize: 18),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    state.errorMessage ?? 'Đã xảy ra lỗi không xác định',
-                    style: const TextStyle(color: Colors.white70),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 24),
-                  ElevatedButton(
-                    onPressed: () => context.go('/home'),
-                    style: ElevatedButton.styleFrom(backgroundColor: tdRed),
-                    child: const Text('Quay về trang chủ'),
-                  ),
-                ],
-              ),
-            );
-          } else if (state.status == TicketStatus.success) {
-            // Lấy vé đầu tiên để hiển thị
-            final ticket = state.tickets.first;
+            // Hiển thị errorr
+            return _buildErrorView(state.errorMessage);
+          } else if (state.status == TicketStatus.success && state.tickets.isNotEmpty) {
             return SafeArea(
               child: Column(
                 children: [
                   // Header
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    child: Row(
-                      children: [
-                        Container(
-                          width: 40,
-                          height: 40,
-                          decoration: const BoxDecoration(
-                            color: tdRed,
-                            shape: BoxShape.circle,
-                          ),
-                          child: IconButton(
-                            icon: const Icon(Icons.close, color: tdWhite, size: 20),
-                            onPressed: () {
-                              context.go('/home');
-                            },
-                          ),
-                        ),
-                        Expanded(
-                          child: Center(
-                            child: Text(
-                              'Vé của tôi',
-                              style: TextStyle(
-                                color: tdWhite,
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                              ),
+                  _buildHeader(context),
+
+                  // Hiển thị số lượng vé và vé hiện tại
+                  if (state.tickets.length > 1)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            'Vé ${_currentPage + 1}/${state.tickets.length}',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
-                        ),
-                        const SizedBox(width: 40),
-                      ],
+                        ],
+                      ),
+                    ),
+
+                  // PageView cho phép lướt qua lại giữa các vé
+                  Expanded(
+                    child: PageView.builder(
+                      controller: _pageController,
+                      itemCount: state.tickets.length,
+                      onPageChanged: (index) {
+                        setState(() {
+                          _currentPage = index;
+                        });
+                      },
+                      itemBuilder: (context, index) {
+                        return _buildTicket(state.tickets[index]);
+                      },
                     ),
                   ),
 
-                  // Vé phim
-                  Expanded(
-                    child: Center(
-                      child: ClipPath(
-                        clipper: TicketClipper(),
-                        child: Container(
-                          width: MediaQuery.of(context).size.width * 0.75,
-                          height: 700,
-                          color: Colors.deepOrange,
-                          child: Column(
-                            children: [
-                              // Ảnh poster
-                              SizedBox(
-                                height: 370,
-                                child: Stack(
-                                  children: [
-                                    Positioned.fill(
-                                      child: Image.network(
-                                        ticket.imageMovie,
-                                        fit: BoxFit.cover,
-                                        errorBuilder: (context, error, stackTrace) {
-                                          return Container(
-                                            color: Colors.grey.shade800,
-                                            child: const Icon(Icons.movie, size: 100, color: Colors.white54),
-                                          );
-                                        },
-                                      ),
-                                    ),
-                                    Positioned.fill(
-                                      child: Container(
-                                        decoration: BoxDecoration(
-                                          gradient: LinearGradient(
-                                            begin: Alignment.topCenter,
-                                            end: Alignment.bottomCenter,
-                                            colors: [
-                                              Colors.transparent,
-                                              tdRedLight.withOpacity(0.2),
-                                              tdOrangeRed.withOpacity(0.7),
-                                              Colors.deepOrange,
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              const SizedBox(height: 10),
-
-                              // Đường gạch đứt
-                              Padding(
-                                padding: const EdgeInsets.symmetric(vertical: 8),
-                                child: CustomPaint(
-                                  painter: DashedLinePainter(),
-                                  child: const SizedBox(
-                                    height: 1,
-                                    width: double.infinity,
-                                  ),
-                                ),
-                              ),
-
-                              // Ngày và giờ
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Column(
-                                    children: [
-                                      Text(
-                                        _formatDay(ticket.showTimeDate),
-                                        style: const TextStyle(
-                                          color: tdWhite70,
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                      Text(
-                                        _formatDayOfWeek(ticket.showTimeDate),
-                                        style: const TextStyle(
-                                          color: tdWhite,
-                                          fontSize: 14,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(width: 20),
-                                  Column(
-                                    children: [
-                                      const Icon(
-                                        Icons.access_time,
-                                        color: tdWhite70,
-                                        size: 20,
-                                      ),
-                                      Text(
-                                        _formatTime(ticket.showTimeStart),
-                                        style: const TextStyle(
-                                          color: tdWhite,
-                                          fontSize: 14,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-
-                              const SizedBox(height: 12),
-
-                              // Phòng - Hàng - Ghế
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                children: [
-                                  Column(
-                                    children: [
-                                      const Text(
-                                        'Phòng',
-                                        style: TextStyle(
-                                          color: tdWhite54,
-                                          fontSize: 14,
-                                        ),
-                                      ),
-                                      Text(
-                                        ticket.hall,
-                                        style: const TextStyle(
-                                          color: tdWhite,
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  Column(
-                                    children: [
-                                      const Text(
-                                        'Hàng',
-                                        style: TextStyle(
-                                          color: tdWhite54,
-                                          fontSize: 14,
-                                        ),
-                                      ),
-                                      Text(
-                                        ticket.seatRow,
-                                        style: const TextStyle(
-                                          color: tdWhite,
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  Column(
-                                    children: [
-                                      const Text(
-                                        'Ghế',
-                                        style: TextStyle(
-                                          color: tdWhite54,
-                                          fontSize: 14,
-                                        ),
-                                      ),
-                                      Text(
-                                        ticket.seatNumber.toString(),
-                                        style: const TextStyle(
-                                          color: tdWhite,
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-
-                              const SizedBox(height: 20),
-
-                              // Qrcode
-                              Container(
-                                width: 180,
-                                height: 180,
-                                padding: const EdgeInsets.all(8),
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: QrImageView(
-                                  // Rút gọn dữ liệu QR, chỉ lấy thông tin cần
-                                  data: ticket.id, // Chỉ dùng ID vé thay vì toàn bộ ticket.qrCode
-                                  version: QrVersions.auto,
-                                  size: 160,
-                                  backgroundColor: Colors.white,
-                                  foregroundColor: Colors.black,
-                                  errorCorrectionLevel: QrErrorCorrectLevel.M, // Thêm mức sửa lỗi
-                                ),
-                              ),
-
-                              const SizedBox(height: 10),
-
-                              // ID vé
-                              Text(
-                                'Mã vé: ${ticket.id}',
-                                style: const TextStyle(
-                                  color: tdWhite70,
-                                  fontSize: 12,
-                                ),
-                              ),
-                            ],
+                  // Thêm indicators nếu có nhiều vé
+                  if (state.tickets.length > 1)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 16.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: List.generate(
+                          state.tickets.length,
+                              (index) => Container(
+                            margin: const EdgeInsets.symmetric(horizontal: 4),
+                            width: 8,
+                            height: 8,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: index == _currentPage ? tdRed : Colors.grey,
+                            ),
                           ),
                         ),
                       ),
                     ),
-                  ),
                 ],
               ),
             );
           }
 
-          // Trạng thái khởi tạo
           return const SizedBox.shrink();
         },
+      ),
+    );
+  }
+
+  Widget _buildHeader(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Row(
+        children: [
+          Container(
+            width: 40,
+            height: 40,
+            decoration: const BoxDecoration(
+              color: tdRed,
+              shape: BoxShape.circle,
+            ),
+            child: IconButton(
+              icon: const Icon(Icons.close, color: tdWhite, size: 20),
+              onPressed: () {
+                context.go('/home');
+              },
+            ),
+          ),
+          Expanded(
+            child: Center(
+              child: Text(
+                'Vé của tôi',
+                style: TextStyle(
+                  color: tdWhite,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: 40),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTicket(TicketModel ticket) {
+    return Center(
+      child: ClipPath(
+        clipper: TicketClipper(),
+        child: Container(
+          width: MediaQuery.of(context).size.width * 0.8,
+          height: MediaQuery.of(context).size.height * 0.78,
+          color: Colors.deepOrange,
+          child: Column(
+            children: [
+              // Ảnh poster
+              SizedBox(
+                height: MediaQuery.of(context).size.height * 0.28,
+                child: Stack(
+                  children: [
+                    Positioned.fill(
+                      child: Image.network(
+                        ticket.imageMovie,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Container(
+                            color: Colors.grey.shade800,
+                            child: const Icon(Icons.movie, size: 100, color: Colors.white54),
+                          );
+                        },
+                      ),
+                    ),
+                    Positioned.fill(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: [
+                              Colors.transparent,
+                              tdRedLight.withOpacity(0.2),
+                              tdOrangeRed.withOpacity(0.7),
+                              Colors.deepOrange,
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 5),
+
+              // Đường gạch đứt
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 5),
+                child: CustomPaint(
+                  painter: DashedLinePainter(),
+                  child: const SizedBox(
+                    height: 1,
+                    width: double.infinity,
+                  ),
+                ),
+              ),
+
+              // Ngày và giờ
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Column(
+                    children: [
+                      Text(
+                        _formatDay(ticket.showTimeDate),
+                        style: const TextStyle(
+                          color: tdWhite70,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(
+                        _formatDayOfWeek(ticket.showTimeDate),
+                        style: const TextStyle(
+                          color: tdWhite,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(width: 20),
+                  Column(
+                    children: [
+                      const Icon(
+                        Icons.access_time,
+                        color: tdWhite70,
+                        size: 20,
+                      ),
+                      Text(
+                        _formatTime(ticket.showTimeStart),
+                        style: const TextStyle(
+                          color: tdWhite,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 8),
+
+              // Phòng - Hàng - Ghế
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Column(
+                    children: [
+                      const Text(
+                        'Phòng',
+                        style: TextStyle(
+                          color: tdWhite54,
+                          fontSize: 14,
+                        ),
+                      ),
+                      Text(
+                        ticket.hall,
+                        style: const TextStyle(
+                          color: tdWhite,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                  Column(
+                    children: [
+                      const Text(
+                        'Hàng',
+                        style: TextStyle(
+                          color: tdWhite54,
+                          fontSize: 14,
+                        ),
+                      ),
+                      Text(
+                        ticket.seatRow,
+                        style: const TextStyle(
+                          color: tdWhite,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                  Column(
+                    children: [
+                      const Text(
+                        'Ghế',
+                        style: TextStyle(
+                          color: tdWhite54,
+                          fontSize: 14,
+                        ),
+                      ),
+                      Text(
+                        ticket.seatNumber.toString(),
+                        style: const TextStyle(
+                          color: tdWhite,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 65),
+
+              // Qrcode
+              Container(
+                width: 200,
+                height: 200,
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: QrImageView(
+                  data: ticket.id,
+                  version: QrVersions.auto,
+                  size: 180, // Tăng từ 150 lên 180
+                  backgroundColor: Colors.white,
+                  foregroundColor: Colors.black,
+                  errorCorrectionLevel: QrErrorCorrectLevel.M,
+                ),
+              ),
+
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildErrorView(String? errorMessage) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(Icons.error_outline, color: tdRed, size: 64),
+          const SizedBox(height: 16),
+          const Text(
+            'Không thể tải thông tin vé',
+            style: TextStyle(color: Colors.white, fontSize: 18),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            errorMessage ?? 'Đã xảy ra lỗi không xác định',
+            style: const TextStyle(color: Colors.white70),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 24),
+          ElevatedButton(
+            onPressed: () => context.go('/home'),
+            style: ElevatedButton.styleFrom(backgroundColor: tdRed),
+            child: const Text('Quay về trang chủ'),
+          ),
+        ],
       ),
     );
   }
@@ -339,7 +405,6 @@ class _TicketMovieView extends StatelessWidget {
 
   String _formatTime(String timeStr) {
     try {
-      // Xử lý chuỗi thời gian HH:mm:ss
       final timeParts = timeStr.split(':');
       return '${timeParts[0]}:${timeParts[1]}';
     } catch (e) {

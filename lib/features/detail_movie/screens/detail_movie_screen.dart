@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:movie_booking_ticket/core/models/movie_model.dart';
-import 'package:movie_booking_ticket/core/models/showtime_model.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 import '../../../localization/app_localizations.dart';
 import '../bloc/detail_movie_bloc.dart';
 import 'dart:convert';
+
+import 'detail_movie_skeleton.dart';
 
 class MovieDetailScreen extends StatefulWidget {
   final String movieId;
@@ -71,9 +72,7 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
             return const Scaffold(
               backgroundColor: Colors.black,
               body: Center(
-                child: CircularProgressIndicator(
-                  color: Colors.deepOrange,
-                ),
+                child: DetailMovieSkeleton()
               ),
             );
           } else if (state.status == MovieDetailStatus.success && state.movieDetail != null) {
@@ -581,7 +580,7 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
           ),
         ),
         child: const Text(
-          'Select Seats',
+          'Đặt Ghế',
           style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
         ),
       ),
