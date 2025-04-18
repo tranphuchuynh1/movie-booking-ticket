@@ -3,7 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:movie_booking_ticket/core/models/auth/user_model.dart';
 
 class SaveTokenUserService {
-  static const String USER_KEY = 'key_save_data_user';
+  static const String USER_KEY = 'key_user';
 
   // save thông tin user
   static Future<void> saveUser(UserModel user) async {
@@ -47,4 +47,6 @@ class SaveTokenUserService {
     final now = DateTime.now();
     return expireTime.toLocal().isAfter(now);
   }
+
+
 }
