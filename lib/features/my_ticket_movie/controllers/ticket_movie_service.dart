@@ -12,5 +12,12 @@ abstract class TicketService {
   factory TicketService(Dio dio, {String baseUrl}) = _TicketService;
 
   @GET('/tickets/{orderId}')
-  Future<BaseResponse<List<TicketModel>>> getTicketsByOrderId(@Path('orderId') String orderId);
+  Future<BaseResponse<List<TicketModel>>> getTicketsByOrderId(
+    @Path('orderId') String orderId,
+  );
+  @GET(ApiConstants.myTicketendpoint)
+  Future<BaseResponse<List<TicketModel>>> getMovieTicketDetails(
+    @Path("userId") String userId,
+    @Path("movieId") String movieId,
+  );
 }
