@@ -182,7 +182,7 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
             child: IconButton(
               icon: const Icon(Icons.close, color: Colors.white, size: 20),
               onPressed: () {
-                context.pop();
+                context.go('/home', extra: widget.movieId);
               },
             ),
           ),
@@ -483,7 +483,8 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
           child: Text(
-            AppLocalizations.of(context)?.topCast ?? 'Diễn viên',
+            // AppLocalizations.of(context)?.topCast ?? 'Diễn viên',
+            'Diễn viên',
             style: const TextStyle(
               color: Colors.white,
               fontSize: 18,

@@ -106,7 +106,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           const SizedBox(height: 10),
                           Center(
                             child: Text(
-                              'Get Started Free',
+                              'Bắt Đầu Đăng Ký Miễn Phí',
                               style: GoogleFonts.poppins(
                                 fontSize: 28,
                                 fontWeight: FontWeight.bold,
@@ -116,7 +116,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           ),
                           Center(
                             child: Text(
-                              'Free Forever. No Credit Card Needed',
+                              'Miễn phí mãi mãi. Không cần thẻ tín dụng'
+                              ,
                               style: GoogleFonts.poppins(
                                 fontSize: 12,
                                 color: tdWhite70,
@@ -124,13 +125,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             ),
                           ),
                           const SizedBox(height: 20),
-                          buildLabel("Email Address"),
+                          buildLabel("Email"),
                           buildEmailField(),
-                          buildLabel("Your Name"),
+                          buildLabel("Tài Khoản"),
                           buildUsernameField(),
-                          buildLabel("Password"),
+                          buildLabel("Mật Khẩu"),
                           buildPasswordField(),
-                          buildLabel("Confirm Password"),
+                          buildLabel("Nhập Lại Mật Khẩu"),
                           buildConfirmPasswordField(),
                           const SizedBox(height: 20),
                           state.status == AuthStateStatus.loading
@@ -198,7 +199,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         decoration: InputDecoration(
           filled: true,
           fillColor: tdWhite24,
-          hintText: "Your Name",
+          hintText: "Tên tài khoản",
           hintStyle: const TextStyle(color: tdWhite54),
           prefixIcon: ImageIcon(
             const AssetImage('assets/buttons/user-ic.png'),
@@ -223,7 +224,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         decoration: InputDecoration(
           filled: true,
           fillColor: tdWhite24,
-          hintText: "Enter your password!",
+          hintText: "Nhập mật khẩu",
           hintStyle: const TextStyle(color: tdWhite54),
           prefixIcon: ImageIcon(
             const AssetImage('assets/buttons/key-ic.png'),
@@ -259,7 +260,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         decoration: InputDecoration(
           filled: true,
           fillColor: tdWhite24,
-          hintText: "Confirm your password!",
+          hintText: "Nhập lại mật khẩu",
           hintStyle: const TextStyle(color: tdWhite54),
           prefixIcon: ImageIcon(
             const AssetImage('assets/buttons/key-ic.png'),
@@ -329,7 +330,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         ),
         alignment: Alignment.center,
         child: const Text(
-          'Sign up',
+          'Đăng Ký',
           style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w700,
@@ -356,7 +357,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 10),
           child: Text(
-            'Or continue with',
+            'Đăng ký với',
             style: GoogleFonts.poppins(color: tdWhite70),
           ),
         ),
@@ -410,11 +411,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              'Already have an account? ',
+              'Bạn đã có tài khoản? ',
               style: GoogleFonts.poppins(color: tdWhite70),
             ),
             Text(
-              'Sign In',
+              'Đăng Nhập',
               style: GoogleFonts.poppins(color: tdWhite),
             ),
           ],

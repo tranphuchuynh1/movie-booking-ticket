@@ -58,23 +58,6 @@ class _TicketMovieViewState extends State<_TicketMovieView> {
                   // Header
                   _buildHeader(context),
 
-                  // Hiển thị số lượng vé và vé hiện tại
-                  if (state.tickets.length > 1)
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            'Vé ${_currentPage + 1}/${state.tickets.length}',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
 
                   // PageView cho phép lướt qua lại giữa các vé
                   Expanded(
@@ -110,6 +93,23 @@ class _TicketMovieViewState extends State<_TicketMovieView> {
                             ),
                           ),
                         ),
+                      ),
+                    ),
+                  // Hiển thị số lượng vé và vé hiện tại
+                  if (state.tickets.length > 1)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            '${_currentPage + 1}/${state.tickets.length}',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                 ],

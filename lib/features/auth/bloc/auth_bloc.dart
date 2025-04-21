@@ -83,12 +83,15 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     );
 
     try {
-      final user = await _authController.register(
+      await _authController.register(
         event.username,
         event.email,
         event.password,
         event.confirmPassword,
       );
+
+      // After successful registration, perform login to get user data
+      final user = await _authController.login(event.username, event.password);
 
       await SaveTokenUserService.saveUser(user);
       print("Register: User data saved");

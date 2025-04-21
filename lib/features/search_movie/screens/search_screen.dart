@@ -78,7 +78,7 @@ class _SearchScreenState extends State<SearchScreen> {
                       vertical: 10,
                     ),
                     child: Text(
-                      'Search Results',
+                      'Kết Quả Tìm Kiếm',
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 20,

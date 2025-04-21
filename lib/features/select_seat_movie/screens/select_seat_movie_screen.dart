@@ -203,11 +203,11 @@ class _SelectSeatMovieScreenState extends State<SelectSeatMovieScreen> {
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                _seatLegend(tdWhite, "Available"),
+                                _seatLegend(tdWhite, "Ghế trống"),
                                 const SizedBox(width: 20),
-                                _seatLegend(tdGreyDark, "Taken"),
+                                _seatLegend(tdGreyDark, "Ghế đã đặt"),
                                 const SizedBox(width: 20),
-                                _seatLegend(tdRed, "Selected"),
+                                _seatLegend(tdRed, "Ghế đã chọn"),
                                 if (state.seatMatrix.any((row) => row.any((seat) =>
                                 seat.type?.toLowerCase().contains('vip') ?? false)))
                                   Padding(

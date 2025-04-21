@@ -52,7 +52,7 @@ class _TicketHistoryScreenState extends State<TicketHistoryScreen> {
             padding: const EdgeInsets.only(top: 20),
             child: Center(
               child: const Text(
-                "Tickets History",
+                "Lịch Sử Đặt Vé",
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: Colors.white,

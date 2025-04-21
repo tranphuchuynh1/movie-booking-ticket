@@ -72,7 +72,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         children: const [
           Expanded(
             child: Text(
-              'My Profile',
+              'Hồ Sơ Của Tôi',
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: Colors.white,
@@ -112,8 +112,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
       children: [
         _buildMenuItem(
           icon: Icons.person_outline,
-          title: 'Account',
-          subtitle: 'Edit Profile\nChange Password',
+          title: 'Tài Khoản',
+          subtitle: 'Chỉnh Sửa Hồ Sơ\nĐổi Mật Khẩu',
           isExpanded: _isAccountExpanded,
           onTap: () {
             setState(() {
@@ -126,8 +126,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
         const SizedBox(height: 16),
         _buildMenuItem(
           icon: Icons.settings_outlined,
-          title: 'Settings',
-          subtitle: 'Themes\nPermissions',
+          title: 'Cài Đặt',
+          subtitle: 'Chế Độ Hiển Thị\nQuyền Truy Cập',
           isExpanded: _isSettingsExpanded,
           onTap: () {
             setState(() {
@@ -140,8 +140,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
         const SizedBox(height: 16),
         _buildMenuItem(
           icon: Icons.info_outline,
-          title: 'About',
-          subtitle: 'About Movies\nMore',
+          title: 'Thông Tin',
+          subtitle: 'Giới Thiệu Về App\nĐiều Khoản & Chính Sách Bảo Mật\nLiên Hệ Với Chúng Tôi',
           isExpanded: _isAboutExpanded,
           onTap: () {
             setState(() {
