@@ -90,22 +90,7 @@ class _TicketMovieViewState extends State<_TicketMovieView> {
                   if (state.tickets.length > 1)
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 16.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: List.generate(
-                          state.tickets.length,
-                          (index) => Container(
-                            margin: const EdgeInsets.symmetric(horizontal: 4),
-                            width: 8,
-                            height: 8,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color:
-                                  index == _currentPage ? tdRed : Colors.grey,
-                            ),
-                          ),
-                        ),
-                      ),
+                      child: _buildPageIndicator(state.tickets.length),
                     ),
                   // Hiển thị số lượng vé và vé hiện tại
                   if (state.tickets.length > 1)
@@ -172,19 +157,49 @@ class _TicketMovieViewState extends State<_TicketMovieView> {
     );
   }
 
+  Widget _buildPageIndicator(int totalTickets) {
+    const maxVisibleDots = 7;
+    final half = maxVisibleDots ~/ 2;
+
+    int start = (_currentPage - half).clamp(0, totalTickets - maxVisibleDots);
+    int end = (start + maxVisibleDots).clamp(0, totalTickets);
+
+    // Nếu ít hơn maxVisibleDots, bắt đầu từ 0
+    if (totalTickets <= maxVisibleDots) {
+      start = 0;
+      end = totalTickets;
+    }
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: List.generate(end - start, (i) {
+        final index = start + i;
+        return Container(
+          margin: const EdgeInsets.symmetric(horizontal: 4),
+          width: 8,
+          height: 8,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: index == _currentPage ? tdRed : Colors.grey,
+          ),
+        );
+      }),
+    );
+  }
+
   Widget _buildTicket(TicketModel ticket) {
     return Center(
       child: ClipPath(
         clipper: TicketClipper(),
         child: Container(
-          width: MediaQuery.of(context).size.width * 0.8,
+          width: MediaQuery.of(context).size.width * 0.75,
           height: MediaQuery.of(context).size.height * 0.75,
           color: Colors.deepOrange,
           child: Column(
             children: [
               // Ảnh poster
               SizedBox(
-                height: MediaQuery.of(context).size.height * 0.28,
+                height: MediaQuery.of(context).size.height * 0.38,
                 child: Stack(
                   children: [
                     Positioned.fill(
@@ -222,7 +237,7 @@ class _TicketMovieViewState extends State<_TicketMovieView> {
                   ],
                 ),
               ),
-              const SizedBox(height: 5),
+              const SizedBox(height: 20),
 
               // Đường gạch đứt
               Padding(
@@ -323,13 +338,13 @@ class _TicketMovieViewState extends State<_TicketMovieView> {
                 ],
               ),
 
-              const SizedBox(height: 65),
+              const SizedBox(height: 10),
 
               // Qrcode
               Container(
-                width: 200,
-                height: 200,
-                padding: const EdgeInsets.all(10),
+                width: 180,
+                height: 180,
+                padding: const EdgeInsets.all(5),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(8),
