@@ -106,7 +106,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           children: [
                             Center(
                               child: Text(
-                                'Welcome Back!',
+                                'Chào Mừng Quay Trở Lại!',
                                 style: GoogleFonts.poppins(
                                   fontSize: 28,
                                   fontWeight: FontWeight.bold,
@@ -117,7 +117,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             const SizedBox(height: 5),
                             Center(
                               child: Text(
-                                'welcome back we missed you',
+                                'Rất Vui Khi Gặp Bạn',
                                 style: GoogleFonts.poppins(
                                   fontSize: 14,
                                   color: tdWhite70,
@@ -125,13 +125,13 @@ class _LoginScreenState extends State<LoginScreen> {
                               ),
                             ),
                             const SizedBox(height: 20),
-                            buildLabel("Username"),
+                            buildLabel("Tài Khoản"),
                             buildInputField(
-                              "Username",
+                              "Tên tài khoản",
                               'assets/buttons/user-ic.png',
                               controller: _usernameController,
                             ),
-                            buildLabel("Password"),
+                            buildLabel("Mật Khẩu"),
                             Padding(
                               padding: const EdgeInsets.only(bottom: 10),
                               child: TextField(
@@ -140,7 +140,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 decoration: InputDecoration(
                                   filled: true,
                                   fillColor: tdWhite24,
-                                  hintText: "Password",
+                                  hintText: "Mật Khẩu",
                                   hintStyle: const TextStyle(color: tdWhite54),
                                   prefixIcon: ImageIcon(
                                     AssetImage('assets/buttons/key-ic.png'),
@@ -172,7 +172,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               child: TextButton(
                                 onPressed: () {},
                                 child: const Text(
-                                  'Forgot Password?',
+                                  'Quên Mật Khẩu?',
                                   style: TextStyle(color: tdWhite70),
                                 ),
                               ),
@@ -230,7 +230,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                     colors: [tdWhite, tdWhite70],
                                   ).createShader(bounds),
                                   child: Text(
-                                    'Sign in',
+                                    'Đăng Nhập',
                                     style: const TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.w700,
@@ -256,7 +256,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 Padding(
                                   padding: const EdgeInsets.symmetric(horizontal: 10),
                                   child: Text(
-                                    'Or continue with',
+                                    'Đăng nhập với',
                                     style: GoogleFonts.poppins(color: tdWhite70),
                                   ),
                                 ),
@@ -285,11 +285,11 @@ class _LoginScreenState extends State<LoginScreen> {
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     Text(
-                                      'Dont have an account?',
+                                      'Bạn chưa có tài khoản? ',
                                       style: GoogleFonts.poppins(color: tdWhite70),
                                     ),
                                     Text(
-                                      'Sign Up',
+                                      'Đăng Ký',
                                       style: GoogleFonts.poppins(color: tdWhite),
                                     ),
                                   ],

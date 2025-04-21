@@ -5,11 +5,9 @@ import 'package:go_router/go_router.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:movie_booking_ticket/features/home_movie/screens/home_skeleton.dart';
 
-// import '../../../core/models/auth/user_model.dart';
 import '../../../core/models/movie_model.dart';
 import '../../../core/widgets/bottom_nav_bar.dart';
 import '../bloc/movie_bloc.dart';
-// import '../controllers/movie_controller.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -64,7 +62,7 @@ class _HomeScreenState extends State<HomeScreen> {
             const Padding(
               padding: EdgeInsets.symmetric(horizontal: 16.0),
               child: Text(
-                'Now Playing',
+                'Phim Đang Chiếu',
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 20,
@@ -82,7 +80,7 @@ class _HomeScreenState extends State<HomeScreen> {
             const Padding(
               padding: EdgeInsets.symmetric(horizontal: 16.0),
               child: Text(
-                'Popular',
+                'Phổ Biến',
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 20,
@@ -99,7 +97,7 @@ class _HomeScreenState extends State<HomeScreen> {
             const Padding(
               padding: EdgeInsets.symmetric(horizontal: 16.0),
               child: Text(
-                'Upcoming',
+                'Sắp Ra Mắt',
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 20,
