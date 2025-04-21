@@ -1,383 +1,580 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 import 'package:movie_booking_ticket/theme.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../../core/models/payment/order_request.dart';
+import '../../auth/controllers/save_token_user_service.dart';
+import '../../payment/controllers/booking_controller.dart';
+import '../bloc/select_seat_movie_bloc.dart';
 
 class SelectSeatMovieScreen extends StatefulWidget {
-  const SelectSeatMovieScreen({super.key});
+  final String movieId;
+
+  const SelectSeatMovieScreen({super.key, required this.movieId});
+
   @override
-  State<SelectSeatMovieScreen> createState() => SelectSeatMovieScreenState();
+  State<SelectSeatMovieScreen> createState() => _SelectSeatMovieScreenState();
 }
 
-class SelectSeatMovieScreenState extends State<SelectSeatMovieScreen> {
-  // 0 = Available (trắng), 1 = Selected (cam), 2 = Taken (xám)
-  // 3 = Ghế đôi còn trống
-  // 4 = Ghế đôi đã chọn
-  // 5 = Ghế đôi đã bán (taken)
+class _SelectSeatMovieScreenState extends State<SelectSeatMovieScreen> {
+  final SelectSeatBloc _selectSeatBloc = SelectSeatBloc();
 
-  List<List<int>> seatMatrix = [
-    [0, 0, 2, 2, 0, 0, 2, 2, 0, 0],
-    [0, 0, 0, 2, 0, 0, 2, 0, 0, 0],
-    [0, 0, 2, 2, 0, 0, 2, 2, 0, 0],
-    [0, 0, 0, 2, 0, 0, 2, 0, 0, 0],
-    [0, 0, 2, 2, 0, 0, 2, 2, 0, 0],
-    [0, 0, 0, 2, 0, 0, 2, 0, 0, 0],
-    [3, 3, 3, 3, 3],
-  ];
 
-  final List<int> selectedSeats = [];
+  @override
+  void initState() {
+    super.initState();
 
-  final double ticketPrice = 15.0;
+    // Khi mới khởi tạo màn hình
+    _selectSeatBloc.add(FetchShowtimesEvent(widget.movieId));
 
-  void toggleSeat(int row, int col) {
-    setState(() {
-      // index = row*10 + col ( 10 cột)
-      int seatIndex = row * seatMatrix[row].length + col;
-      int seatValue = seatMatrix[row][col];
-
-      if (seatValue == 0) {
-        seatMatrix[row][col] = 1;
-        selectedSeats.add(seatIndex);
-      } else if (seatValue == 1) {
-        seatMatrix[row][col] = 0;
-        selectedSeats.remove(seatIndex);
-      }
-      // Ghế đôi
-      else if (seatValue == 3) {
-        seatMatrix[row][col] = 4;
-        selectedSeats.add(seatIndex);
-      } else if (seatValue == 4) {
-        seatMatrix[row][col] = 3;
-        selectedSeats.remove(seatIndex);
-      }
+    // Đợi một khoảng thời gian ngắn để dữ liệu được tải
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _autoSelectFirstDateAndTime();
     });
   }
 
-  int selectedDayIndex = 1; // ví dụ default = ngày 18 (Mon)
-  int selectedTimeIndex = 2; // ví dụ default = 14:30
+  void _autoSelectFirstDateAndTime() {
+    final state = _selectSeatBloc.state;
 
-  final List<String> days = List.generate(
-    30,
-    (index) => (index + 1).toString(),
-  );
-  final List<String> weekdays = [
-    "Sun",
-    "Mon",
-    "Tue",
-    "Wed",
-    "Thu",
-    "Fri",
-    "Sat",
-  ];
-  final List<String> times = [
-    "10:30",
-    "12:30",
-    "14:30",
-    "15:30",
-    "17:30",
-    "19:30",
-    "21:30",
-  ];
+    // Kiểm tra trạng thái dữ liệu
+    if (state.status != SelectSeatStatus.success || state.showtimesByDate.isEmpty) {
+      // Nếu dữ liệu chưa sẵn sàng, thử lại sau
+      Future.delayed(const Duration(milliseconds: 300), () {
+        _autoSelectFirstDateAndTime();
+       }
+      );
+      return;
+    }
+
+    // Lấy danh sách ngày còn hiệu lực
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+
+    final validDates = state.showtimesByDate.keys.where((dateStr) {
+      try {
+        final date = DateTime.parse(dateStr);
+        return date.isAtSameMomentAs(today) || date.isAfter(today);
+      } catch (_) {
+        return false;
+      }
+    }).toList()..sort();
+
+    if (validDates.isEmpty) return;
+
+    // Chọn ngày đầu tiên còn hiệu lực
+    final firstValidDate = validDates.first;
+    _selectSeatBloc.add(SelectDateEvent(firstValidDate));
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: tdGreyDark,
-      body: SafeArea(
-        child: Stack(
-          children: [
-            Positioned(
-              left: 0,
-              right: 0,
-              height: 300,
-              child: Container(
-                decoration: BoxDecoration(
-                  image: DecorationImage(
-                    image: AssetImage(''), // Poster img
-                    fit: BoxFit.cover,
-                  ),
+    return BlocProvider.value(
+      value: _selectSeatBloc,
+      child: Scaffold(
+        backgroundColor: tdGreyDark,
+        body: BlocBuilder<SelectSeatBloc, SelectSeatState>(
+          builder: (context, state) {
+            if (state.status == SelectSeatStatus.loading) {
+              return const Center(child: CircularProgressIndicator(color: tdRed));
+            } else if (state.status == SelectSeatStatus.error) {
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Error: ${state.errorMessage}',
+                      style: const TextStyle(color: Colors.white),
+                    ),
+                    const SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: () {
+                        _selectSeatBloc.add(FetchShowtimesEvent(widget.movieId));
+                        Future.delayed(const Duration(milliseconds: 300), () {
+                          _autoSelectFirstDateAndTime();
+                        });
+                      },
+                      style: ElevatedButton.styleFrom(backgroundColor: tdRed),
+                      child: const Text('Retry'),
+                    ),
+                  ],
                 ),
-              ),
-            ),
+              );
+            }
 
-            Positioned(
-              left: 0,
-              right: 0,
-              height: 300,
-              child: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      Colors.transparent,
-                      Colors.black.withOpacity(0.2),
-                      Colors.black.withOpacity(0.5),
-                      Colors.black.withOpacity(1),
-                    ],
-                    stops: [0.0, 0.3, 0.7, 1.0],
-                  ),
-                ),
-              ),
-            ),
-
-            Positioned(
-              left: 0,
-              right: 0,
-              height: 300,
-              child: Icon(Icons.play_arrow, color: tdWhite54, size: 50),
-            ),
-
-            Positioned(
-              top: 40,
-              left: 16,
-              child: Container(
-                decoration: const BoxDecoration(
-                  color: Colors.red,
-                  shape: BoxShape.circle,
-                ),
-                child: IconButton(
-                  icon: const Icon(Icons.close, color: Colors.white, size: 20),
-                  onPressed: () {
-                    context.pop();
-                  },
-                ),
-              ),
-            ),
-
-            Positioned.fill(
-              top: 280,
-              child: Container(
-                decoration: const BoxDecoration(
-                  color: Colors.black,
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(20),
-                    topRight: Radius.circular(20),
-                  ),
-                ),
-                child: SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      const SizedBox(height: 15),
-                      const Text(
-                        "Screen this side",
-                        style: TextStyle(color: Colors.white54, fontSize: 14),
-                      ),
-
-                      //ghế
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 20),
-                        child: Center(
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 8,
-                            ),
-                            child: _buildSeatLayout(),
+            // Main content when data is loaded
+            return SafeArea(
+              child: Stack(
+                children: [
+                  // Background image - use the movie image from showtime
+                  if (state.selectedShowtime?.movieImage != null)
+                    Positioned(
+                      left: 0,
+                      right: 0,
+                      height: 300,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          image: DecorationImage(
+                            image: NetworkImage(state.selectedShowtime!.movieImage!),
+                            fit: BoxFit.cover,
                           ),
                         ),
                       ),
+                    ),
 
-                      // chọn ngày
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 14.0),
-                        child: SingleChildScrollView(
-                          scrollDirection: Axis.horizontal,
-                          child: Row(
-                            children: List.generate(days.length, (index) {
-                              return Padding(
-                                padding: const EdgeInsets.only(right: 14.0),
-                                child: _buildDayItem(
-                                  day: days[index],
-                                  weekDay: weekdays[index % weekdays.length],
-                                  isSelected: selectedDayIndex == index,
-                                  onTap: () {
-                                    setState(() {
-                                      selectedDayIndex = index;
-                                    });
-                                  },
-                                ),
-                              );
-                            }),
-                          ),
-                        ),
-                      ), // chọn giờ chiếu
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 8.0),
-                        child: SingleChildScrollView(
-                          scrollDirection: Axis.horizontal,
-                          child: Row(
-                            children: List.generate(times.length, (index) {
-                              return Padding(
-                                padding: const EdgeInsets.only(right: 12.0),
-                                child: _buildTimeItem(
-                                  times[index],
-                                  isSelected: selectedTimeIndex == index,
-                                  onTap: () {
-                                    setState(() {
-                                      selectedTimeIndex = index;
-                                    });
-                                  },
-                                ),
-                              );
-                            }),
-                          ),
-                        ),
-                      ),
-                      // tổng giá + Nút mua vé
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 10,
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Text(
-                                    "Total Price",
-                                    style: TextStyle(
-                                      color: tdWhite70,
-                                      fontSize: 18,
-                                    ),
-                                  ),
-                                  Text(
-                                    "${(selectedSeats.length * ticketPrice).toStringAsFixed(2)} VND",
-                                    style: const TextStyle(
-                                      color: tdWhite,
-                                      fontSize: 22,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            // Buy Tickets
-                            ElevatedButton(
-                              onPressed:
-                                  selectedSeats.isEmpty
-                                      ? null
-                                      : () {
-                                        context.go(
-                                          '/ticket',
-                                          extra: 'widget.movie',
-                                        );
-                                      },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: tdRed,
-                                disabledBackgroundColor: tdWhite54,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 12,
-                                  horizontal: 18,
-                                ),
-                              ),
-                              child: const Text(
-                                "Buy Tickets",
-                                style: TextStyle(fontSize: 18, color: tdWhite),
-                              ),
-                            ),
+                  // Gradient overlay
+                  Positioned(
+                    left: 0,
+                    right: 0,
+                    height: 300,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            Colors.transparent,
+                            Colors.black.withOpacity(0.2),
+                            Colors.black.withOpacity(0.5),
+                            Colors.black.withOpacity(1),
                           ],
+                          stops: const [0.0, 0.3, 0.7, 1.0],
                         ),
                       ),
-                    ],
+                    ),
                   ),
-                ),
+
+                  // Close button
+                  Positioned(
+                    top: 40,
+                    left: 16,
+                    child: Container(
+                      decoration: const BoxDecoration(
+                        color: Colors.red,
+                        shape: BoxShape.circle,
+                      ),
+                      child: IconButton(
+                        icon: const Icon(Icons.close, color: Colors.white, size: 20),
+                        onPressed: () {
+                          context.go('/detail', extra: widget.movieId);
+                        },
+                      ),
+                    ),
+                  ),
+
+                  // Main content
+                  Positioned.fill(
+                    top: 250,
+                    child: Container(
+                      decoration: const BoxDecoration(
+                        color: Colors.black,
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(20),
+                          topRight: Radius.circular(20),
+                        ),
+                      ),
+                      child: Column(
+                        children: [
+                          const SizedBox(height: 15),
+
+                          // Screen indicator
+                          Container(
+                            width: MediaQuery.of(context).size.width * 0.7,
+                            height: 5,
+                            decoration: BoxDecoration(
+                              color: Colors.white24,
+                              borderRadius: BorderRadius.circular(5),
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+
+                          // Seat layout
+                          Expanded(
+                            child: _buildSeatSection(context, state),
+                          ),
+
+                          // Seat legend
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 3.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                _seatLegend(tdWhite, "Available"),
+                                const SizedBox(width: 20),
+                                _seatLegend(tdGreyDark, "Taken"),
+                                const SizedBox(width: 20),
+                                _seatLegend(tdRed, "Selected"),
+                                if (state.seatMatrix.any((row) => row.any((seat) =>
+                                seat.type?.toLowerCase().contains('vip') ?? false)))
+                                  Padding(
+                                    padding: const EdgeInsets.only(left: 20.0),
+                                    child: _seatLegend(Colors.amber, "VIP"),
+                                  ),
+                              ],
+                            ),
+                          ),
+
+                          // 1. Date selection ^^
+                          _buildDateSection(context, state),
+
+                          // 2. Time selection
+                          _buildTimeSection(context, state),
+
+                          // 3. Total price and Buy button
+                          _buildBottomSection(context, state),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ),
-          ],
+            );
+          },
         ),
       ),
     );
   }
 
-  //  layout ghế
-  Widget _buildSeatLayout() {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final double totalWidth = constraints.maxWidth;
+  Widget _buildSeatSection(BuildContext context, SelectSeatState state) {
+    if (state.seatsStatus == SelectSeatStatus.loading) {
+      return const Center(child: CircularProgressIndicator(color: tdRed));
+    } else if (state.seatsStatus == SelectSeatStatus.error) {
+      return Center(
+        child: Text(
+          'Error loading seats: ${state.errorMessage}',
+          style: const TextStyle(color: Colors.white),
+        ),
+      );
+    } else if (state.seatMatrix.isEmpty) {
+      return const Center(
+        child: Text(
+          'No seats available for this showtime',
+          style: TextStyle(color: Colors.white),
+        ),
+      );
+    }
 
-        final int seatsPerRow =
-            seatMatrix.isNotEmpty ? seatMatrix[0].length : 0;
-        const double margin = 6.0;
+    return SingleChildScrollView(
+        child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+    child: Column(
+    mainAxisSize: MainAxisSize.min,
+    children: [
 
-        final double totalMargin = margin * 2 * seatsPerRow;
+          // Seat matrix
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            children: state.seatMatrix.map((row) {
+              if (row.isEmpty) return const SizedBox.shrink();
 
-        // Kích thước tối đa dành cho icon ghế
-        final double availableWidthForIcons = totalWidth - totalMargin;
-        final double baseIconSize = availableWidthForIcons / seatsPerRow;
-        const double doubleSeatMultiplier = 1.5;
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: 2.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: row.map((seat) {
+                    bool isVipSeat = (seat.type?.toLowerCase().contains('vip') ?? false);
+                    bool isDoubleSeat = (seat.type?.toLowerCase().contains('đôi') ?? false);
+                    bool isTaken = state.bookedSeatIds.contains(seat.seatId);
 
-        return Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // Mỗi row = 1 Row widget, each seat = Container
-            Column(
-              children: List.generate(seatMatrix.length, (row) {
-                return Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: List.generate(seatMatrix[row].length, (col) {
-                    int seatValue = seatMatrix[row][col];
-
-                    if (seatMatrix[row][col] == -1) {
-                      // ẩn ghế -> trả về SizedBox
-                      return const SizedBox(width: 24, height: 24);
+                    Color seatColor;
+                    if (isTaken) {
+                      seatColor = Colors.grey.shade700;
+                    } else if (seat.isSelected) {
+                      seatColor = tdRed;
                     } else {
-                      Color seatColor;
-                      if (seatValue == 0 || seatValue == 3) {
-                        seatColor = tdWhite;
-                      } else if (seatValue == 1 || seatValue == 4) {
-                        seatColor = tdRed;
-                      } else {
-                        seatColor = tdGreyDark;
-                      }
+                      seatColor = isVipSeat ? Colors.amber : tdWhite;
+                    }
 
-                      bool isDoubleSeat =
-                          (seatValue == 3 || seatValue == 4 || seatValue == 5);
-
-                      double iconSize =
-                          isDoubleSeat
-                              ? baseIconSize * doubleSeatMultiplier
-                              : baseIconSize;
-
-                      return GestureDetector(
-                        onTap: () => toggleSeat(row, col),
-                        child: Padding(
-                          padding: const EdgeInsets.all(margin),
-
+                    return Container(
+                      width: isDoubleSeat ? 48 : 32,
+                      height: 32,
+                      margin: const EdgeInsets.symmetric(horizontal: 2, vertical: 1),
+                      child: Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          onTap: isTaken ? null : () => context.read<SelectSeatBloc>().add(
+                              ToggleSeatEvent(seat.seatId ?? '')
+                          ),
                           child: Icon(
-                            isDoubleSeat
-                                ? Icons.weekend_rounded
-                                : Icons.chair_rounded,
+                            isDoubleSeat ? Icons.weekend : Icons.chair,
                             color: seatColor,
-                            size: iconSize,
+                            size: isDoubleSeat ? 35 : 24,
                           ),
                         ),
-                      );
-                    }
-                  }),
+                      ),
+                    );
+                  }).toList(),
+                ),
+              );
+            }).toList(),
+          ),
+        ],
+      ),
+    ),
+    );
+  }
+
+  Widget _buildDateSection(BuildContext context, SelectSeatState state) {
+    final dates = state.showtimesByDate.keys.toList();
+    final now = DateTime.now();
+
+    final validDates = dates.where((dateStr) {
+      try {
+        final date = DateTime.parse(dateStr);
+        return date.isAfter(now.subtract(const Duration(days: 1)));
+      } catch (_) {
+        return false;
+      }
+    }).toList();
+
+    if (validDates.isEmpty) {
+      return const Padding(
+        padding: EdgeInsets.all(16.0),
+        child: Text('No dates available', style: TextStyle(color: tdWhite)),
+      );
+    }
+
+    validDates.sort();
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 8.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Padding(
+            padding: EdgeInsets.only(left: 8.0, bottom: 8.0),
+            child: Text(
+              'Chọn Ngày',
+              style: TextStyle(color: tdWhite, fontWeight: FontWeight.bold),
+            ),
+          ),
+          SizedBox(
+            height: 80,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemCount: validDates.length,
+              itemBuilder: (context, index) {
+                final date = validDates[index];
+                final isSelected = date == state.selectedDate;
+
+                // Parse the date to display day of week and day
+                DateTime? dateTime;
+                try {
+                  dateTime = DateTime.parse(date);
+                } catch (e) {
+                  print('Error parsing date: $e');
+                }
+
+                final dayOfWeek = dateTime != null
+                    ? DateFormat('E').format(dateTime)
+                    : '';
+                final dayOfMonth = dateTime != null
+                    ? DateFormat('d').format(dateTime)
+                    : '';
+
+                return GestureDetector(
+                  onTap: () => context.read<SelectSeatBloc>().add(SelectDateEvent(date)),
+                  child: Container(
+                    margin: const EdgeInsets.only(right: 10.0),
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                    decoration: BoxDecoration(
+                      color: isSelected ? tdRed : Colors.grey.shade900,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          dayOfMonth,
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          dayOfWeek,
+                          style: TextStyle(
+                            color: Colors.white70,
+                            fontSize: 14,
+                            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 );
-              }),
+              },
             ),
-            const SizedBox(height: 15),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                _seatLegend(tdWhite, "  Available"),
-                const SizedBox(width: 24),
-                _seatLegend(tdGreyDark, "  Taken"),
-                const SizedBox(width: 24),
-                _seatLegend(tdRed, "  Selected"),
-              ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTimeSection(BuildContext context, SelectSeatState state) {
+    final selectedDate = state.selectedDate;
+
+    if (selectedDate == null) {
+      return const Padding(
+        padding: EdgeInsets.all(16.0),
+        child: Text('Please select a date first', style: TextStyle(color: tdWhite)),
+      );
+    }
+
+    // Lấy tất cả các suất chiếu cho ngày đã chọn
+    final showtimesForDate = state.showtimesByDate[selectedDate] ?? [];
+    if (showtimesForDate.isEmpty) {
+      return const Padding(
+        padding: EdgeInsets.all(16.0),
+        child: Text('No showtimes available for this date', style: TextStyle(color: tdWhite)),
+      );
+    }
+
+    final now = DateTime.now();
+
+    // Sắp xếp theo thời gian
+    showtimesForDate.sort((a, b) {
+      if (a.time == null || b.time == null) return 0;
+      return a.time!.compareTo(b.time!);
+    });
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 8.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Padding(
+            padding: EdgeInsets.only(left: 8.0, bottom: 8.0),
+            child: Text(
+              'Chọn Giờ',
+              style: TextStyle(color: tdWhite, fontWeight: FontWeight.bold),
             ),
-          ],
-        );
-      },
+          ),
+          SizedBox(
+            height: 50,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemCount: showtimesForDate.length,
+              itemBuilder: (context, index) {
+                final showtime = showtimesForDate[index];
+                final isSelected = showtime.id == state.selectedShowtime?.id;
+
+                // Kiểm tra xem suất chiếu đã qua chưa
+                bool isPastTime = false;
+                try {
+                  if (showtime.time != null && showtime.date != null) {
+                    final timeParts = showtime.time!.split(':');
+                    final dateTime = DateTime.parse(showtime.date!);
+                    final showtimeDateTime = DateTime(
+                      dateTime.year,
+                      dateTime.month,
+                      dateTime.day,
+                      int.parse(timeParts[0]),
+                      int.parse(timeParts[1]),
+                    );
+                    isPastTime = showtimeDateTime.isBefore(now);
+                  }
+                } catch (e) {
+                  print('Error checking time: $e');
+                }
+
+                return GestureDetector(
+                  onTap: isPastTime ? null : () {
+                    context.read<SelectSeatBloc>().add(SelectTimeEvent(showtime.id ?? ''));
+                    if (showtime.id != null) {
+                      context.read<SelectSeatBloc>().add(FetchBookedSeatsEvent(showtime.id!));
+                    }
+                  },
+                  child: Container(
+                    margin: const EdgeInsets.only(right: 12.0),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: isSelected
+                          ? tdRed
+                          : isPastTime
+                          ? Colors.grey.shade700
+                          : Colors.grey.shade800,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Center(
+                      child: Text(
+                        showtime.formattedTime,
+                        style: TextStyle(
+                          color: isPastTime ? Colors.grey : tdWhite,
+                          fontSize: 16,
+                          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBottomSection(BuildContext context, SelectSeatState state) {
+    final hasSelectedSeats = state.selectedSeats.isNotEmpty;
+    final hasSelectedShowtime = state.selectedShowtime != null;
+    final numberFormat = NumberFormat.currency(locale: 'vi_VN', symbol: 'VND', decimalDigits: 0);
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          // Total price
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                "Thành Tiền",
+                style: TextStyle(
+                  color: tdWhite70,
+                  fontSize: 16,
+                ),
+              ),
+              Text(
+                numberFormat.format(state.totalPrice),
+                style: const TextStyle(
+                  color: tdWhite,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+
+          // Buy button
+          ElevatedButton(
+            onPressed: (hasSelectedSeats && hasSelectedShowtime) ? () => _processPurchase(context, state) : null,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: tdRed,
+              disabledBackgroundColor: tdWhite54,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              padding: const EdgeInsets.symmetric(
+                vertical: 12,
+                horizontal: 24,
+              ),
+            ),
+            child: const Text(
+              "Mua Vé",
+              style: TextStyle(fontSize: 18, color: tdWhite),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -385,79 +582,84 @@ class SelectSeatMovieScreenState extends State<SelectSeatMovieScreen> {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        SizedBox(
-          width: 18,
-          height: 18,
-          child: Icon(Icons.chair_rounded, color: color, size: 22),
-        ),
-        const SizedBox(width: 6),
+        Icon(Icons.chair, color: color, size: 18),
+        const SizedBox(width: 4),
         Text(text, style: const TextStyle(color: tdWhite70, fontSize: 14)),
       ],
     );
   }
 
-  Widget _buildDayItem({
-    required String day,
-    required String weekDay,
-    required bool isSelected,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 6),
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 18),
-        decoration: BoxDecoration(
-          color: isSelected ? Colors.deepOrange : Colors.grey.shade900,
-          borderRadius: BorderRadius.circular(30),
-        ),
+  void _processPurchase(BuildContext context, SelectSeatState state) async {
+    if (state.selectedShowtime == null) return;
+
+    // Lưu movieId vào SharedPreferences trc khi route qua screen Vnpay
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('last_selected_movie_id', widget.movieId);
+
+    // Hiển thị dialog loading
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            CircularProgressIndicator(color: tdRed),
+            SizedBox(height: 16),
             Text(
-              day,
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 20,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-              ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              weekDay,
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 16,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-              ),
+              'Đang xử lý thanh toán...',
+              style: TextStyle(color: Colors.white),
             ),
           ],
         ),
       ),
     );
+
+    try {
+      // Lấy userId từ localStorage
+      final user = await SaveTokenUserService.getUser();
+      if (user == null || user.userId == null) {
+        throw Exception('Người dùng chưa đăng nhập');
+      }
+
+      // Tạo danh sách ticket requests
+      final tickets = state.selectedSeats.map((seat) => TicketRequest(
+        showtimeId: state.selectedShowtime!.id!,
+        seatId: seat.seatId ?? '',
+      )).toList();
+
+      // Sử dụng BookingController trực tiếp
+      final bookingController = BookingController();
+
+      // Tạo đơn hàng
+      final orderResponse = await bookingController.createOrder(
+        user.userId!,
+        tickets,
+        [], // Không có extras
+      );
+
+      // Lấy URL thanh toán
+      final paymentUrl = await bookingController.getPaymentUrl(
+          orderResponse.orderId,
+          orderResponse.totalAmount
+      );
+
+      Navigator.pop(context);
+
+      context.go('/payment_webview', extra: {
+        'paymentUrl': paymentUrl,
+        'orderId': orderResponse.orderId,
+      });
+
+    } catch (e) {
+      // Đóng dialog loading
+      Navigator.pop(context);
+
+      // Hiển thị lỗi
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Lỗi: ${e.toString()}')),
+      );
+    }
   }
 
-  Widget _buildTimeItem(
-    String time, {
-    required bool isSelected,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Padding(
-        padding: const EdgeInsets.only(top: 10, bottom: 10, left: 8),
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 14),
-          decoration: BoxDecoration(
-            color: isSelected ? Colors.deepOrange : Colors.grey.shade800,
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Text(
-            time,
-            style: const TextStyle(fontSize: 16, color: Colors.white),
-          ),
-        ),
-      ),
-    );
-  }
 }
