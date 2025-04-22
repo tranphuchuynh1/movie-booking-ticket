@@ -161,14 +161,13 @@ class _TicketMovieViewState extends State<_TicketMovieView> {
     const maxVisibleDots = 7;
     final half = maxVisibleDots ~/ 2;
 
-    int start = (_currentPage - half).clamp(0, totalTickets - maxVisibleDots);
-    int end = (start + maxVisibleDots).clamp(0, totalTickets);
-
-    // Nếu ít hơn maxVisibleDots, bắt đầu từ 0
-    if (totalTickets <= maxVisibleDots) {
-      start = 0;
-      end = totalTickets;
+    if (totalTickets <= 1) {
+      return const SizedBox(); // 0 hoặc 1 vé → không cần hiển thị chấm
     }
+
+    final maxStart = (totalTickets - maxVisibleDots).clamp(0, totalTickets);
+    int start = (_currentPage - half).clamp(0, maxStart);
+    int end = (start + maxVisibleDots).clamp(0, totalTickets);
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -193,7 +192,7 @@ class _TicketMovieViewState extends State<_TicketMovieView> {
         clipper: TicketClipper(),
         child: Container(
           width: MediaQuery.of(context).size.width * 0.75,
-          height: MediaQuery.of(context).size.height * 0.75,
+          height: MediaQuery.of(context).size.height * 0.8,
           color: Colors.deepOrange,
           child: Column(
             children: [
@@ -342,8 +341,8 @@ class _TicketMovieViewState extends State<_TicketMovieView> {
 
               // Qrcode
               Container(
-                width: 180,
-                height: 180,
+                width: 190,
+                height: 190,
                 padding: const EdgeInsets.all(5),
                 decoration: BoxDecoration(
                   color: Colors.white,
