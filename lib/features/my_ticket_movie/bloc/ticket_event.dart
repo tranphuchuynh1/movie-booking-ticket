@@ -8,3 +8,9 @@ class FetchTicketEvent extends TicketEvent {
 
   FetchTicketEvent(this.orderId);
 }
+
+class FetchTicketDetailsEvent extends TicketEvent {
+  final String userId;
+  final String movieId;
+  FetchTicketDetailsEvent({required this.userId, required this.movieId});
+}

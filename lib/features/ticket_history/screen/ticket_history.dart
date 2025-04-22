@@ -101,8 +101,15 @@ class _TicketHistoryScreenState extends State<TicketHistoryScreen> {
                     itemBuilder: (context, index) {
                       return GestureDetector(
                         onTap: () {
-                          context.go('/ticket/', extra: movies);
-                          print('movies[index] ${movies[index].movieId}');
+                          context.go(
+                            '/ticket',
+                            extra: {
+                              'userId': _userId!,
+                              'movieId': movies[index].movieId!,
+                            },
+                          );
+                          print('userId :${_userId!}');
+                          print('movies[index] :${movies[index].movieId}');
                         },
                         child: _buildTicketItem(movies[index]),
                       );

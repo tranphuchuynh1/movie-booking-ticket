@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:movie_booking_ticket/features/select_seat_movie/screens/select_seat_skeleton.dart';
 import 'package:movie_booking_ticket/theme.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -24,7 +25,6 @@ class SelectSeatMovieScreen extends StatefulWidget {
 class _SelectSeatMovieScreenState extends State<SelectSeatMovieScreen> {
   final SelectSeatBloc _selectSeatBloc = SelectSeatBloc();
 
-
   @override
   void initState() {
     super.initState();
@@ -42,12 +42,12 @@ class _SelectSeatMovieScreenState extends State<SelectSeatMovieScreen> {
     final state = _selectSeatBloc.state;
 
     // Kiểm tra trạng thái dữ liệu
-    if (state.status != SelectSeatStatus.success || state.showtimesByDate.isEmpty) {
+    if (state.status != SelectSeatStatus.success ||
+        state.showtimesByDate.isEmpty) {
       // Nếu dữ liệu chưa sẵn sàng, thử lại sau
       Future.delayed(const Duration(milliseconds: 300), () {
         _autoSelectFirstDateAndTime();
-       }
-      );
+      });
       return;
     }
 
@@ -55,14 +55,16 @@ class _SelectSeatMovieScreenState extends State<SelectSeatMovieScreen> {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
 
-    final validDates = state.showtimesByDate.keys.where((dateStr) {
-      try {
-        final date = DateTime.parse(dateStr);
-        return date.isAtSameMomentAs(today) || date.isAfter(today);
-      } catch (_) {
-        return false;
-      }
-    }).toList()..sort();
+    final validDates =
+        state.showtimesByDate.keys.where((dateStr) {
+            try {
+              final date = DateTime.parse(dateStr);
+              return date.isAtSameMomentAs(today) || date.isAfter(today);
+            } catch (_) {
+              return false;
+            }
+          }).toList()
+          ..sort();
 
     if (validDates.isEmpty) return;
 
@@ -80,7 +82,7 @@ class _SelectSeatMovieScreenState extends State<SelectSeatMovieScreen> {
         body: BlocBuilder<SelectSeatBloc, SelectSeatState>(
           builder: (context, state) {
             if (state.status == SelectSeatStatus.loading) {
-              return const Center(child: CircularProgressIndicator(color: tdRed));
+              return const Center(child: SelectSeatSkeleton());
             } else if (state.status == SelectSeatStatus.error) {
               return Center(
                 child: Column(
@@ -93,7 +95,9 @@ class _SelectSeatMovieScreenState extends State<SelectSeatMovieScreen> {
                     const SizedBox(height: 16),
                     ElevatedButton(
                       onPressed: () {
-                        _selectSeatBloc.add(FetchShowtimesEvent(widget.movieId));
+                        _selectSeatBloc.add(
+                          FetchShowtimesEvent(widget.movieId),
+                        );
                         Future.delayed(const Duration(milliseconds: 300), () {
                           _autoSelectFirstDateAndTime();
                         });
@@ -119,7 +123,9 @@ class _SelectSeatMovieScreenState extends State<SelectSeatMovieScreen> {
                       child: Container(
                         decoration: BoxDecoration(
                           image: DecorationImage(
-                            image: NetworkImage(state.selectedShowtime!.movieImage!),
+                            image: NetworkImage(
+                              state.selectedShowtime!.movieImage!,
+                            ),
                             fit: BoxFit.cover,
                           ),
                         ),
@@ -158,7 +164,11 @@ class _SelectSeatMovieScreenState extends State<SelectSeatMovieScreen> {
                         shape: BoxShape.circle,
                       ),
                       child: IconButton(
-                        icon: const Icon(Icons.close, color: Colors.white, size: 20),
+                        icon: const Icon(
+                          Icons.close,
+                          color: Colors.white,
+                          size: 20,
+                        ),
                         onPressed: () {
                           context.go('/detail', extra: widget.movieId);
                         },
@@ -193,9 +203,7 @@ class _SelectSeatMovieScreenState extends State<SelectSeatMovieScreen> {
                           const SizedBox(height: 20),
 
                           // Seat layout
-                          Expanded(
-                            child: _buildSeatSection(context, state),
-                          ),
+                          Expanded(child: _buildSeatSection(context, state)),
 
                           // Seat legend
                           Padding(
@@ -208,8 +216,15 @@ class _SelectSeatMovieScreenState extends State<SelectSeatMovieScreen> {
                                 _seatLegend(tdGreyDark, "Ghế đã đặt"),
                                 const SizedBox(width: 20),
                                 _seatLegend(tdRed, "Ghế đã chọn"),
-                                if (state.seatMatrix.any((row) => row.any((seat) =>
-                                seat.type?.toLowerCase().contains('vip') ?? false)))
+                                if (state.seatMatrix.any(
+                                  (row) => row.any(
+                                    (seat) =>
+                                        seat.type?.toLowerCase().contains(
+                                          'vip',
+                                        ) ??
+                                        false,
+                                  ),
+                                ))
                                   Padding(
                                     padding: const EdgeInsets.only(left: 20.0),
                                     child: _seatLegend(Colors.amber, "VIP"),
@@ -259,62 +274,81 @@ class _SelectSeatMovieScreenState extends State<SelectSeatMovieScreen> {
     }
 
     return SingleChildScrollView(
-        child: Padding(
+      child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 8.0),
-    child: Column(
-    mainAxisSize: MainAxisSize.min,
-    children: [
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Seat matrix
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              children:
+                  state.seatMatrix.map((row) {
+                    if (row.isEmpty) return const SizedBox.shrink();
 
-          // Seat matrix
-          Column(
-            mainAxisSize: MainAxisSize.min,
-            children: state.seatMatrix.map((row) {
-              if (row.isEmpty) return const SizedBox.shrink();
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 2.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children:
+                            row.map((seat) {
+                              bool isVipSeat =
+                                  (seat.type?.toLowerCase().contains('vip') ??
+                                      false);
+                              bool isDoubleSeat =
+                                  (seat.type?.toLowerCase().contains('đôi') ??
+                                      false);
+                              bool isTaken = state.bookedSeatIds.contains(
+                                seat.seatId,
+                              );
 
-              return Padding(
-                padding: const EdgeInsets.symmetric(vertical: 2.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: row.map((seat) {
-                    bool isVipSeat = (seat.type?.toLowerCase().contains('vip') ?? false);
-                    bool isDoubleSeat = (seat.type?.toLowerCase().contains('đôi') ?? false);
-                    bool isTaken = state.bookedSeatIds.contains(seat.seatId);
+                              Color seatColor;
+                              if (isTaken) {
+                                seatColor = Colors.grey.shade700;
+                              } else if (seat.isSelected) {
+                                seatColor = tdRed;
+                              } else {
+                                seatColor = isVipSeat ? Colors.amber : tdWhite;
+                              }
 
-                    Color seatColor;
-                    if (isTaken) {
-                      seatColor = Colors.grey.shade700;
-                    } else if (seat.isSelected) {
-                      seatColor = tdRed;
-                    } else {
-                      seatColor = isVipSeat ? Colors.amber : tdWhite;
-                    }
-
-                    return Container(
-                      width: isDoubleSeat ? 48 : 32,
-                      height: 32,
-                      margin: const EdgeInsets.symmetric(horizontal: 2, vertical: 1),
-                      child: Material(
-                        color: Colors.transparent,
-                        child: InkWell(
-                          onTap: isTaken ? null : () => context.read<SelectSeatBloc>().add(
-                              ToggleSeatEvent(seat.seatId ?? '')
-                          ),
-                          child: Icon(
-                            isDoubleSeat ? Icons.weekend : Icons.chair,
-                            color: seatColor,
-                            size: isDoubleSeat ? 35 : 24,
-                          ),
-                        ),
+                              return Container(
+                                width: isDoubleSeat ? 48 : 32,
+                                height: 32,
+                                margin: const EdgeInsets.symmetric(
+                                  horizontal: 2,
+                                  vertical: 1,
+                                ),
+                                child: Material(
+                                  color: Colors.transparent,
+                                  child: InkWell(
+                                    onTap:
+                                        isTaken
+                                            ? null
+                                            : () => context
+                                                .read<SelectSeatBloc>()
+                                                .add(
+                                                  ToggleSeatEvent(
+                                                    seat.seatId ?? '',
+                                                  ),
+                                                ),
+                                    child: Icon(
+                                      isDoubleSeat
+                                          ? Icons.weekend
+                                          : Icons.chair,
+                                      color: seatColor,
+                                      size: isDoubleSeat ? 35 : 24,
+                                    ),
+                                  ),
+                                ),
+                              );
+                            }).toList(),
                       ),
                     );
                   }).toList(),
-                ),
-              );
-            }).toList(),
-          ),
-        ],
+            ),
+          ],
+        ),
       ),
-    ),
     );
   }
 
@@ -322,14 +356,15 @@ class _SelectSeatMovieScreenState extends State<SelectSeatMovieScreen> {
     final dates = state.showtimesByDate.keys.toList();
     final now = DateTime.now();
 
-    final validDates = dates.where((dateStr) {
-      try {
-        final date = DateTime.parse(dateStr);
-        return date.isAfter(now.subtract(const Duration(days: 1)));
-      } catch (_) {
-        return false;
-      }
-    }).toList();
+    final validDates =
+        dates.where((dateStr) {
+          try {
+            final date = DateTime.parse(dateStr);
+            return date.isAfter(now.subtract(const Duration(days: 1)));
+          } catch (_) {
+            return false;
+          }
+        }).toList();
 
     if (validDates.isEmpty) {
       return const Padding(
@@ -369,18 +404,22 @@ class _SelectSeatMovieScreenState extends State<SelectSeatMovieScreen> {
                   print('Error parsing date: $e');
                 }
 
-                final dayOfWeek = dateTime != null
-                    ? DateFormat('E').format(dateTime)
-                    : '';
-                final dayOfMonth = dateTime != null
-                    ? DateFormat('d').format(dateTime)
-                    : '';
+                final dayOfWeek =
+                    dateTime != null ? DateFormat('E').format(dateTime) : '';
+                final dayOfMonth =
+                    dateTime != null ? DateFormat('d').format(dateTime) : '';
 
                 return GestureDetector(
-                  onTap: () => context.read<SelectSeatBloc>().add(SelectDateEvent(date)),
+                  onTap:
+                      () => context.read<SelectSeatBloc>().add(
+                        SelectDateEvent(date),
+                      ),
                   child: Container(
                     margin: const EdgeInsets.only(right: 10.0),
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 12,
+                    ),
                     decoration: BoxDecoration(
                       color: isSelected ? tdRed : Colors.grey.shade900,
                       borderRadius: BorderRadius.circular(12),
@@ -393,7 +432,10 @@ class _SelectSeatMovieScreenState extends State<SelectSeatMovieScreen> {
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 18,
-                            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                            fontWeight:
+                                isSelected
+                                    ? FontWeight.bold
+                                    : FontWeight.normal,
                           ),
                         ),
                         const SizedBox(height: 4),
@@ -402,7 +444,10 @@ class _SelectSeatMovieScreenState extends State<SelectSeatMovieScreen> {
                           style: TextStyle(
                             color: Colors.white70,
                             fontSize: 14,
-                            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                            fontWeight:
+                                isSelected
+                                    ? FontWeight.bold
+                                    : FontWeight.normal,
                           ),
                         ),
                       ],
@@ -423,7 +468,10 @@ class _SelectSeatMovieScreenState extends State<SelectSeatMovieScreen> {
     if (selectedDate == null) {
       return const Padding(
         padding: EdgeInsets.all(16.0),
-        child: Text('Please select a date first', style: TextStyle(color: tdWhite)),
+        child: Text(
+          'Please select a date first',
+          style: TextStyle(color: tdWhite),
+        ),
       );
     }
 
@@ -432,7 +480,10 @@ class _SelectSeatMovieScreenState extends State<SelectSeatMovieScreen> {
     if (showtimesForDate.isEmpty) {
       return const Padding(
         padding: EdgeInsets.all(16.0),
-        child: Text('No showtimes available for this date', style: TextStyle(color: tdWhite)),
+        child: Text(
+          'No showtimes available for this date',
+          style: TextStyle(color: tdWhite),
+        ),
       );
     }
 
@@ -485,21 +536,32 @@ class _SelectSeatMovieScreenState extends State<SelectSeatMovieScreen> {
                 }
 
                 return GestureDetector(
-                  onTap: isPastTime ? null : () {
-                    context.read<SelectSeatBloc>().add(SelectTimeEvent(showtime.id ?? ''));
-                    if (showtime.id != null) {
-                      context.read<SelectSeatBloc>().add(FetchBookedSeatsEvent(showtime.id!));
-                    }
-                  },
+                  onTap:
+                      isPastTime
+                          ? null
+                          : () {
+                            context.read<SelectSeatBloc>().add(
+                              SelectTimeEvent(showtime.id ?? ''),
+                            );
+                            if (showtime.id != null) {
+                              context.read<SelectSeatBloc>().add(
+                                FetchBookedSeatsEvent(showtime.id!),
+                              );
+                            }
+                          },
                   child: Container(
                     margin: const EdgeInsets.only(right: 12.0),
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
                     decoration: BoxDecoration(
-                      color: isSelected
-                          ? tdRed
-                          : isPastTime
-                          ? Colors.grey.shade700
-                          : Colors.grey.shade800,
+                      color:
+                          isSelected
+                              ? tdRed
+                              : isPastTime
+                              ? Colors.grey.shade700
+                              : Colors.grey.shade800,
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Center(
@@ -508,7 +570,8 @@ class _SelectSeatMovieScreenState extends State<SelectSeatMovieScreen> {
                         style: TextStyle(
                           color: isPastTime ? Colors.grey : tdWhite,
                           fontSize: 16,
-                          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                          fontWeight:
+                              isSelected ? FontWeight.bold : FontWeight.normal,
                         ),
                       ),
                     ),
@@ -525,7 +588,11 @@ class _SelectSeatMovieScreenState extends State<SelectSeatMovieScreen> {
   Widget _buildBottomSection(BuildContext context, SelectSeatState state) {
     final hasSelectedSeats = state.selectedSeats.isNotEmpty;
     final hasSelectedShowtime = state.selectedShowtime != null;
-    final numberFormat = NumberFormat.currency(locale: 'vi_VN', symbol: 'VND', decimalDigits: 0);
+    final numberFormat = NumberFormat.currency(
+      locale: 'vi_VN',
+      symbol: 'VND',
+      decimalDigits: 0,
+    );
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
@@ -538,10 +605,7 @@ class _SelectSeatMovieScreenState extends State<SelectSeatMovieScreen> {
             children: [
               const Text(
                 "Thành Tiền",
-                style: TextStyle(
-                  color: tdWhite70,
-                  fontSize: 16,
-                ),
+                style: TextStyle(color: tdWhite70, fontSize: 16),
               ),
               Text(
                 numberFormat.format(state.totalPrice),
@@ -556,17 +620,17 @@ class _SelectSeatMovieScreenState extends State<SelectSeatMovieScreen> {
 
           // Buy button
           ElevatedButton(
-            onPressed: (hasSelectedSeats && hasSelectedShowtime) ? () => _processPurchase(context, state) : null,
+            onPressed:
+                (hasSelectedSeats && hasSelectedShowtime)
+                    ? () => _processPurchase(context, state)
+                    : null,
             style: ElevatedButton.styleFrom(
               backgroundColor: tdRed,
               disabledBackgroundColor: tdWhite54,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
-              padding: const EdgeInsets.symmetric(
-                vertical: 12,
-                horizontal: 24,
-              ),
+              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
             ),
             child: const Text(
               "Mua Vé",
@@ -600,19 +664,20 @@ class _SelectSeatMovieScreenState extends State<SelectSeatMovieScreen> {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) => Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            CircularProgressIndicator(color: tdRed),
-            SizedBox(height: 16),
-            Text(
-              'Đang xử lý thanh toán...',
-              style: TextStyle(color: Colors.white),
+      builder:
+          (context) => Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CircularProgressIndicator(color: tdRed),
+                SizedBox(height: 16),
+                Text(
+                  'Đang xử lý thanh toán...',
+                  style: TextStyle(color: Colors.white),
+                ),
+              ],
             ),
-          ],
-        ),
-      ),
+          ),
     );
 
     try {
@@ -623,10 +688,15 @@ class _SelectSeatMovieScreenState extends State<SelectSeatMovieScreen> {
       }
 
       // Tạo danh sách ticket requests
-      final tickets = state.selectedSeats.map((seat) => TicketRequest(
-        showtimeId: state.selectedShowtime!.id!,
-        seatId: seat.seatId ?? '',
-      )).toList();
+      final tickets =
+          state.selectedSeats
+              .map(
+                (seat) => TicketRequest(
+                  showtimeId: state.selectedShowtime!.id!,
+                  seatId: seat.seatId ?? '',
+                ),
+              )
+              .toList();
 
       // Sử dụng BookingController trực tiếp
       final bookingController = BookingController();
@@ -640,26 +710,24 @@ class _SelectSeatMovieScreenState extends State<SelectSeatMovieScreen> {
 
       // Lấy URL thanh toán
       final paymentUrl = await bookingController.getPaymentUrl(
-          orderResponse.orderId,
-          orderResponse.totalAmount
+        orderResponse.orderId,
+        orderResponse.totalAmount,
       );
 
       Navigator.pop(context);
 
-      context.go('/payment_webview', extra: {
-        'paymentUrl': paymentUrl,
-        'orderId': orderResponse.orderId,
-      });
-
+      context.go(
+        '/payment_webview',
+        extra: {'paymentUrl': paymentUrl, 'orderId': orderResponse.orderId},
+      );
     } catch (e) {
       // Đóng dialog loading
       Navigator.pop(context);
 
       // Hiển thị lỗi
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Lỗi: ${e.toString()}')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Lỗi: ${e.toString()}')));
     }
   }
-
 }

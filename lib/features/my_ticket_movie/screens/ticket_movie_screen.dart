@@ -8,16 +8,29 @@ import 'package:qr_flutter/qr_flutter.dart';
 
 import '../../../core/models/ticket_model.dart';
 
-
 class TicketMovieScreen extends StatelessWidget {
-  final String orderId;
+  final String? orderId;
+  final String? userId;
+  final String? movieId;
 
-  const TicketMovieScreen({super.key, required this.orderId});
+  const TicketMovieScreen({Key? key, this.orderId, this.userId, this.movieId})
+    : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => TicketBloc()..add(FetchTicketEvent(orderId)),
+    return BlocProvider<TicketBloc>(
+      create: (context) {
+        final bloc = TicketBloc();
+        // Luồng 1: nếu có orderId thì fetch theo order
+        if (orderId != null) {
+          bloc.add(FetchTicketEvent(orderId!));
+        }
+        // Luồng 2: nếu có userId và movieId thì fetch theo phim
+        else if (userId != null && movieId != null) {
+          bloc.add(FetchTicketDetailsEvent(userId: userId!, movieId: movieId!));
+        }
+        return bloc;
+      },
       child: _TicketMovieView(),
     );
   }
@@ -45,19 +58,17 @@ class _TicketMovieViewState extends State<_TicketMovieView> {
       body: BlocBuilder<TicketBloc, TicketState>(
         builder: (context, state) {
           if (state.status == TicketStatus.loading) {
-            return const Center(
-              child: CircularProgressIndicator(color: tdRed),
-            );
+            return const Center(child: CircularProgressIndicator(color: tdRed));
           } else if (state.status == TicketStatus.error) {
             // Hiển thị errorr
             return _buildErrorView(state.errorMessage);
-          } else if (state.status == TicketStatus.success && state.tickets.isNotEmpty) {
+          } else if (state.status == TicketStatus.success &&
+              state.tickets.isNotEmpty) {
             return SafeArea(
               child: Column(
                 children: [
                   // Header
                   _buildHeader(context),
-
 
                   // PageView cho phép lướt qua lại giữa các vé
                   Expanded(
@@ -79,21 +90,7 @@ class _TicketMovieViewState extends State<_TicketMovieView> {
                   if (state.tickets.length > 1)
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 16.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: List.generate(
-                          state.tickets.length,
-                              (index) => Container(
-                            margin: const EdgeInsets.symmetric(horizontal: 4),
-                            width: 8,
-                            height: 8,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: index == _currentPage ? tdRed : Colors.grey,
-                            ),
-                          ),
-                        ),
-                      ),
+                      child: _buildPageIndicator(state.tickets.length),
                     ),
                   // Hiển thị số lượng vé và vé hiện tại
                   if (state.tickets.length > 1)
@@ -160,19 +157,49 @@ class _TicketMovieViewState extends State<_TicketMovieView> {
     );
   }
 
+  Widget _buildPageIndicator(int totalTickets) {
+    const maxVisibleDots = 7;
+    final half = maxVisibleDots ~/ 2;
+
+    int start = (_currentPage - half).clamp(0, totalTickets - maxVisibleDots);
+    int end = (start + maxVisibleDots).clamp(0, totalTickets);
+
+    // Nếu ít hơn maxVisibleDots, bắt đầu từ 0
+    if (totalTickets <= maxVisibleDots) {
+      start = 0;
+      end = totalTickets;
+    }
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: List.generate(end - start, (i) {
+        final index = start + i;
+        return Container(
+          margin: const EdgeInsets.symmetric(horizontal: 4),
+          width: 8,
+          height: 8,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: index == _currentPage ? tdRed : Colors.grey,
+          ),
+        );
+      }),
+    );
+  }
+
   Widget _buildTicket(TicketModel ticket) {
     return Center(
       child: ClipPath(
         clipper: TicketClipper(),
         child: Container(
-          width: MediaQuery.of(context).size.width * 0.8,
-          height: MediaQuery.of(context).size.height * 0.78,
+          width: MediaQuery.of(context).size.width * 0.75,
+          height: MediaQuery.of(context).size.height * 0.75,
           color: Colors.deepOrange,
           child: Column(
             children: [
               // Ảnh poster
               SizedBox(
-                height: MediaQuery.of(context).size.height * 0.28,
+                height: MediaQuery.of(context).size.height * 0.38,
                 child: Stack(
                   children: [
                     Positioned.fill(
@@ -182,7 +209,11 @@ class _TicketMovieViewState extends State<_TicketMovieView> {
                         errorBuilder: (context, error, stackTrace) {
                           return Container(
                             color: Colors.grey.shade800,
-                            child: const Icon(Icons.movie, size: 100, color: Colors.white54),
+                            child: const Icon(
+                              Icons.movie,
+                              size: 100,
+                              color: Colors.white54,
+                            ),
                           );
                         },
                       ),
@@ -206,17 +237,14 @@ class _TicketMovieViewState extends State<_TicketMovieView> {
                   ],
                 ),
               ),
-              const SizedBox(height: 5),
+              const SizedBox(height: 20),
 
               // Đường gạch đứt
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 5),
                 child: CustomPaint(
                   painter: DashedLinePainter(),
-                  child: const SizedBox(
-                    height: 1,
-                    width: double.infinity,
-                  ),
+                  child: const SizedBox(height: 1, width: double.infinity),
                 ),
               ),
 
@@ -236,27 +264,17 @@ class _TicketMovieViewState extends State<_TicketMovieView> {
                       ),
                       Text(
                         _formatDayOfWeek(ticket.showTimeDate),
-                        style: const TextStyle(
-                          color: tdWhite,
-                          fontSize: 14,
-                        ),
+                        style: const TextStyle(color: tdWhite, fontSize: 14),
                       ),
                     ],
                   ),
                   const SizedBox(width: 20),
                   Column(
                     children: [
-                      const Icon(
-                        Icons.access_time,
-                        color: tdWhite70,
-                        size: 20,
-                      ),
+                      const Icon(Icons.access_time, color: tdWhite70, size: 20),
                       Text(
                         _formatTime(ticket.showTimeStart),
-                        style: const TextStyle(
-                          color: tdWhite,
-                          fontSize: 14,
-                        ),
+                        style: const TextStyle(color: tdWhite, fontSize: 14),
                       ),
                     ],
                   ),
@@ -273,10 +291,7 @@ class _TicketMovieViewState extends State<_TicketMovieView> {
                     children: [
                       const Text(
                         'Phòng',
-                        style: TextStyle(
-                          color: tdWhite54,
-                          fontSize: 14,
-                        ),
+                        style: TextStyle(color: tdWhite54, fontSize: 14),
                       ),
                       Text(
                         ticket.hall,
@@ -292,10 +307,7 @@ class _TicketMovieViewState extends State<_TicketMovieView> {
                     children: [
                       const Text(
                         'Hàng',
-                        style: TextStyle(
-                          color: tdWhite54,
-                          fontSize: 14,
-                        ),
+                        style: TextStyle(color: tdWhite54, fontSize: 14),
                       ),
                       Text(
                         ticket.seatRow,
@@ -311,10 +323,7 @@ class _TicketMovieViewState extends State<_TicketMovieView> {
                     children: [
                       const Text(
                         'Ghế',
-                        style: TextStyle(
-                          color: tdWhite54,
-                          fontSize: 14,
-                        ),
+                        style: TextStyle(color: tdWhite54, fontSize: 14),
                       ),
                       Text(
                         ticket.seatNumber.toString(),
@@ -329,13 +338,13 @@ class _TicketMovieViewState extends State<_TicketMovieView> {
                 ],
               ),
 
-              const SizedBox(height: 65),
+              const SizedBox(height: 10),
 
               // Qrcode
               Container(
-                width: 200,
-                height: 200,
-                padding: const EdgeInsets.all(10),
+                width: 180,
+                height: 180,
+                padding: const EdgeInsets.all(5),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(8),
@@ -349,7 +358,6 @@ class _TicketMovieViewState extends State<_TicketMovieView> {
                   errorCorrectionLevel: QrErrorCorrectLevel.M,
                 ),
               ),
-
             ],
           ),
         ),
@@ -483,9 +491,9 @@ class DashedLinePainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint =
-    Paint()
-      ..color = Colors.black38
-      ..strokeWidth = 1;
+        Paint()
+          ..color = Colors.black38
+          ..strokeWidth = 1;
 
     // Chiều rộng nét đứt + khoảng trống
     const dashWidth = 6.0;
