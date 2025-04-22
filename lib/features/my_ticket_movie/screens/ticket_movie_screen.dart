@@ -135,7 +135,7 @@ class _TicketMovieViewState extends State<_TicketMovieView> {
             child: IconButton(
               icon: const Icon(Icons.close, color: tdWhite, size: 20),
               onPressed: () {
-                context.go('/home');
+                context.go('/ticket_history');
               },
             ),
           ),
@@ -192,7 +192,7 @@ class _TicketMovieViewState extends State<_TicketMovieView> {
         clipper: TicketClipper(),
         child: Container(
           width: MediaQuery.of(context).size.width * 0.75,
-          height: MediaQuery.of(context).size.height * 0.8,
+          height: MediaQuery.of(context).size.height * 0.85,
           color: Colors.deepOrange,
           child: Column(
             children: [

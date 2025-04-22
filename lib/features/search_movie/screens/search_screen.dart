@@ -19,10 +19,24 @@ class SearchScreen extends StatefulWidget {
 class _SearchScreenState extends State<SearchScreen> {
   final TextEditingController _searchController = TextEditingController();
   final Debouncer _debouncer = Debouncer();
+  final FocusNode _searchFocusNode = FocusNode();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (GoRouterState.of(context).extra != null &&
+          (GoRouterState.of(context).extra as Map)['autoFocus'] == true) {
+        _searchFocusNode.requestFocus();
+      }
+    });
+  }
+
   @override
   void dispose() {
     _searchController.dispose();
     _debouncer.cancel();
+    _searchFocusNode.dispose();
     super.dispose();
   }
 
@@ -49,6 +63,7 @@ class _SearchScreenState extends State<SearchScreen> {
                       ),
                       child: TextField(
                         controller: _searchController,
+                        focusNode: _searchFocusNode,
                         onChanged: (query) {
                           _debouncer.debounce(
                             duration: Duration(milliseconds: 500),
