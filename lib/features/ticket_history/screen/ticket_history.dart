@@ -68,18 +68,27 @@ class _TicketHistoryScreenState extends State<TicketHistoryScreen> {
             builder: (context, state) {
               if (state.status == TicketStateStatus.loading) {
                 return TicketHistorySkeleton();
-              } else if (state.status == TicketStateStatus.error) {
+              } else if (state.status == TicketStateStatus.error || state.orders == null || state.orders!.isEmpty) {
+                // nếu lỗi hoặc chưa đặt vé, vé bị null, trả về cái thông báo ở dưới hehe
                 return Center(
-                  child: Text(
-                    state.errorMessage ?? "Error occurred",
-                    style: const TextStyle(color: Colors.red),
-                  ),
-                );
-              } else if (state.orders == null || state.orders!.isEmpty) {
-                return const Center(
-                  child: Text(
-                    "No purchased movies found",
-                    style: TextStyle(color: Colors.white),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.local_movies_outlined,
+                        color: Colors.grey,
+                        size: 64,
+                      ),
+                      SizedBox(height: 16),
+                      Text(
+                        "Chưa có vé nào được đặt",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
                   ),
                 );
               } else {
@@ -91,12 +100,12 @@ class _TicketHistoryScreenState extends State<TicketHistoryScreen> {
                   ),
                   child: GridView.builder(
                     gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                          childAspectRatio: 0.7,
-                          crossAxisSpacing: 16,
-                          mainAxisSpacing: 16,
-                        ),
+                    const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      childAspectRatio: 0.7,
+                      crossAxisSpacing: 16,
+                      mainAxisSpacing: 16,
+                    ),
                     itemCount: movies.length,
                     itemBuilder: (context, index) {
                       return GestureDetector(
