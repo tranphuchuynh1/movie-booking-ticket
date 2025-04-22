@@ -98,7 +98,7 @@ class _SearchScreenState extends State<SearchScreen> {
                                 (context, index) => const SizedBox(height: 16),
                             itemBuilder:
                                 (context, index) =>
-                                    const SearchResultPlaceholder(),
+                            const SearchResultPlaceholder(),
                           );
                         } else if (state.status ==
                             SearchMovieStateStatus.error) {
@@ -125,7 +125,7 @@ class _SearchScreenState extends State<SearchScreen> {
                             itemCount: state.searchResults.length,
                             itemBuilder: (context, index) {
                               final MovieModel movie =
-                                  state.searchResults[index];
+                              state.searchResults[index];
                               return GestureDetector(
                                 onTap: () {
                                   context.go('/search/detail/${movie.movieId}');
@@ -138,24 +138,24 @@ class _SearchScreenState extends State<SearchScreen> {
                                       ClipRRect(
                                         borderRadius: BorderRadius.circular(10),
                                         child:
-                                            movie.imageMovie != null &&
-                                                    movie.imageMovie!.isNotEmpty
-                                                ? Image.network(
-                                                  movie.imageMovie!.first,
-                                                  width: 100,
-                                                  height: 150,
-                                                  fit: BoxFit.cover,
-                                                )
-                                                : Container(
-                                                  width: 100,
-                                                  height: 150,
-                                                  color: Colors.grey,
-                                                  child: Icon(
-                                                    Icons.movie,
-                                                    color: Colors.white,
-                                                    size: 40,
-                                                  ),
-                                                ),
+                                        movie.imageMovie != null &&
+                                            movie.imageMovie!.isNotEmpty
+                                            ? Image.network(
+                                          movie.imageMovie!.first,
+                                          width: 100,
+                                          height: 150,
+                                          fit: BoxFit.cover,
+                                        )
+                                            : Container(
+                                          width: 100,
+                                          height: 150,
+                                          color: Colors.grey,
+                                          child: Icon(
+                                            Icons.movie,
+                                            color: Colors.white,
+                                            size: 40,
+                                          ),
+                                        ),
                                       ),
                                       SizedBox(width: 16),
 
@@ -163,7 +163,7 @@ class _SearchScreenState extends State<SearchScreen> {
                                       Expanded(
                                         child: Column(
                                           crossAxisAlignment:
-                                              CrossAxisAlignment.start,
+                                          CrossAxisAlignment.start,
                                           children: [
                                             Text(
                                               movie.title ?? 'No Title',

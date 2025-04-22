@@ -4,7 +4,7 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:movie_booking_ticket/features/home_movie/screens/home_skeleton.dart';
-
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../../core/models/movie_model.dart';
 import '../../../core/widgets/bottom_nav_bar.dart';
 import '../bloc/movie_bloc.dart';
@@ -274,7 +274,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildNowPlayingMovieCard(MovieModel movie) {
     return GestureDetector(
-      onTap: () {
+      onTap: () async {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('source_screen', 'home');
         context.go('/home/detail/${movie.movieId}');
       },
       child: Container(

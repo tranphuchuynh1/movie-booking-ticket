@@ -3,7 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:movie_booking_ticket/core/models/movie_model.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
-import '../../../localization/app_localizations.dart';
+import '../../../core/dio/dio_client.dart';
+import '../../select_seat_movie/controllers/select_seat_movie_controller.dart';
 import '../bloc/detail_movie_bloc.dart';
 import 'dart:convert';
 
@@ -24,10 +25,12 @@ class MovieDetailScreen extends StatefulWidget {
 class _MovieDetailScreenState extends State<MovieDetailScreen> {
   final MovieDetailBloc _detailBloc = MovieDetailBloc();
   bool _isDescriptionExpanded = false;
+  bool _hasCheckedShowtimes = false;
 
   @override
   void initState() {
     super.initState();
+    _hasCheckedShowtimes = false;
     _detailBloc.add(FetchMovieDetailEvent(widget.movieId));
   }
 
@@ -61,6 +64,122 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
     }
     return rating;
   }
+
+  void _checkShowtimesAvailability(MovieModel movieModel) async {
+    // Kiểm tra nếu đã từng check rồi thì không check nữa
+    if (_hasCheckedShowtimes) return;
+
+    try {
+      final bookingController = BookingController(dio: DioClient.instance);
+      final showtimes = await bookingController.getShowtimes(movieModel.movieId!);
+
+      // Lọc các suất chiếu còn hiệu lực
+      final now = DateTime.now();
+      final validShowtimes = showtimes.where((showtime) {
+        if (showtime.date == null || showtime.time == null) return false;
+
+        try {
+          final dateTime = DateTime.parse(showtime.date!);
+          final timeParts = showtime.time!.split(':');
+
+          final showtimeDateTime = DateTime(
+            dateTime.year,
+            dateTime.month,
+            dateTime.day,
+            int.parse(timeParts[0]),
+            int.parse(timeParts[1]),
+          );
+
+          return showtimeDateTime.isAfter(now);
+        } catch (_) {
+          return false;
+        }
+      }).toList();
+
+      // Đánh dấu đã check
+      _hasCheckedShowtimes = true;
+
+      // Kiểm tra xem màn hình hiện tại có phải là màn hình chi tiết không
+      if (ModalRoute.of(context)?.isCurrent == true) {
+        // Nếu không có suất chiếu nào còn hiệu lực
+        if (validShowtimes.isEmpty) {
+          // Thêm delay để tránh conflict với navigation
+          await Future.delayed(const Duration(milliseconds: 300));
+
+          // Kiểm tra lại xem màn hình vẫn còn active không
+          if (mounted) {
+            await _showNoShowtimesDialog();
+          }
+        }
+      }
+    } catch (e) {
+      print('Error checking showtimes: $e');
+    }
+  }
+
+  // Phương thức hiển thị dialog
+  Future<void> _showNoShowtimesDialog() async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return WillPopScope(
+          onWillPop: () async => false,
+          child: AlertDialog(
+            backgroundColor: Colors.black87,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(15),
+              side: BorderSide(color: Colors.red, width: 2),
+            ),
+            title: Center(
+              child: Image.asset(
+                'assets/icons/icons-no-date.png',
+                height: 100,
+                width: 100,
+              ),
+            ),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  'Phim tạm thời chưa có suất chiếu',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red,
+                    minimumSize: const Size(double.infinity, 45),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(22),
+                    ),
+                  ),
+                  onPressed: () {
+                    // context.go('/detail',extra: widget.movieId);
+                    context.pop();
+                  },
+                  child: const Text(
+                    'Trở Lại',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -181,8 +300,8 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
             ),
             child: IconButton(
               icon: const Icon(Icons.close, color: Colors.white, size: 20),
-              onPressed: () {
-                context.go('/home', extra: widget.movieId);
+              onPressed: ()  {
+                  context.go('/home', extra: widget.movieId);
               },
             ),
           ),
@@ -557,20 +676,52 @@ class _MovieDetailScreenState extends State<MovieDetailScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 90.0, vertical: 16.0),
       child: ElevatedButton(
-        onPressed: () {
-          final movieMap = {
-            'movieId': movieModel.movieId,
-            'title': movieModel.title,
-            'description': movieModel.description,
-            'nation': movieModel.nation,
-            'status': movieModel.status,
-            'duration': movieModel.duration,
-            'rating': movieModel.rating,
-            'releaseDate': movieModel.releaseDate,
-            'ageRating': movieModel.ageRating,
-          };
+        onPressed: () async {
+          try {
+            final bookingController = BookingController(dio: DioClient.instance);
+            final showtimes = await bookingController.getShowtimes(movieModel.movieId!);
 
-          context.go('/select_seat', extra: movieModel.movieId);
+            // Kiểm tra xem có dữ liệu suất chiếu không
+            if (showtimes.isEmpty) {
+              // Nếu không có suất chiếu nào, hiển thị dialog
+              await _showNoShowtimesDialog();
+              return;
+            }
+
+            final now = DateTime.now();
+            final validShowtimes = showtimes.where((showtime) {
+              if (showtime.date == null || showtime.time == null) return false;
+
+              try {
+                final dateTime = DateTime.parse(showtime.date!);
+                final timeParts = showtime.time!.split(':');
+
+                final showtimeDateTime = DateTime(
+                  dateTime.year,
+                  dateTime.month,
+                  dateTime.day,
+                  int.parse(timeParts[0]),
+                  int.parse(timeParts[1]),
+                );
+
+                return showtimeDateTime.isAfter(now);
+              } catch (_) {
+                return false;
+              }
+            }).toList();
+
+            if (validShowtimes.isEmpty) {
+              // Hiển thị dialog nếu không có suất chiếu nào còn hiệu lực
+              await _showNoShowtimesDialog();
+            } else {
+              // Chuyển màn hình nếu có suất chiếu
+              context.go('/select_seat', extra: movieModel.movieId);
+            }
+          } catch (e) {
+            // Nếu có lỗi khi gọi API, hiển thị dialog
+            await _showNoShowtimesDialog();
+            print('Error checking showtimes: $e');
+          }
         },
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.deepOrange,
