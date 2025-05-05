@@ -102,14 +102,24 @@ class SelectSeatBloc extends Bloc<SelectSeatEvent, SelectSeatState> {
       FetchBookedSeatsEvent event,
       Emitter<SelectSeatState> emit,
       ) async {
+    if (event.forceRefresh) {
+      // Nếu cần làm mới, thông báo cho UI biết đang tải
+      emit(state.copyWith(seatsStatus: SelectSeatStatus.loading));
+    }
+
     try {
-      final bookedSeatIds = await _bookingController.getBookedSeats(event.showtimeId);
+      // Đảm bảo lấy dữ liệu mới nhất bằng cách thêm timestamp
+      final bookedSeatIds = await _bookingController.getBookedSeats(
+          event.showtimeId,
+          forceRefresh: event.forceRefresh
+      );
 
       print('Fetched booked seat IDs: $bookedSeatIds');
 
       // update state với danh sách ghế đã đặt
       emit(state.copyWith(
         bookedSeatIds: bookedSeatIds,
+        seatsStatus: SelectSeatStatus.success, // Đảm bảo trạng thái luôn được cập nhật
       ));
 
       // đảm bảo không có ghế đã đặt nào được chọn
@@ -124,6 +134,13 @@ class SelectSeatBloc extends Bloc<SelectSeatEvent, SelectSeatState> {
       }
     } catch (e) {
       print('Error fetching booked seats: ${e.toString()}');
+      // Nếu có lỗi, cập nhật trạng thái
+      if (event.forceRefresh) {
+        emit(state.copyWith(
+          seatsStatus: SelectSeatStatus.error,
+          errorMessage: 'Error fetching booked seats: ${e.toString()}',
+        ));
+      }
     }
   }
 

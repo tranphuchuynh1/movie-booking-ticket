@@ -10,7 +10,7 @@ part of 'ticket_movie_service.dart';
 
 class _TicketService implements TicketService {
   _TicketService(this._dio, {this.baseUrl, this.errorLogger}) {
-    baseUrl ??= 'https://minhtue-001-site1.ktempurl.com/api';
+    baseUrl ??= 'https://movieticketsv1.runasp.net/api';
   }
 
   final Dio _dio;

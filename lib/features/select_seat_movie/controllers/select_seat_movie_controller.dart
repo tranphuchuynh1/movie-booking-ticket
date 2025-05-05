@@ -28,13 +28,26 @@ class BookingController {
     }
   }
 
-  Future<List<String>> getBookedSeats(String showtimeId) async {
+  Future<List<String>> getBookedSeats(String showtimeId, {bool forceRefresh = false}) async {
     try {
+      Options? options;
+      if (forceRefresh) {
+        // Thêm timestamp vào query params hoặc headers để tránh cache
+        options = Options(
+          headers: {
+            'Cache-Control': 'no-cache',
+            'Pragma': 'no-cache',
+            'x-refresh': DateTime.now().millisecondsSinceEpoch.toString(),
+          },
+        );
+      }
+
       final response = await _bookingService.getBookedSeats(showtimeId);
-      return response; // API trả về trực tiếp một mảng String , k return về 1 baserespone
+      return response;
     } catch (e) {
       print('Error in getBookedSeats: ${e.toString()}');
       throw Exception('Failed to load booked seats: ${e.toString()}');
     }
   }
+
 }

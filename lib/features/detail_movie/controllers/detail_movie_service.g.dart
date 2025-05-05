@@ -10,7 +10,7 @@ part of 'detail_movie_service.dart';
 
 class _MovieDetailService implements MovieDetailService {
   _MovieDetailService(this._dio, {this.baseUrl, this.errorLogger}) {
-    baseUrl ??= 'https://minhtue-001-site1.ktempurl.com/api';
+    baseUrl ??= 'https://movieticketsv1.runasp.net/api';
   }
 
   final Dio _dio;

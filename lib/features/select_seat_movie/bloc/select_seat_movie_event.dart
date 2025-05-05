@@ -16,8 +16,9 @@ class FetchSeatsEvent extends SelectSeatEvent {
 
 class FetchBookedSeatsEvent extends SelectSeatEvent {
   final String showtimeId;
+  final bool forceRefresh;
 
-  FetchBookedSeatsEvent(this.showtimeId);
+  FetchBookedSeatsEvent(this.showtimeId, {this.forceRefresh = false});
 }
 
 class SelectDateEvent extends SelectSeatEvent {
