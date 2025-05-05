@@ -46,28 +46,54 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Tải lại dữ liệu mỗi khi màn hình được hiển thị lại
+    _loadUserData();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return BlocProvider(create: (context) => AuthBloc(),
-    child:  Scaffold(
-      backgroundColor: Colors.black,
-      body: SafeArea(
-        child: Column(
-          children: [
-            _buildHeader(),
-            _buildProfileInfo(),
-            const SizedBox(height: 20),
-            _buildMenuItems(),
-            const Spacer(),
-            const BottomNavBar(selectedIndex: 3),
-          ],
-        ),
-      ),
-    ));
+    return BlocProvider(
+        create: (context) => AuthBloc(),
+        child: Scaffold(
+          backgroundColor: Colors.black,
+          body: Stack(
+            children: [
+              SafeArea(
+                child: Column(
+                  children: [
+                    _buildHeader(),
+                    _buildProfileInfo(),
+                    const SizedBox(height: 10),
+                    // Make the menu items take all available space and be scrollable
+                    Expanded(
+                      child: SingleChildScrollView(
+                        child: Padding(
+                          padding: const EdgeInsets.only(bottom: 80), // Add bottom padding to avoid bottom nav bar overlap
+                          child: _buildMenuItems(),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              // Position the BottomNavBar at the bottom of the screen
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: 0,
+                child: const BottomNavBar(selectedIndex: 3),
+              ),
+            ],
+          ),
+        )
+    );
   }
 
   Widget _buildHeader() {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 45, 16, 36),
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 16), // Reduced top padding
       child: Row(
         children: const [
           Expanded(
@@ -89,9 +115,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget _buildProfileInfo() {
     return Column(
       children: [
-         CircleAvatar(
+        CircleAvatar(
           radius: 40,
-          backgroundImage: AssetImage(userModel?.avatarUrl ?? Dora),
+          backgroundImage: userModel?.avatarUrl != null && userModel!.avatarUrl!.startsWith('http')
+              ? NetworkImage(userModel!.avatarUrl!)
+              : AssetImage(Dora) as ImageProvider,
         ),
         const SizedBox(height: 12),
         Text(
@@ -102,7 +130,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             fontWeight: FontWeight.bold,
           ),
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: 10), // Reduced height
       ],
     );
   }
@@ -118,6 +146,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           onTap: () {
             setState(() {
               _isAccountExpanded = !_isAccountExpanded;
+              // Uncomment if you want to automatically close other menus
               // _isSettingsExpanded = false;
               // _isAboutExpanded = false;
             });
@@ -132,6 +161,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           onTap: () {
             setState(() {
               _isSettingsExpanded = !_isSettingsExpanded;
+              // Uncomment if you want to automatically close other menus
               // _isAccountExpanded = false;
               // _isAboutExpanded = false;
             });
@@ -146,6 +176,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           onTap: () {
             setState(() {
               _isAboutExpanded = !_isAboutExpanded;
+              // Uncomment if you want to automatically close other menus
               // _isAccountExpanded = false;
               // _isSettingsExpanded = false;
             });
@@ -153,6 +184,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
         const SizedBox(height: 16),
         _buildLogoutItem(),
+        // Add bottom padding to ensure all content is visible when scrolling
+        const SizedBox(height: 20),
       ],
     );
   }
@@ -167,7 +200,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Tile chính
+        // Main tile
         InkWell(
           onTap: onTap,
           child: Padding(
@@ -207,6 +240,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             color: Colors.grey.shade500,
                             fontSize: 12,
                           ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
                         ),
                     ],
                   ),
@@ -230,45 +265,45 @@ class _ProfileScreenState extends State<ProfileScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children:
-                  subtitle.split('\n').map((subItem) {
-                    return GestureDetector(
-                      onTap: () {
-                        if (title == 'Account' && subItem == 'Edit Profile') {
-                          context.go('/edit_profile');
-                        }
-                        if (title == 'Account' &&
-                            subItem == 'Change Password') {
-                          context.go('/change_password');
-                        }
-                        // if (title == 'Settings' && subItem == 'Themes') {
-                        //   context.go('/themes');
-                        // }
-                        // if (title == 'Settings' &&
-                        //     subItem == 'Permissions') {
-                        //   context.go('/permissions');
-                        // }
-                        // if (title == 'About' && subItem == 'About Movies') {
-                        //   context.go('/about_movies');
-                        // }
-                        // if (title == 'About' && subItem == 'More') {
-                        //   context.go('/more');
-                        // }
-                        else {
-                          debugPrint('Item selected: $subItem');
-                        }
-                      },
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 8.0),
-                        child: Text(
-                          subItem,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 14,
-                          ),
-                        ),
+              subtitle.split('\n').map((subItem) {
+                return GestureDetector(
+                  onTap: () {
+                    if (title == 'Tài Khoản' && subItem == 'Chỉnh Sửa Hồ Sơ') {
+                      context.go('/edit_profile');
+                    }
+                    if (title == 'Tài Khoản' &&
+                        subItem == 'Đổi Mật Khẩu') {
+                      context.go('/change_password');
+                    }
+                    // if (title == 'Settings' && subItem == 'Themes') {
+                    //   context.go('/themes');
+                    // }
+                    // if (title == 'Settings' &&
+                    //     subItem == 'Permissions') {
+                    //   context.go('/permissions');
+                    // }
+                    // if (title == 'About' && subItem == 'About Movies') {
+                    //   context.go('/about_movies');
+                    // }
+                    // if (title == 'About' && subItem == 'More') {
+                    //   context.go('/more');
+                    // }
+                    else {
+                      debugPrint('Item selected: $subItem');
+                    }
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                    child: Text(
+                      subItem,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 14,
                       ),
-                    );
-                  }).toList(),
+                    ),
+                  ),
+                );
+              }).toList(),
             ),
           ),
       ],

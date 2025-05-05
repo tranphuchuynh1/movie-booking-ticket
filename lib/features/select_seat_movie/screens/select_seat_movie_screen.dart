@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -25,6 +26,51 @@ class SelectSeatMovieScreen extends StatefulWidget {
 class _SelectSeatMovieScreenState extends State<SelectSeatMovieScreen> {
   final SelectSeatBloc _selectSeatBloc = SelectSeatBloc();
 
+  Future<void> _checkPendingOrders() async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? pendingOrderId = prefs.getString('pending_order_id');
+
+      if (pendingOrderId != null) {
+        print("Found pending order: $pendingOrderId");
+
+        try {
+          final bookingController = BookingController();
+
+          // Kiểm tra trạng thái hiện tại
+          final statusResponse = await bookingController.getPaymentStatus(pendingOrderId);
+          print("Pending order status: ${statusResponse}");
+
+          // Trạng thái có thể nằm trong trường "status" hoặc trong nested object
+          final orderStatus = statusResponse['status'] ??
+              (statusResponse['data'] is Map ?
+              statusResponse['data']['status'] : null);
+
+          print("Order status extracted: $orderStatus");
+
+          // Dù trạng thái là gì, luôn xóa thông tin đơn hàng đang chờ
+          await prefs.remove('pending_order_id');
+          await prefs.remove('pending_order_time');
+
+          // Đánh dấu cần làm mới danh sách ghế nếu đơn hàng chưa hoàn tất
+          if (orderStatus != 'SUCCESS' && orderStatus != 'COMPLETED') {
+            await prefs.setBool('should_refresh_seats', true);
+            print("Order not completed, marking seats for refresh");
+          }
+        } catch (e) {
+          print("Error checking order status: $e");
+          // Xóa thông tin đơn hàng đang chờ
+          await prefs.remove('pending_order_id');
+          await prefs.remove('pending_order_time');
+          // Đánh dấu cần làm mới danh sách ghế dù có lỗi
+          await prefs.setBool('should_refresh_seats', true);
+        }
+      }
+    } catch (e) {
+      print("Error in _checkPendingOrders: $e");
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -32,11 +78,64 @@ class _SelectSeatMovieScreenState extends State<SelectSeatMovieScreen> {
     // Khi mới khởi tạo màn hình
     _selectSeatBloc.add(FetchShowtimesEvent(widget.movieId));
 
+    // Check order status
+    _checkPendingOrders();
+
     // Đợi một khoảng thời gian ngắn để dữ liệu được tải
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _autoSelectFirstDateAndTime();
+
+      //  Luôn làm mới danh sách ghế khi vào màn hình
+      _forceRefreshSeats();
     });
   }
+
+  void _forceRefreshSeats() {
+    Future.delayed(Duration(seconds: 1), () async {
+      if (_selectSeatBloc.state.selectedShowtime != null) {
+        print("Checking if seats need refresh for showtime: ${_selectSeatBloc.state.selectedShowtime!.id}");
+
+        // Kiểm tra xem có cần làm mới không
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        bool shouldRefresh = prefs.getBool('should_refresh_seats') ?? false;
+
+        if (shouldRefresh) {
+          print("Refreshing seats data - forcing refresh from server");
+
+          // Nếu cần làm mới, thêm một timestamp để đảm bảo không bị cache
+          final options = Options(
+            headers: {
+              'Cache-Control': 'no-cache',
+              'Pragma': 'no-cache',
+              'x-refresh': DateTime.now().millisecondsSinceEpoch.toString(),
+            },
+          );
+
+          // Gọi API với options
+          if (_selectSeatBloc.state.selectedShowtime?.id != null) {
+            // Thực hiện fetch 2 lần với khoảng cách ngắn để đảm bảo dữ liệu mới
+            _selectSeatBloc.add(FetchBookedSeatsEvent(_selectSeatBloc.state.selectedShowtime!.id!));
+
+            // Đợi một khoảng thời gian ngắn và fetch lại
+            Future.delayed(Duration(seconds: 1), () {
+              if (mounted && _selectSeatBloc.state.selectedShowtime?.id != null) {
+                _selectSeatBloc.add(FetchBookedSeatsEvent(_selectSeatBloc.state.selectedShowtime!.id!));
+              }
+            });
+          }
+
+          // Đặt lại flag
+          await prefs.setBool('should_refresh_seats', false);
+        } else {
+          // Vẫn làm mới một lần để đảm bảo dữ liệu mới nhất
+          if (_selectSeatBloc.state.selectedShowtime?.id != null) {
+            _selectSeatBloc.add(FetchBookedSeatsEvent(_selectSeatBloc.state.selectedShowtime!.id!));
+          }
+        }
+      }
+    });
+  }
+
 
   void _autoSelectFirstDateAndTime() {
     final state = _selectSeatBloc.state;

@@ -42,7 +42,7 @@ class BookingController {
       final paymentRequest = PaymentRequest(
         orderId: orderId,
         amount: amount,
-        returnUrl: 'https://minhtue-001-site1.ktempurl.com/api/payments/payment-callback',
+        returnUrl: 'https://movieticketsv1.runasp.net//api/payments/payment-callback',
       );
 
       final response = await _bookingService.getPaymentUrl(paymentRequest);
@@ -52,4 +52,28 @@ class BookingController {
       throw Exception('Failed to get payment URL: ${e.toString()}');
     }
   }
+
+  Future<Map<String, dynamic>> getPaymentStatus(String orderId) async {
+    try {
+      // Gọi API và nhận kết quả dưới dạng dynamic
+      final dynamic response = await _bookingService.getPaymentStatus(orderId);
+
+      // Nếu response đã là Map<String, dynamic>, sử dụng trực tiếp
+      if (response is Map<String, dynamic>) {
+        return response;
+      }
+
+      // Nếu response là String (JSON), parse thành Map
+      if (response is String) {
+        return jsonDecode(response) as Map<String, dynamic>;
+      }
+
+      // Trường hợp khác, ném ngoại lệ
+      throw Exception('Unexpected response type: ${response.runtimeType}');
+    } catch (e) {
+      print("Error checking payment status: $e");
+      throw Exception('Không thể kiểm tra trạng thái thanh toán: ${e.toString()}');
+    }
+  }
+
 }

@@ -10,7 +10,7 @@ part of 'booking_service.dart';
 
 class _BookingService implements BookingService {
   _BookingService(this._dio, {this.baseUrl, this.errorLogger}) {
-    baseUrl ??= 'https://minhtue-001-site1.ktempurl.com/api';
+    baseUrl ??= 'https://movieticketsv1.runasp.net/api';
   }
 
   final Dio _dio;
@@ -74,6 +74,27 @@ class _BookingService implements BookingService {
       errorLogger?.logError(e, s, _options);
       rethrow;
     }
+    return _value;
+  }
+
+  @override
+  Future<dynamic> getPaymentStatus(String orderId) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    final _headers = <String, dynamic>{};
+    const Map<String, dynamic>? _data = null;
+    final _options = _setStreamType<dynamic>(
+      Options(method: 'GET', headers: _headers, extra: _extra)
+          .compose(
+            _dio.options,
+            '/payments/${orderId}/status',
+            queryParameters: queryParameters,
+            data: _data,
+          )
+          .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
+    );
+    final _result = await _dio.fetch(_options);
+    final _value = _result.data;
     return _value;
   }
 

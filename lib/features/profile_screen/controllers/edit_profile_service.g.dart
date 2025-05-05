@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'select_seat_movie_service.dart';
+part of 'edit_profile_service.dart';
 
 // **************************************************************************
 // RetrofitGenerator
@@ -8,8 +8,8 @@ part of 'select_seat_movie_service.dart';
 
 // ignore_for_file: unnecessary_brace_in_string_interps,no_leading_underscores_for_local_identifiers,unused_element,unnecessary_string_interpolations
 
-class _BookingService implements BookingService {
-  _BookingService(this._dio, {this.baseUrl, this.errorLogger}) {
+class _EditProfileService implements EditProfileService {
+  _EditProfileService(this._dio, {this.baseUrl, this.errorLogger}) {
     baseUrl ??= 'https://movieticketsv1.runasp.net/api';
   }
 
@@ -20,35 +20,25 @@ class _BookingService implements BookingService {
   final ParseErrorLogger? errorLogger;
 
   @override
-  Future<BaseResponse<List<ShowtimeModel>>> getShowtimes(String movieId) async {
+  Future<UserModel> getProfile(String userId) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
     const Map<String, dynamic>? _data = null;
-    final _options = _setStreamType<BaseResponse<List<ShowtimeModel>>>(
+    final _options = _setStreamType<UserModel>(
       Options(method: 'GET', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            '/bookings/showtimes/${movieId}',
+            '/account/${userId}',
             queryParameters: queryParameters,
             data: _data,
           )
           .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
     );
     final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late BaseResponse<List<ShowtimeModel>> _value;
+    late UserModel _value;
     try {
-      _value = BaseResponse<List<ShowtimeModel>>.fromJson(
-        _result.data!,
-        (json) =>
-            json is List<dynamic>
-                ? json
-                    .map<ShowtimeModel>(
-                      (i) => ShowtimeModel.fromJson(i as Map<String, dynamic>),
-                    )
-                    .toList()
-                : List.empty(),
-      );
+      _value = UserModel.fromJson(_result.data!);
     } on Object catch (e, s) {
       errorLogger?.logError(e, s, _options);
       rethrow;
@@ -57,35 +47,26 @@ class _BookingService implements BookingService {
   }
 
   @override
-  Future<BaseResponse<List<SeatModel>>> getSeats(String showtimeId) async {
+  Future<UserModel> updateProfile(Map<String, dynamic> userData) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
-    const Map<String, dynamic>? _data = null;
-    final _options = _setStreamType<BaseResponse<List<SeatModel>>>(
-      Options(method: 'GET', headers: _headers, extra: _extra)
+    final _data = <String, dynamic>{};
+    _data.addAll(userData);
+    final _options = _setStreamType<UserModel>(
+      Options(method: 'PUT', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            '/bookings/seats/${showtimeId}',
+            '/account/update-info',
             queryParameters: queryParameters,
             data: _data,
           )
           .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
     );
     final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late BaseResponse<List<SeatModel>> _value;
+    late UserModel _value;
     try {
-      _value = BaseResponse<List<SeatModel>>.fromJson(
-        _result.data!,
-        (json) =>
-            json is List<dynamic>
-                ? json
-                    .map<SeatModel>(
-                      (i) => SeatModel.fromJson(i as Map<String, dynamic>),
-                    )
-                    .toList()
-                : List.empty(),
-      );
+      _value = UserModel.fromJson(_result.data!);
     } on Object catch (e, s) {
       errorLogger?.logError(e, s, _options);
       rethrow;
@@ -94,25 +75,34 @@ class _BookingService implements BookingService {
   }
 
   @override
-  Future<List<String>> getBookedSeats(String showtimeId) async {
+  Future<Map<String, String>> updateAvatar(File avatar) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
-    const Map<String, dynamic>? _data = null;
-    final _options = _setStreamType<List<String>>(
-      Options(method: 'GET', headers: _headers, extra: _extra)
+    final _data = FormData();
+    _data.files.add(
+      MapEntry(
+        'Avatar',
+        MultipartFile.fromFileSync(
+          avatar.path,
+          filename: avatar.path.split(Platform.pathSeparator).last,
+        ),
+      ),
+    );
+    final _options = _setStreamType<Map<String, String>>(
+      Options(method: 'POST', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            '/bookings/booked-seat/${showtimeId}',
+            '/account/update-avatar',
             queryParameters: queryParameters,
             data: _data,
           )
           .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
     );
-    final _result = await _dio.fetch<List<dynamic>>(_options);
-    late List<String> _value;
+    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
+    late Map<String, String> _value;
     try {
-      _value = _result.data!.cast<String>();
+      _value = _result.data!.cast<String, String>();
     } on Object catch (e, s) {
       errorLogger?.logError(e, s, _options);
       rethrow;

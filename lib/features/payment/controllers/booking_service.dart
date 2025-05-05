@@ -14,12 +14,15 @@ part 'booking_service.g.dart';
 @RestApi(baseUrl: ApiConstants.baseUrl)
 abstract class BookingService {
   factory BookingService(Dio dio, {String baseUrl}) = _BookingService;
-  
+
   @POST('/orders/create-order')
   Future<OrderResponse> createOrder(@Body() OrderRequest orderRequest);
 
   @POST('/payments/url')
   Future<PaymentUrlResponse> getPaymentUrl(@Body() PaymentRequest paymentRequest);
+
+  @GET('/payments/{orderId}/status')
+  Future<dynamic> getPaymentStatus(@Path("orderId") String orderId);
 
   @GET('/payments/payment-callback')
   Future<PaymentCallbackResponse> checkPaymentStatus(@Query('orderId') String orderId);

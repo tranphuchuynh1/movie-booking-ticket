@@ -32,6 +32,29 @@ class UserModel {
     this.expireTime,
   });
 
+  UserModel copyWith({
+    String? userId,
+    String? userName,
+    String? email,
+    String? fullName,
+    String? avatarUrl,
+    String? phoneNumber,
+    String? jwtToken,
+    String? expireTime,
+  }) {
+    return UserModel(
+      userId: userId ?? this.userId,
+      userName: userName ?? this.userName,
+      email: email ?? this.email,
+      fullName: fullName ?? this.fullName,
+      avatarUrl: avatarUrl ?? this.avatarUrl,
+      phoneNumber: phoneNumber ?? this.phoneNumber,
+      jwtToken: jwtToken ?? this.jwtToken,
+      expireTime: expireTime ?? this.expireTime,
+    );
+  }
+
+
   factory UserModel.fromJson(Map<String, dynamic>json) => _$UserModelFromJson(json);
 
   Map<String, dynamic> toJson() => _$UserModelToJson(this);

@@ -15,7 +15,7 @@ abstract class TicketService {
   Future<BaseResponse<List<TicketModel>>> getTicketsByOrderId(
     @Path('orderId') String orderId,
   );
-  @GET(ApiConstants.myTicketendpoint)
+  @GET(ApiConstants.myTicketEndpoint)
   Future<BaseResponse<List<TicketModel>>> getMovieTicketDetails(
     @Path("userId") String userId,
     @Path("movieId") String movieId,
