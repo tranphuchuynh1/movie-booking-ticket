@@ -19,4 +19,10 @@ abstract class AuthService {
   @POST(ApiConstants.registerEndpoint)
   Future<UserModel> register(@Body() RegisterModel registerModel);
 
+  @GET('/api/email/confirm-email')
+  Future<bool> verifyEmail(
+      @Query('email') String email,
+      @Query('token') String token,
+      );
+
 }

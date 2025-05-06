@@ -26,6 +26,21 @@ class RegisterEvent extends AuthEvent {
   });
 }
 
+class VerifyEmailEvent extends AuthEvent {
+  final String username;
+  final String email;
+  final String? password;
+  final String token;
+
+  VerifyEmailEvent({
+    required this.username,
+    required this.email,
+    this.password,
+    required this.token,
+  });
+}
+
+
 class CheckAuthEvent extends AuthEvent {
   final bool showLoading;
 

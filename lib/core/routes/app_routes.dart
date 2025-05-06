@@ -15,6 +15,8 @@ import 'package:movie_booking_ticket/features/my_ticket_movie/screens/ticket_mov
 import 'package:movie_booking_ticket/features/select_seat_movie/screens/select_seat_movie_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../features/auth/bloc/auth_bloc.dart';
+import '../../features/auth/screens/verification_success_screen.dart';
 import '../../features/payment/screens/payment_webview_screen.dart';
 
 GoRouter appRouter(String initialRoute) {
@@ -190,6 +192,56 @@ GoRouter appRouter(String initialRoute) {
         path: '/change_password',
         builder: (context, state) => ChangePasswordScreen(),
       ),
+
+      GoRoute(
+        path: '/email-verified',
+        builder: (context, state) {
+          // Lấy token và email từ query parameters
+          final token = state.uri.queryParameters['token'];
+          final email = state.uri.queryParameters['email'];
+
+          if (token != null && email != null) {
+            // Đọc thông tin đăng nhập đã lưu
+            _loadCredentialsAndVerify(context, email, token);
+          }
+
+          // Hiển thị màn hình xác nhận
+          return const VerificationSuccessScreen();
+        },
+      ),
+
     ],
   );
+}
+
+// Hàm để tải thông tin đăng nhập và kích hoạt sự kiện xác thực
+Future<void> _loadCredentialsAndVerify(BuildContext context, String email, String token) async {
+  final prefs = await SharedPreferences.getInstance();
+  final username = prefs.getString('pending_username');
+  final password = prefs.getString('pending_password');
+
+  if (username != null) {
+    // Đánh dấu email đã được xác thực
+    await prefs.setBool('email_verified', true);
+    await prefs.setString('verification_username', username);
+    if (password != null) {
+      await prefs.setString('verification_password', password);
+    }
+
+    // Xóa thông tin tạm thời
+    await prefs.remove('pending_username');
+    await prefs.remove('pending_password');
+
+    // Nếu đang ở màn hình đăng ký, dispatch sự kiện để đăng nhập
+    if (context.mounted) {
+      BlocProvider.of<AuthBloc>(context).add(
+        VerifyEmailEvent(
+          username: username,
+          email: email,
+          token: token,
+          password: password,
+        ),
+      );
+    }
+  }
 }

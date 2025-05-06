@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:movie_booking_ticket/features/auth/bloc/auth_bloc.dart';
 import 'package:movie_booking_ticket/theme.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -19,6 +20,57 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _isLoading = false;
   String? _errorMessage;
 
+  String? _usernameError;
+  String? _passwordError;
+
+  @override
+  void initState() {
+    super.initState();
+
+    // add đoạn này để kiểm tra tự động đăng nhập sau xác thực email
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final prefs = await SharedPreferences.getInstance();
+      final autoLoginPending = prefs.getBool('auto_login_pending') ?? false;
+
+      if (autoLoginPending) {
+        final username = prefs.getString('verification_username');
+        final password = prefs.getString('verification_password');
+
+        if (username != null && password != null && mounted) {
+          // Điền thông tin vào form
+          _usernameController.text = username;
+          _passwordController.text = password;
+
+          // Hiển thị thông báo cho người dùng
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Xác thực email thành công! Đang đăng nhập...'),
+              backgroundColor: Colors.green,
+            ),
+          );
+
+          // Đợi một chút để người dùng thấy thông tin đã được điền
+          await Future.delayed(const Duration(milliseconds: 800));
+
+          if (mounted) {
+            // Tự động đăng nhập
+            context.read<AuthBloc>().add(
+              LoginEvent(
+                username: username,
+                password: password,
+              ),
+            );
+          }
+
+          // Xóa dữ liệu tạm
+          await prefs.remove('auto_login_pending');
+          await prefs.remove('verification_username');
+          await prefs.remove('verification_password');
+        }
+      }
+    });
+  }
+
   @override
   void dispose() {
     _usernameController.dispose();
@@ -26,31 +78,113 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
+  bool _validateLoginForm() {
+    bool isValid = true;
+
+    // Reset lỗi
+    setState(() {
+      _usernameError = null;
+      _passwordError = null;
+      _errorMessage = null;
+    });
+
+    // Validate username
+    final username = _usernameController.text.trim();
+    if (username.isEmpty) {
+      setState(() {
+        _usernameError = 'Vui lòng nhập tên đăng nhập';
+      });
+      isValid = false;
+    } else if (username.length < 6) { // Đồng bộ với yêu cầu của backend
+      setState(() {
+        _usernameError = 'Tên đăng nhập phải có ít nhất 6 ký tự';
+      });
+      isValid = false;
+    }
+
+    // Validate password
+    final password = _passwordController.text.trim();
+    if (password.isEmpty) {
+      setState(() {
+        _passwordError = 'Vui lòng nhập mật khẩu';
+      });
+      isValid = false;
+    } else if (password.length < 8) { // Đồng bộ với yêu cầu của backend
+      setState(() {
+        _passwordError = 'Mật khẩu phải có ít nhất 8 ký tự';
+      });
+      isValid = false;
+    }
+
+    return isValid;
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
         create: (context) => AuthBloc(),
-      child: BlocConsumer<AuthBloc, AuthState>(
+        child: BlocConsumer<AuthBloc, AuthState>(
+          listener: (context, state) {
+            if (state.status == AuthStateStatus.loading) {
+              setState(() {
+                _isLoading = true;
+                _usernameError = null;
+                _passwordError = null;
+                _errorMessage = null;
+              });
+            } else if (state.status == AuthStateStatus.authenticated) {
+              setState(() {
+                _isLoading = false;
+              });
+              context.go('/home');
+            } else if (state.status == AuthStateStatus.error) {
+              setState(() {
+                _isLoading = false;
 
-      listener: (context, state) {
-      if (state.status == AuthStateStatus.loading) {
-      setState(() {
-        _isLoading = true;
-        _errorMessage = null;
-        });
-      }   else if (state.status == AuthStateStatus.authenticated) {
-        setState(() {
-      _isLoading = false;
-      });
-        context.go('/home');
-      } else if (state.status == AuthStateStatus.error) {
-      setState(() {
-      _isLoading = false;
-      _errorMessage = state.errorMessage ?? 'Đăng nhập thất bại';
-       });
-     }
-    },
-        builder: (context, state) {
+                // In ra lỗi đầy đủ để debug
+                print("Lỗi đầy đủ từ backend: ${state.errorMessage}");
+
+                final errorMsg = state.errorMessage?.toLowerCase() ?? '';
+
+                // Xử lý lỗi 401 - Unauthorized (sai tài khoản hoặc mật khẩu)
+                if (errorMsg.contains('401') ||
+                    errorMsg.contains('unauthorized') ||
+                    errorMsg.contains('invalid username or password') ||
+                    errorMsg.contains('incorrect') ||
+                    errorMsg.contains('wrong')) {
+                  _errorMessage = 'Tên đăng nhập hoặc mật khẩu không đúng';
+                }
+                // Xử lý lỗi tài khoản chưa xác thực
+                else if (errorMsg.contains('not verified') ||
+                    errorMsg.contains('unverified') ||
+                    errorMsg.contains('verify your email')) {
+                  _errorMessage = 'Tài khoản chưa được xác thực. Vui lòng kiểm tra email của bạn';
+                }
+                // Xử lý lỗi tài khoản bị khóa
+                else if (errorMsg.contains('locked') ||
+                    errorMsg.contains('suspended') ||
+                    errorMsg.contains('disabled')) {
+                  _errorMessage = 'Tài khoản đã bị khóa. Vui lòng liên hệ hỗ trợ';
+                }
+                // Xử lý lỗi kết nối
+                else if (errorMsg.contains('timeout') ||
+                    errorMsg.contains('connection') ||
+                    errorMsg.contains('network')) {
+                  _errorMessage = 'Lỗi kết nối. Vui lòng kiểm tra lại đường truyền mạng';
+                }
+                // Lỗi server
+                else if (errorMsg.contains('500') ||
+                    errorMsg.contains('server error')) {
+                  _errorMessage = 'Lỗi hệ thống. Vui lòng thử lại sau';
+                }
+                // Lỗi tổng quát
+                else {
+                  _errorMessage = 'Tên đăng nhập hoặc mật khẩu không đúng';
+                }
+              });
+            }
+          },
+          builder: (context, state) {
         bool isLoading = state.status == AuthStateStatus.loading;
           return Scaffold(
               body: Stack(
@@ -130,6 +264,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               "Tên tài khoản",
                               'assets/buttons/user-ic.png',
                               controller: _usernameController,
+                              errorText: _usernameError,
                             ),
                             buildLabel("Mật Khẩu"),
                             Padding(
@@ -141,6 +276,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   filled: true,
                                   fillColor: tdWhite24,
                                   hintText: "Mật Khẩu",
+                                  errorText: _passwordError,
                                   hintStyle: const TextStyle(color: tdWhite54),
                                   prefixIcon: ImageIcon(
                                     AssetImage('assets/buttons/key-ic.png'),
@@ -199,22 +335,16 @@ class _LoginScreenState extends State<LoginScreen> {
                                 onPressed: _isLoading
                                     ? null
                                     : () {
-                                  final username = _usernameController.text.trim();
-                                  final password = _passwordController.text.trim();
-
-                                  if (username.isEmpty || password.isEmpty) {
-                                    setState(() {
-                                      _errorMessage = 'Vui lòng nhập đầy đủ tên đăng nhập và mật khẩu';
-                                    });
-                                    return;
+                                  if (_validateLoginForm()) {
+                                    final username = _usernameController.text.trim();
+                                    final password = _passwordController.text.trim();
+                                    context.read<AuthBloc>().add(
+                                      LoginEvent(
+                                        username: username,
+                                        password: password,
+                                      ),
+                                    );
                                   }
-
-                                  context.read<AuthBloc>().add(
-                                    LoginEvent(
-                                      username: username,
-                                      password: password,
-                                    ),
-                                  );
                                 },
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.transparent,
@@ -325,14 +455,28 @@ class _LoginScreenState extends State<LoginScreen> {
       String iconPath, {
         bool isPassword = false,
         TextEditingController? controller,
+        String? errorText,
       }) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
-      child: CustomInputField(
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+       CustomInputField(
         hint: hint,
         icon: ImageIcon(AssetImage(iconPath), color: tdWhite70),
         obscureText: isPassword,
         controller: controller,
+        errorText: errorText,
+          ),
+        if (errorText != null)
+          Padding(
+            padding: const EdgeInsets.only(left: 12, top: 4),
+            child: Text(
+              errorText,
+              style: const TextStyle(color: Colors.red, fontSize: 12),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -343,6 +487,7 @@ class CustomInputField extends StatelessWidget {
   final Widget icon;
   final bool obscureText;
   final TextEditingController? controller;
+  final String? errorText;
 
   const CustomInputField({
     super.key,
@@ -350,6 +495,7 @@ class CustomInputField extends StatelessWidget {
     required this.icon,
     this.obscureText = false,
     this.controller,
+    this.errorText,
   });
 
   @override
@@ -366,6 +512,19 @@ class CustomInputField extends StatelessWidget {
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide.none,
+        ),
+        // add style cho trường hợp có lỗi
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: errorText != null
+              ? const BorderSide(color: Colors.red, width: 1.0)
+              : BorderSide.none,
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: errorText != null
+              ? const BorderSide(color: Colors.red, width: 1.5)
+              : const BorderSide(color: tdYellow, width: 1.5),
         ),
       ),
       style: const TextStyle(color: tdWhite),

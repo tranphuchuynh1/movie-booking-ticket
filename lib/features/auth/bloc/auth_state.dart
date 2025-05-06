@@ -5,6 +5,7 @@ enum AuthStateStatus {
   loading,
   authenticated,
   unauthenticated,
+  verification,
   error,
 }
 

@@ -26,4 +26,15 @@ class AuthController {
     );
     return await _authService.register(registerModel);
   }
+
+  Future<bool> verifyEmail(String email, String token) async {
+    try {
+      // Gọi API xác thực email
+      final response = await _authService.verifyEmail(email, token);
+      return response; // Giả sử API trả về true nếu xác thực thành công
+    } catch (e) {
+      throw Exception('Không thể xác thực email: ${e.toString()}');
+    }
+  }
+
 }
