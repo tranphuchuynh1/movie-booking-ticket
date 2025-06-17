@@ -4,10 +4,61 @@ A modern and intuitive movie ticket booking application built with Flutter, feat
 
 ## 📱 Screenshots
 
-<!-- Add your app screenshots here -->
-![detail](https://github.com/user-attachments/assets/81be7d9d-e0eb-4295-826c-5874f5f3326c)
-![login](https://github.com/user-attachments/assets/f6e0fe94-2418-4cb3-9ea0-51d909dbcdb5)
-
+<!-- Add phuchuynh app screenshots here -->
+<div align="center">
+  <table>
+    <tr>
+      <td align="center">
+        <img src="https://github.com/user-attachments/assets/f6e0fe94-2418-4cb3-9ea0-51d909dbcdb5" width="300" alt="Login Screen"/>
+        <br><b>Login Screen</b>
+      </td>
+      <td align="center">
+        <img src="https://github.com/user-attachments/assets/11637f38-967a-4e7e-a7c0-be4d24d4310f" width="300" alt="Register Screen"/>
+        <br><b>Register Screen</b>
+      </td>
+    </tr>
+    <tr>
+      <td align="center">
+        <img src="https://github.com/user-attachments/assets/a212a6e5-d58a-4546-aea7-42accc374788" width="300" alt="Home Screen"/>
+        <br><b>Home Screen</b>
+      </td>
+      <td align="center">
+        <img src="https://github.com/user-attachments/assets/81be7d9d-e0eb-4295-826c-5874f5f3326c" width="300" alt="Movie Detail"/>
+        <br><b>Movie Detail</b>
+      </td>
+    </tr>
+    <tr>
+      <td align="center">
+        <img src="https://github.com/user-attachments/assets/d0cd1e33-b24a-44bb-89c1-76baf9a7d58c" width="300" alt="Seat Selection"/>
+        <br><b>Seat Selection</b>
+      </td>
+      <td align="center">
+        <img src="https://github.com/user-attachments/assets/99c76b71-ed3c-4ea5-9f4c-d2cc14ceb972" width="300" alt="Payment Screen"/>
+        <br><b>Payment Screen</b>
+      </td>
+    </tr>
+    <tr>
+      <td align="center">
+        <img src="https://github.com/user-attachments/assets/118010c7-a247-49cd-a427-6bf61990f1a0" width="300" alt="My Tickets"/>
+        <br><b>My Tickets</b>
+      </td>
+      <td align="center">
+        <img src="https://github.com/user-attachments/assets/3b6a8903-837c-4416-b529-555094adb200" width="300" alt="Search Screen"/>
+        <br><b>Search Screen</b>
+      </td>
+    </tr>
+    <tr>
+      <td align="center">
+        <img src="https://github.com/user-attachments/assets/321c7d27-3698-4ca8-94c4-66b34610dc17" width="300" alt="History Screen"/>
+        <br><b>History Screen</b>
+      </td>
+      <td align="center">
+        <img src="https://github.com/user-attachments/assets/fb4a555e-88ff-4ac0-898d-523b4150a7de" width="300" alt="Profile Screen"/>
+        <br><b>Profile Screen</b>
+      </td>
+    </tr>
+  </table>
+</div>
 
 ## ✨ Features
 
