@@ -12,7 +12,7 @@ import 'package:movie_booking_ticket/main.dart';
 
 void main() {
   testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
+    // Build our app and trigger a frame
     final initialRoute = await CheckkToken();
     await tester.pumpWidget(  MyApp(initialRoute: initialRoute));
 
