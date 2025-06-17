@@ -4,7 +4,6 @@ A modern and intuitive movie ticket booking application built with Flutter, feat
 
 ## 📱 Screenshots
 
-<!-- Add phuchuynh app screenshots here -->
 <div align="center">
   <table>
     <tr>
@@ -62,7 +61,6 @@ A modern and intuitive movie ticket booking application built with Flutter, feat
 
 ## ✨ Features
 
-
 ### 🔐 Authentication
 - **User Registration** - Create new account with validation
 - **Login System** - Secure user authentication
@@ -87,9 +85,10 @@ A modern and intuitive movie ticket booking application built with Flutter, feat
 
 ### 🎨 User Experience
 - **Responsive Design** - Beautiful UI that works on all screen sizes
-- **Smooth Animations** - Enhanced user experience with shimmer effects
+- **Smooth Animations** - Enhanced user experience with shimmer effects and skeleton loaders
 - **Offline Caching** - Cached images for better performance
-- **Multi-language Support** - Localization ready
+- **Multi-language Support** - Vietnamese and English localization with app_localizations
+- **Custom Theming** - Consistent design system with centralized theme configuration
 
 ## 🛠️ Tech Stack
 
@@ -131,29 +130,44 @@ A modern and intuitive movie ticket booking application built with Flutter, feat
 
 ## 🏗️ Architecture
 
-The app follows **Clean Architecture** principles with **BLoC Pattern** for state management:
+The app follows **Feature-Based Architecture** with **BLoC Pattern** for state management, organized by features for better scalability and maintainability:
 
 ```
 lib/
-├── core/
-│   ├── constants/
-│   ├── errors/
-│   ├── network/
-│   └── utils/
-├── data/
-│   ├── datasources/
-│   ├── models/
-│   └── repositories/
-├── domain/
-│   ├── entities/
-│   ├── repositories/
-│   └── usecases/
-├── presentation/
-│   ├── bloc/
-│   ├── pages/
-│   └── widgets/
-└── main.dart
+├── main.dart
+├── theme.dart
+├── core/                           # Core utilities and shared components
+│   ├── constants/                  # App-wide constants
+│   ├── data/                      # Fake/sample data
+│   ├── dio/                       # HTTP client configuration
+│   ├── models/                    # Data models and DTOs
+│   │   ├── auth/                 # Authentication models
+│   │   └── payment/              # Payment-related models
+│   ├── routes/                   # App routing configuration
+│   └── widgets/                  # Reusable UI components
+├── features/                      # Feature-based modules
+│   ├── auth/                     # Authentication feature
+│   │   ├── bloc/                # State management
+│   │   ├── controllers/         # Business logic & API services
+│   │   └── screens/             # UI screens
+│   ├── home_movie/              # Home & movie listing
+│   ├── detail_movie/            # Movie details
+│   ├── search_movie/            # Movie search functionality
+│   ├── select_seat_movie/       # Seat selection
+│   ├── payment/                 # Payment processing
+│   ├── my_ticket_movie/         # Ticket management
+│   ├── ticket_history/          # Booking history
+│   └── profile_screen/          # User profile management
+├── localization/                 # Multi-language support
+└── utils/                       # Utility functions
 ```
+
+### Architecture Benefits:
+- **Feature-Based Structure**: Each feature is self-contained with its own BLoC, controllers, and screens
+- **Separation of Concerns**: Clear separation between UI, business logic, and data layers
+- **Scalability**: Easy to add new features without affecting existing code
+- **Maintainability**: Each feature module can be developed and tested independently
+- **BLoC Pattern**: Consistent state management across all features
 
 ## 📱 App Screens
 
@@ -196,9 +210,10 @@ lib/
 - Logout functionality
 
 ### 💳 Payment Screen
-- VNPay integration
-- Secure payment processing
-- Payment confirmation
+- **VNPay Integration** - Vietnamese payment gateway through WebView
+- **Secure Payment Processing** - Handled via payment callback URLs
+- **Real-time Payment Status** - Immediate booking confirmation
+- **Payment History** - Complete transaction records
 
 ## 🚀 Getting Started
 
@@ -212,8 +227,8 @@ lib/
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/yourusername/flutter-movie-booking.git
-   cd flutter-movie-booking
+   git clone https://github.com/yourusername/tranphuchuynh1-movie-booking-ticket.git
+   cd tranphuchuynh1-movie-booking-ticket
    ```
 
 2. **Install dependencies**
@@ -221,12 +236,17 @@ lib/
    flutter pub get
    ```
 
-3. **Generate code**
+3. **Generate code for models and API services**
    ```bash
-   flutter packages pub run build_runner build
+   dart run build_runner build --delete-conflicting-outputs
    ```
 
-4. **Run the app**
+4. **Configure native splash screen**
+   ```bash
+   dart run flutter_native_splash:create
+   ```
+
+5. **Run the app**
    ```bash
    flutter run
    ```
@@ -243,30 +263,62 @@ lib/
 
 ## 🔧 API Integration
 
-The app integrates with a custom movie booking API that provides:
+The app integrates with a custom movie booking API using **Retrofit** with **Dio** client for type-safe HTTP requests:
 
-- **Movie Data** - Movies, showtimes, theaters
-- **User Management** - Authentication and profiles
-- **Booking System** - Seat reservation and management
-- **Payment Processing** - VNPay integration for secure payments
-
-### Key API Endpoints
+### API Architecture
 ```dart
+// Core Dio client configuration
 @RestApi(baseUrl: "https://your-api-base-url.com/api/")
-abstract class MovieApiService {
+abstract class ApiService {
+  // Authentication
+  @POST("/auth/login")
+  Future<LoginResponse> login(@Body() LoginRequest request);
+  
+  @POST("/auth/register") 
+  Future<RegisterResponse> register(@Body() RegisterRequest request);
+  
+  // Movies
   @GET("/movies")
-  Future<MovieResponse> getMovies();
+  Future<BaseResponse<List<MovieModel>>> getMovies();
   
   @GET("/movies/{id}")
-  Future<MovieDetail> getMovieDetail(@Path("id") String movieId);
+  Future<MovieModel> getMovieDetail(@Path("id") String movieId);
+  
+  @GET("/movies/search")
+  Future<BaseResponse<List<MovieModel>>> searchMovies(@Query("query") String query);
+  
+  // Showtimes & Seats
+  @GET("/movies/{movieId}/showtimes")
+  Future<List<ShowtimeModel>> getShowtimes(@Path("movieId") String movieId);
   
   @POST("/bookings")
-  Future<BookingResponse> createBooking(@Body() BookingRequest request);
+  Future<TicketModel> createBooking(@Body() BookingRequest request);
   
-  @POST("/payments/vnpay")
-  Future<PaymentResponse> processVNPayment(@Body() PaymentRequest request);
+  // Payment
+  @POST("/payments/vnpay/create")
+  Future<PaymentUrlResponse> createVNPayPayment(@Body() PaymentRequest request);
+  
+  @GET("/payments/callback")
+  Future<PaymentCallbackResponse> handlePaymentCallback(@Queries() Map<String, dynamic> params);
+  
+  // Tickets
+  @GET("/tickets")
+  Future<List<TicketModel>> getUserTickets();
+  
+  @GET("/tickets/history")
+  Future<List<TicketModel>> getTicketHistory();
 }
 ```
+
+### Service Layer Organization
+Each feature has its own service layer:
+- **AuthService** - User authentication and registration
+- **MovieService** - Movie data and search
+- **DetailMovieService** - Individual movie details
+- **SelectSeatMovieService** - Seat availability and selection
+- **BookingService** - Ticket booking and payment
+- **TicketMovieService** - Active tickets management
+- **TicketService** - Booking history
 
 ## 🎨 Design System
 
@@ -328,9 +380,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 👨‍💻 Developer
 
 **Your Name**
-- GitHub: [@yourusername](https://github.com/yourusername)
-- LinkedIn: [Your LinkedIn](https://linkedin.com/in/yourprofile)
-- Email: your.email@example.com
+- GitHub: [@tranphuchuynh1](https://github.com/tranphuchuynh1)
+- LinkedIn: [PhúcHuynhJr](www.linkedin.com/in/phúchuynhjr-undefined-287081326)
+- Email: tranphuchuynh1@gmail.com
 
 ## 🙏 Acknowledgments
 
@@ -345,4 +397,3 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
   <p>Made with ❤️ and Flutter</p>
   <p>⭐ Star this repo if you found it helpful!</p>
 </div>
-
