@@ -5,16 +5,12 @@ A modern and intuitive movie ticket booking application built with Flutter, feat
 ## 📱 Screenshots
 
 <!-- Add your app screenshots here -->
-<div align="center">
-  <img src="screenshots/home_screen.png" width="200" alt="Home Screen"/>
-  <img src="screenshots/movie_detail.png" width="200" alt="Movie Detail"/>
-  <img src="screenshots/seat_selection.png" width="200" alt="Seat Selection"/>
-  <img src="screenshots/payment.png" width="200" alt="Payment"/>
-</div>
+![detail](https://github.com/user-attachments/assets/81be7d9d-e0eb-4295-826c-5874f5f3326c)
+![login](https://github.com/user-attachments/assets/f6e0fe94-2418-4cb3-9ea0-51d909dbcdb5)
 
-*Add your app screenshots in a `screenshots/` folder*
 
 ## ✨ Features
+
 
 ### 🔐 Authentication
 - **User Registration** - Create new account with validation
