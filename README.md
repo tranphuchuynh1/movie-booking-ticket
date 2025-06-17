@@ -381,7 +381,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 **Your Name**
 - GitHub: [@tranphuchuynh1](https://github.com/tranphuchuynh1)
-- LinkedIn: [PhúcHuynhJr](www.linkedin.com/in/phúchuynhjr-undefined-287081326)
+- LinkedIn: [PhúcHuynhJr]([www.linkedin.com/in/phúchuynhjr-undefined-287081326](https://www.linkedin.com/in/ph%C3%BAchuynhjr-undefined-287081326/))
 - Email: tranphuchuynh1@gmail.com
 
 ## 🙏 Acknowledgments
