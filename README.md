@@ -2,6 +2,22 @@
 
 A modern and intuitive movie ticket booking application built with Flutter, featuring seamless VNPay payment integration and a beautiful user interface.
 
+---
+
+## 🖼️ Demo  
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/2ed8e4bd-fe49-4ee6-8f2d-4d95c625bc1f" alt="Planify Logo" width="240" />
+</p>
+
+✨ **Live Demo**: 👉 [Try Booking Movie Ticket App Here](https://appetize.io/app/b_vberolqp63f52h2da5hsklrqi4](https://appetize.io/app/b_wzl5vb67h7b2dcz5tc56lbgooe)
+
+**Test Account** :  
+Email: tranphuchuynh1@gmail.com
+Password: 123456789aA@
+
+---
+
 ## 📱 Screenshots
 
 <div align="center">
