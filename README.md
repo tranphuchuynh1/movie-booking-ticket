@@ -10,6 +10,7 @@ A modern and intuitive movie ticket booking application built with Flutter, feat
   <img src="https://github.com/user-attachments/assets/2ed8e4bd-fe49-4ee6-8f2d-4d95c625bc1f" alt="Planify Logo" width="240" />
 </p>
 
+✨ **Youtube Demo**: 👉 [Youtube](youtube.com/watch?v=F2whcyc73FU&feature=youtu.be)   
 ✨ **Live Demo**: 👉 [Try Movie Booking Ticket App Here](https://appetize.io/app/b_wzl5vb67h7b2dcz5tc56lbgooe)   
 ✨ **Testing**: 👉 [Test Cases](https://docs.google.com/spreadsheets/d/1ivgbjOkaAaSoMcsg-EtfUXUSMQ39BH34bU7LGw5rRVQ/edit?gid=778336934#gid=778336934)   
 
